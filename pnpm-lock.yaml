@@ -4,6 +4,18 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@stryker-mutator/core':
+      specifier: ^9.6.1
+      version: 9.6.1
+    '@stryker-mutator/vitest-runner':
+      specifier: ^9.6.1
+      version: 9.6.1
+    fast-check:
+      specifier: ^4.5.0
+      version: 4.9.0
+
 importers:
 
   .:
@@ -48,16 +60,28 @@ importers:
         specifier: ^4.1.10
         version: 4.1.10(@types/node@26.1.1)(@vitest/coverage-v8@4.1.10)(vite@8.1.4(@types/node@26.1.1)(jiti@2.6.1)(yaml@2.9.0))
 
+  packages/srs:
+    devDependencies:
+      '@stryker-mutator/core':
+        specifier: 'catalog:'
+        version: 9.6.1(@types/node@26.1.1)
+      '@stryker-mutator/vitest-runner':
+        specifier: 'catalog:'
+        version: 9.6.1(@stryker-mutator/core@9.6.1(@types/node@26.1.1))(vitest@4.1.10)
+      fast-check:
+        specifier: 'catalog:'
+        version: 4.9.0
+
   packages/transliteration:
     devDependencies:
       '@stryker-mutator/core':
-        specifier: ^9.6.1
+        specifier: 'catalog:'
         version: 9.6.1(@types/node@26.1.1)
       '@stryker-mutator/vitest-runner':
-        specifier: ^9.6.1
+        specifier: 'catalog:'
         version: 9.6.1(@stryker-mutator/core@9.6.1(@types/node@26.1.1))(vitest@4.1.10)
       fast-check:
-        specifier: ^4.9.0
+        specifier: 'catalog:'
         version: 4.9.0
 
 packages:

@@ -1,10 +1,10 @@
 {
-  "name": "@govori/transliteration",
+  "name": "@govori/srs",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-only",
-  "description": "Deterministic transliteration between Interslavic orthographies and scripts",
+  "description": "Event-sourced spaced-repetition scheduling",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

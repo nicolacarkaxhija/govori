@@ -24,4 +24,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | docs: add transliteration tech spec | 0.5 | Subsystem spec + registry row |
 
-**Running total: 23.5–31.5 h**
+| 2026-07-16 | feat: add event-sourced srs engine with sm-2 scheduling | 4–5 | ADR 0036, SM-2 worked examples, replay/selectDue, 4 sync invariants (one caught an id-identity contract gap), 100% mutation |
+
+**Running total: 27.5–36.5 h**
