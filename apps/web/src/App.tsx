@@ -2,11 +2,15 @@ import { useEffect, useState } from 'react';
 import { brand } from './brand';
 import { fetchMeta } from './api/client';
 import { useTheme } from './hooks/useTheme';
+import { useScript } from './learn/useScript';
+import { LessonView } from './learn/LessonView';
 
 export function App() {
   const { theme, toggle } = useTheme();
+  const { script, toggle: toggleScript } = useScript();
   const [shortName, setShortName] = useState<string>(brand.shortName);
   const [fullName, setFullName] = useState<string>(brand.fullName);
+  const [view, setView] = useState<'home' | 'lesson'>('home');
 
   useEffect(() => {
     let active = true;
@@ -30,66 +34,56 @@ export function App() {
   const nextTheme = theme === 'dark' ? 'light' : 'dark';
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: 'var(--space-lg)',
-        gap: 'var(--space-lg)',
-      }}
-    >
-      <main
-        style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 'var(--space-md)',
-          textAlign: 'center',
-        }}
-      >
-        <h1
-          style={{
-            fontSize: 'clamp(2.5rem, 8vw, 4rem)',
-            letterSpacing: '-0.02em',
-            color: 'var(--color-primary)',
+    <div className="shell">
+      <header className="topbar">
+        <span className="wordmark" aria-hidden={view === 'home'}>
+          {view === 'home' ? '' : shortName}
+        </span>
+        <div className="topbar-controls">
+          <button
+            type="button"
+            className="quiet"
+            onClick={toggleScript}
+            aria-label="Switch script"
+          >
+            {script === 'latin' ? 'Aa → Аа' : 'Аа → Aa'}
+          </button>
+          <button
+            type="button"
+            className="quiet"
+            onClick={toggle}
+            aria-label={`Switch to ${nextTheme} theme`}
+          >
+            {theme === 'dark' ? '☼' : '☾'}
+          </button>
+        </div>
+      </header>
+
+      {view === 'home' ? (
+        <main className="hero">
+          <div className="stitch" aria-hidden="true" />
+          <h1 className="hero-name">{shortName}</h1>
+          <p className="hero-tagline">Learn Interslavic</p>
+          <button
+            type="button"
+            className="primary"
+            onClick={() => {
+              setView('lesson');
+            }}
+          >
+            Start learning
+          </button>
+        </main>
+      ) : (
+        <LessonView
+          script={script}
+          onExit={() => {
+            setView('home');
           }}
-        >
-          {shortName}
-        </h1>
-        <p style={{ fontSize: '1.25rem', color: 'var(--color-text-muted)' }}>
-          Learn Interslavic
-        </p>
-        <button
-          type="button"
-          onClick={toggle}
-          aria-label={`Switch to ${nextTheme} theme`}
-          style={{
-            marginTop: 'var(--space-md)',
-            padding: '0.6rem 1.2rem',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--color-border)',
-            backgroundColor: 'var(--color-surface)',
-            color: 'var(--color-text)',
-          }}
-        >
-          {theme === 'dark' ? 'Light theme' : 'Dark theme'}
-        </button>
-      </main>
-      <footer
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-          gap: 'var(--space-md)',
-          fontSize: '0.85rem',
-          color: 'var(--color-text-muted)',
-        }}
-      >
+        />
+      )}
+
+      <footer className="footer">
         <p>Code: AGPL-3.0-only</p>
         <p>Content: CC BY-SA 4.0</p>
       </footer>

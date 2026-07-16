@@ -26,6 +26,9 @@
     --color-primary-hover: #ff8494;
     --color-on-primary: #2a0a10;
     --color-border: #362e2b;
+    --color-correct: #6fbf8f;
+    --color-correct-soft: #6fbf8f1f;
+    --color-primary-soft: #ff6b811f;
   }
 }
 
@@ -50,4 +53,7 @@
   --color-primary-hover: #ff8494;
   --color-on-primary: #2a0a10;
   --color-border: #362e2b;
+  --color-correct: #6fbf8f;
+  --color-correct-soft: #6fbf8f1f;
+  --color-primary-soft: #ff6b811f;
 }

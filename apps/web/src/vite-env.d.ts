@@ -7,3 +7,6 @@ interface ImportMeta {
 }
 
 declare module '*.css';
+
+declare module '@fontsource-variable/literata';
+declare module '@fontsource/source-sans-3';

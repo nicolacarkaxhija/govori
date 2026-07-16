@@ -58,4 +58,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | feat: add review-event sync with set-union semantics | 3.5–4 | Events table+migration, review store adapter, gated sync routes, real-session integration incl. admin promotion path |
 
-**Running total: 65.7–84.7 h**
+| 2026-07-16 | feat: add lesson slice with local srs and script toggle | 8–10 | Exercise cards (choice + tolerant typed), browser-side transliteration + SM-2 replay over localStorage log, Literata/stitch design pass, 14 new tests |
+
+**Running total: 73.7–94.7 h**
