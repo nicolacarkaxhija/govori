@@ -4,6 +4,13 @@ import { loadConfig } from '../config.js';
 import type { ItemQueries } from '../content/ports.js';
 import type { FlagStateSource } from './ports.js';
 
+import type { Auth } from '../auth/auth.js';
+
+const noAuth = {
+  handler: () => Promise.resolve(new Response(null, { status: 404 })),
+  api: { getSession: () => Promise.resolve(null) },
+} as unknown as Auth;
+
 const noItems: ItemQueries = {
   findById: () => Promise.resolve(undefined),
   list: () => Promise.resolve([]),
@@ -13,7 +20,12 @@ function appWithStates(states: Record<string, boolean>) {
   const flagStates: FlagStateSource = {
     getStates: () => Promise.resolve(states),
   };
-  return buildApp({ config: loadConfig({}), items: noItems, flagStates });
+  return buildApp({
+    config: loadConfig({}),
+    items: noItems,
+    flagStates,
+    auth: noAuth,
+  });
 }
 
 describe('GET /flags', () => {

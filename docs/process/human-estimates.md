@@ -52,4 +52,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | feat: scaffold web pwa shell with token theming | 6–8 | Vite+React PWA, WCAG-validated token system, dual dark-mode strategy, typed meta client, 12 tests at 100% coverage |
 
-**Running total: 54.7–71.7 h**
+| 2026-07-16 | feat: add self-hosted auth with session gate | 5–6 | better-auth wiring, auth tables migration, web-request bridge, /me, signup/session integration tests |
+
+**Running total: 59.7–77.7 h**

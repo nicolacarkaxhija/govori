@@ -8,7 +8,14 @@ export default defineConfig({
       include: ['src/**/*.ts'],
       // main.ts is the process entry (composition root + listen): excluded
       // by convention, everything it wires is covered through buildApp.
-      exclude: ['src/**/*.test.ts', 'src/main.ts', 'src/import-cli.ts'],
+      exclude: [
+        'src/**/*.test.ts',
+        'src/main.ts',
+        'src/import-cli.ts',
+        // Declarative drizzle table metadata; verified through migrations
+        // and the Testcontainers integration suite.
+        'src/db/schema.ts',
+      ],
       thresholds: {
         branches: 85,
         functions: 85,

@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { buildApp } from './app.js';
+import { buildApp, toWebRequest } from './app.js';
 import { loadConfig } from './config.js';
 import type { ItemQueries } from './content/ports.js';
+
+import type { Auth } from './auth/auth.js';
+
+const noAuth = {
+  handler: () => Promise.resolve(new Response(null, { status: 404 })),
+  api: { getSession: () => Promise.resolve(null) },
+} as unknown as Auth;
 
 const noItems: ItemQueries = {
   findById: () => Promise.resolve(undefined),
@@ -13,11 +20,28 @@ const noFlags = {
 };
 
 describe('buildApp', () => {
+  it('responds 401 on /me without a session, tolerating repeated headers', async () => {
+    const app = buildApp({
+      config: loadConfig({}),
+      items: noItems,
+      flagStates: noFlags,
+      auth: noAuth,
+    });
+    const response = await app.inject({
+      method: 'GET',
+      url: '/me',
+      headers: { 'x-forwarded-for': ['10.0.0.1', '10.0.0.2'] },
+    });
+    expect(response.statusCode).toBe(401);
+    await app.close();
+  });
+
   it('serves a health check', async () => {
     const app = buildApp({
       config: loadConfig({}),
       items: noItems,
       flagStates: noFlags,
+      auth: noAuth,
     });
     const response = await app.inject({ method: 'GET', url: '/health' });
     expect(response.statusCode).toBe(200);
@@ -30,6 +54,7 @@ describe('buildApp', () => {
       config: loadConfig({ GOVORI_BRAND__SHORT_NAME: 'Hajde' }),
       items: noItems,
       flagStates: noFlags,
+      auth: noAuth,
     });
     const response = await app.inject({ method: 'GET', url: '/meta' });
     expect(response.statusCode).toBe(200);
@@ -40,5 +65,35 @@ describe('buildApp', () => {
       },
     });
     await app.close();
+  });
+});
+
+describe('toWebRequest', () => {
+  const config = loadConfig({});
+
+  it('appends every value of repeated headers', () => {
+    const request = toWebRequest(config, {
+      method: 'GET',
+      url: '/me',
+      headers: { 'set-cookie': ['a=1', 'b=2'], accept: 'application/json' },
+    });
+    expect(request.headers.get('set-cookie')).toBe('a=1, b=2');
+    expect(request.headers.get('accept')).toBe('application/json');
+  });
+
+  it('serializes bodies for non-GET requests only', async () => {
+    const post = toWebRequest(config, {
+      method: 'POST',
+      url: '/api/auth/sign-in/email',
+      headers: {},
+      body: { email: 'e@example.com' },
+    });
+    expect(await post.text()).toBe('{"email":"e@example.com"}');
+    const get = toWebRequest(config, {
+      method: 'GET',
+      url: '/me',
+      headers: { 'x-skip': undefined },
+    });
+    expect(get.body).toBeNull();
   });
 });

@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { ItemSchema } from '@govori/content';
 import { transliterate } from '@govori/transliteration';
 import { resolveFlags } from '@govori/config';
+import type { Auth } from './auth/auth.js';
 import type { ApiConfig } from './config.js';
 import type { ItemQueries } from './content/ports.js';
 import { flagDefinitions } from './flags/definitions.js';
@@ -19,6 +20,36 @@ export interface AppDependencies {
   config: ApiConfig;
   items: ItemQueries;
   flagStates: FlagStateSource;
+  auth: Auth;
+}
+
+/** Bridges Fastify's raw request to the Web Request better-auth consumes. */
+export function toWebRequest(
+  config: ApiConfig,
+  raw: {
+    method: string;
+    url: string;
+    headers: Record<string, string | string[] | undefined>;
+    body?: unknown;
+  },
+): Request {
+  const headers = new Headers();
+  for (const [key, value] of Object.entries(raw.headers)) {
+    if (typeof value === 'string') {
+      headers.set(key, value);
+    } else if (Array.isArray(value)) {
+      for (const entry of value) {
+        headers.append(key, entry);
+      }
+    }
+  }
+  return new Request(new URL(raw.url, config.server.baseUrl), {
+    method: raw.method,
+    headers,
+    ...(raw.body === undefined || raw.method === 'GET'
+      ? {}
+      : { body: JSON.stringify(raw.body) }),
+  });
 }
 
 const RenderedItemSchema = z.object({
@@ -38,7 +69,7 @@ const NotFoundSchema = z.object({ message: z.string() });
  * that (ADR 0018). Request/response schemas are Zod; the OpenAPI document
  * is generated from them (ADR 0019).
  */
-export function buildApp({ config, items, flagStates }: AppDependencies) {
+export function buildApp({ config, items, flagStates, auth }: AppDependencies) {
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
@@ -51,6 +82,27 @@ export function buildApp({ config, items, flagStates }: AppDependencies) {
       },
     },
     transform: jsonSchemaTransform,
+  });
+
+  // better-auth owns everything under /api/auth (ADR 0021).
+  app.route({
+    method: ['GET', 'POST'],
+    url: '/api/auth/*',
+    handler: async (request, reply) => {
+      const response = await auth.handler(
+        toWebRequest(config, {
+          method: request.method,
+          url: request.url,
+          headers: request.headers,
+          body: request.body,
+        }),
+      );
+      reply.status(response.status);
+      response.headers.forEach((value, key) => {
+        reply.header(key, value);
+      });
+      return reply.send(await response.text());
+    },
   });
 
   // Routes live in a child plugin so the OpenAPI onRoute hook, installed
@@ -69,6 +121,34 @@ export function buildApp({ config, items, flagStates }: AppDependencies) {
 
     routes.get('/openapi.json', { schema: { hide: true } }, () =>
       app.swagger(),
+    );
+
+    routes.get(
+      '/me',
+      {
+        schema: {
+          response: {
+            200: z.object({
+              user: z.object({ id: z.string(), email: z.string() }),
+            }),
+            401: z.object({ message: z.string() }),
+          },
+        },
+      },
+      async (request, reply) => {
+        const webRequest = toWebRequest(config, {
+          method: 'GET',
+          url: '/me',
+          headers: request.headers,
+        });
+        const result = await auth.api.getSession({
+          headers: webRequest.headers,
+        });
+        if (result === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        return { user: { id: result.user.id, email: result.user.email } };
+      },
     );
 
     routes.get(

@@ -4,6 +4,13 @@ import { buildApp } from './../app.js';
 import { loadConfig } from './../config.js';
 import type { ItemQueries } from './ports.js';
 
+import type { Auth } from '../auth/auth.js';
+
+const noAuth = {
+  handler: () => Promise.resolve(new Response(null, { status: 404 })),
+  api: { getSession: () => Promise.resolve(null) },
+} as unknown as Auth;
+
 const voda: Item = {
   id: '3e2d8f0a-4b1c-4f6e-9a7d-1c2b3a4d5e6f',
   kind: 'word',
@@ -38,6 +45,7 @@ function testApp() {
     config: loadConfig({}),
     items: new FakeItemQueries(),
     flagStates: noFlags,
+    auth: noAuth,
   });
 }
 
