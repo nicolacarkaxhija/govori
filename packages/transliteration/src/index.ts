@@ -2,9 +2,42 @@ export interface TransliterateOptions {
   script: 'latin' | 'cyrillic';
 }
 
+const COMBINING_ACUTE = '́';
+
+/**
+ * Etymological letters fold to the standard orthography per the official
+ * simplification table. Folded output is never digraph-eligible: ĺj is
+ * l + j (two letters), unlike the true digraph lj.
+ */
+const ETYMOLOGICAL_TO_STANDARD: ReadonlyMap<string, string> = new Map([
+  ['å', 'a'],
+  ['ȯ', 'o'],
+  ['ę', 'e'],
+  ['ų', 'u'],
+  ['ć', 'č'],
+  ['đ', 'dž'],
+  ['ĺ', 'l'],
+  ['ń', 'n'],
+  ['ŕ', 'r'],
+  ['ś', 's'],
+  ['ź', 'z'],
+  ['ť', 't'],
+  ['ď', 'd'],
+]);
+
+/** Bases that carry a combining acute in forms with no precomposed glyph. */
+const ACUTE_BASE_TO_STANDARD: ReadonlyMap<string, string> = new Map([
+  ['c', 'č'],
+  ['d', 'd'],
+  ['l', 'l'],
+  ['n', 'n'],
+  ['r', 'r'],
+  ['s', 's'],
+  ['t', 't'],
+  ['z', 'z'],
+]);
+
 const LATIN_TO_CYRILLIC: ReadonlyMap<string, string> = new Map([
-  ['lj', 'љ'],
-  ['nj', 'њ'],
   ['a', 'а'],
   ['b', 'б'],
   ['c', 'ц'],
@@ -34,52 +67,75 @@ const LATIN_TO_CYRILLIC: ReadonlyMap<string, string> = new Map([
   ['ž', 'ж'],
 ]);
 
-const ETYMOLOGICAL_TO_STANDARD: ReadonlyMap<string, string> = new Map([
-  ['å', 'a'],
-  ['ę', 'e'],
-  ['ų', 'u'],
-  ['ć', 'č'],
-  ['đ', 'dž'],
-  ['ĺ', 'l'],
-  ['ń', 'n'],
-  ['ŕ', 'r'],
-  ['ś', 's'],
-  ['ź', 'z'],
-  ['ť', 't'],
-  ['ď', 'd'],
+const DIGRAPH_TO_CYRILLIC: ReadonlyMap<string, string> = new Map([
+  ['lj', 'љ'],
+  ['nj', 'њ'],
 ]);
 
-function foldToStandard(text: string): string {
-  let result = '';
-  for (const char of text) {
-    const folded = ETYMOLOGICAL_TO_STANDARD.get(char.toLowerCase());
-    result += folded === undefined ? char : restoreCase(char, folded);
+interface Segment {
+  folded: string;
+  digraphable: boolean;
+}
+
+function segmentize(text: string): Segment[] {
+  const nfc = text.normalize('NFC');
+  const segments: Segment[] = [];
+  let i = 0;
+  while (i < nfc.length) {
+    const char = nfc.charAt(i);
+    const lower = char.toLowerCase();
+    if (nfc.charAt(i + 1) === COMBINING_ACUTE) {
+      const folded = ACUTE_BASE_TO_STANDARD.get(lower);
+      if (folded !== undefined) {
+        segments.push({
+          folded: restoreCase(char, folded),
+          digraphable: false,
+        });
+        i += 2;
+        continue;
+      }
+    }
+    const folded = ETYMOLOGICAL_TO_STANDARD.get(lower);
+    if (folded !== undefined) {
+      segments.push({ folded: restoreCase(char, folded), digraphable: false });
+      i += 1;
+      continue;
+    }
+    segments.push({ folded: char, digraphable: true });
+    i += 1;
   }
-  return result;
+  return segments;
 }
 
 export function transliterate(
   text: string,
   options: TransliterateOptions,
 ): string {
-  const standard = foldToStandard(text);
+  const segments = segmentize(text);
   if (options.script === 'latin') {
-    return standard;
+    return segments.map((segment) => segment.folded).join('');
   }
   let result = '';
-  let i = 0;
-  while (i < standard.length) {
-    const digraph = standard.slice(i, i + 2);
-    const digraphHit = LATIN_TO_CYRILLIC.get(digraph.toLowerCase());
-    if (digraph.length === 2 && digraphHit !== undefined) {
-      result += restoreCase(digraph, digraphHit);
-      i += 2;
+  let consumedByDigraph = false;
+  for (const [i, current] of segments.entries()) {
+    if (consumedByDigraph) {
+      consumedByDigraph = false;
       continue;
     }
-    const char = standard.charAt(i);
-    const charHit = LATIN_TO_CYRILLIC.get(char.toLowerCase());
-    result += charHit === undefined ? char : restoreCase(char, charHit);
-    i += 1;
+    const next = segments[i + 1];
+    if (current.digraphable && next?.digraphable) {
+      const pair = (current.folded + next.folded).toLowerCase();
+      const digraphHit = DIGRAPH_TO_CYRILLIC.get(pair);
+      if (digraphHit !== undefined) {
+        result += restoreCase(current.folded, digraphHit);
+        consumedByDigraph = true;
+        continue;
+      }
+    }
+    for (const char of current.folded) {
+      const hit = LATIN_TO_CYRILLIC.get(char.toLowerCase());
+      result += hit === undefined ? char : restoreCase(char, hit);
+    }
   }
   return result;
 }
@@ -87,4 +143,34 @@ export function transliterate(
 function restoreCase(source: string, mapped: string): string {
   const first = source.charAt(0);
   return first === first.toLowerCase() ? mapped : mapped.toUpperCase();
+}
+
+const CYRILLIC_TO_LATIN: ReadonlyMap<string, string> = new Map(
+  [...LATIN_TO_CYRILLIC].map(([latin, cyrillic]) => [cyrillic, latin]),
+);
+
+const CYRILLIC_DIGRAPH_TO_LATIN: ReadonlyMap<string, string> = new Map(
+  [...DIGRAPH_TO_CYRILLIC].map(([latin, cyrillic]) => [cyrillic, latin]),
+);
+
+/**
+ * Folds any accepted way of writing an answer — Cyrillic, etymological
+ * Latin, standard Latin, or bare-ASCII approximation — into one
+ * comparable form: lowercase, diacritic-free, whitespace-collapsed.
+ */
+export function normalize(text: string): string {
+  let latin = '';
+  for (const char of text.normalize('NFC')) {
+    const lower = char.toLowerCase();
+    latin +=
+      CYRILLIC_DIGRAPH_TO_LATIN.get(lower) ??
+      CYRILLIC_TO_LATIN.get(lower) ??
+      char;
+  }
+  return transliterate(latin, { script: 'latin' })
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Mn}/gu, '')
+    .replace(/\s+/gu, ' ')
+    .trim();
 }

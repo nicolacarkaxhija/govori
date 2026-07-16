@@ -18,4 +18,6 @@ developer working alone. Appended in the same commit it describes.
 | 2026-07-16 | style: format readme with prettier | 0.1 | Formatting fix for pre-hook file |
 | 2026-07-16 | ci: keep releases in 0.x until launch | 0.5–1 | Release-please manifest config, pre-major bump strategy |
 
-**Running total: 17–23 h**
+| 2026-07-16 | feat: add normalize and oracle-verified segment engine | 4–5 | Oracle fixtures from js-utils snapshots caught digraph/folding bug; segment rewrite, normalize(), 4 property-test invariants |
+
+**Running total: 21–28 h**

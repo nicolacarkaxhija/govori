@@ -47,4 +47,11 @@ describe('non-alphabet characters', () => {
       'Како се мајеш? 100%',
     );
   });
+
+  it('passes unknown accented letters through unchanged', () => {
+    // k + combining acute composes to precomposed ḱ under NFC.
+    expect(transliterate('ḱo', { script: 'cyrillic' })).toBe('ḱо');
+    // v + combining acute has no precomposed form; the acute passes through.
+    expect(transliterate('v́o', { script: 'cyrillic' })).toBe('в́о');
+  });
 });
