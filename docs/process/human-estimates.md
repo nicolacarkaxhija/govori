@@ -46,4 +46,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | feat: add artifact import cli | 1–1.5 | Composition-root script; verified seed-to-serve end to end against live postgres |
 
-**Running total: 47.3–61.8 h**
+| 2026-07-16 | docs: add api tech spec | 0.4 | ts-005 + registry row |
+
+**Running total: 47.7–62.2 h**
