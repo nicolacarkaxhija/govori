@@ -44,4 +44,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | feat: serve effective feature flags through the dependency graph | 1.5–2 | Flag definitions module, read port, /flags endpoint resolving transitive requirements |
 
-**Running total: 46.3–60.3 h**
+| 2026-07-16 | feat: add artifact import cli | 1–1.5 | Composition-root script; verified seed-to-serve end to end against live postgres |
+
+**Running total: 47.3–61.8 h**
