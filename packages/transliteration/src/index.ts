@@ -140,6 +140,27 @@ function restoreCase(source: string, mapped: string): string {
   return first === first.toLowerCase() ? mapped : mapped.toUpperCase();
 }
 
+const CANONICAL_LETTERS = 'abcčdeěfghijklmnoprsštuvyzžåȯęųćđĺńŕśźťď';
+
+// The combining acute is only canonical after d/t (forms with no precomposed
+// glyph); everything else must be a plain alphabet letter, digit, space, or
+// common punctuation.
+const CANONICAL_PATTERN = new RegExp(
+  `^(?:[dtDT]${COMBINING_ACUTE}|[${CANONICAL_LETTERS}${CANONICAL_LETTERS.toUpperCase()}0-9\\s.,!?:;'"«»()\\-–—…%])+$`,
+  'u',
+);
+
+/**
+ * True when the text is valid canonical etymological Latin (ADR 0003):
+ * the Interslavic alphabet plus digits, whitespace, and common punctuation.
+ * Content schemas reject non-canonical item text at the seam.
+ */
+export function isCanonical(text: string): boolean {
+  return (
+    text.trim().length > 0 && CANONICAL_PATTERN.test(text.normalize('NFC'))
+  );
+}
+
 const CYRILLIC_TO_LATIN: ReadonlyMap<string, string> = new Map(
   [...LATIN_TO_CYRILLIC].map(([latin, cyrillic]) => [cyrillic, latin]),
 );

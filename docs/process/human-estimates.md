@@ -30,4 +30,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | feat: add config and feature-flag machinery | 3–4 | buildConfig/envSource/defineFlags/resolveFlags, 16 tests, diamond-dependency semantics, mutation-tested |
 
-**Running total: 31–41 h**
+| 2026-07-16 | feat: add canonical-orthography validation | 1–1.5 | isCanonical with acute-position strictness; feeds content schemas |
+
+**Running total: 32–42.5 h**
