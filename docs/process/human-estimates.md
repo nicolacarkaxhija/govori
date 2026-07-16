@@ -32,4 +32,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | feat: add canonical-orthography validation | 1–1.5 | isCanonical with acute-position strictness; feeds content schemas |
 
-**Running total: 32–42.5 h**
+| 2026-07-16 | feat: add content schemas and artifact contract | 2.5–3 | Item/provenance/audit discriminated unions, canonical-text enforcement, versioned artifact seam |
+
+**Running total: 34.5–45.5 h**

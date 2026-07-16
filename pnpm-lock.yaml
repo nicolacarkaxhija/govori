@@ -79,6 +79,25 @@ importers:
         specifier: 'catalog:'
         version: 4.9.0
 
+  packages/content:
+    dependencies:
+      '@govori/transliteration':
+        specifier: workspace:*
+        version: link:../transliteration
+      zod:
+        specifier: 'catalog:'
+        version: 4.4.3
+    devDependencies:
+      '@stryker-mutator/core':
+        specifier: 'catalog:'
+        version: 9.6.1(@types/node@26.1.1)
+      '@stryker-mutator/vitest-runner':
+        specifier: 'catalog:'
+        version: 9.6.1(@stryker-mutator/core@9.6.1(@types/node@26.1.1))(vitest@4.1.10)
+      fast-check:
+        specifier: 'catalog:'
+        version: 4.9.0
+
   packages/srs:
     devDependencies:
       '@stryker-mutator/core':
