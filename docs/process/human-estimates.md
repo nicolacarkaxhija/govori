@@ -48,4 +48,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | docs: add api tech spec | 0.4 | ts-005 + registry row |
 
-**Running total: 47.7–62.2 h**
+| 2026-07-16 | docs: draft partner outreach plan | 1–1.5 | Stage-0 contacts, pitch structure, disclosure rules |
+
+**Running total: 48.7–63.7 h**
