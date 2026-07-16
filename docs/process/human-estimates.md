@@ -22,4 +22,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | test: kill mutants with table specs and wire nightly mutation gate | 2–3 | Mutation analysis, exhaustive alphabet specs, dead-code removal, Stryker config + nightly workflow |
 
-**Running total: 23–31 h**
+| 2026-07-16 | docs: add transliteration tech spec | 0.5 | Subsystem spec + registry row |
+
+**Running total: 23.5–31.5 h**
