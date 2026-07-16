@@ -1,6 +1,6 @@
 # Govori — Interslavic Learning App
 
-**Govori** (*"speak!"*) is a free, open-source, community-driven app for learning
+**Govori** (_"speak!"_) is a free, open-source, community-driven app for learning
 [Interslavic (Medžuslovjansky)](https://interslavic.fun/) — the zonal constructed
 language intelligible to speakers across the Slavic world.
 
