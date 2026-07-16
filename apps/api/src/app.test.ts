@@ -8,9 +8,17 @@ const noItems: ItemQueries = {
   list: () => Promise.resolve([]),
 };
 
+const noFlags = {
+  getStates: () => Promise.resolve({}),
+};
+
 describe('buildApp', () => {
   it('serves a health check', async () => {
-    const app = buildApp({ config: loadConfig({}), items: noItems });
+    const app = buildApp({
+      config: loadConfig({}),
+      items: noItems,
+      flagStates: noFlags,
+    });
     const response = await app.inject({ method: 'GET', url: '/health' });
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({ status: 'ok' });
@@ -21,6 +29,7 @@ describe('buildApp', () => {
     const app = buildApp({
       config: loadConfig({ GOVORI_BRAND__SHORT_NAME: 'Hajde' }),
       items: noItems,
+      flagStates: noFlags,
     });
     const response = await app.inject({ method: 'GET', url: '/meta' });
     expect(response.statusCode).toBe(200);

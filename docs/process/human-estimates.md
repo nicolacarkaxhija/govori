@@ -42,4 +42,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | feat: add item read api with generated openapi | 3–4 | ItemQueries port, Drizzle reads, zod type provider, swagger onRoute ordering, script renderings at the edge |
 
-**Running total: 44.8–58.3 h**
+| 2026-07-16 | feat: serve effective feature flags through the dependency graph | 1.5–2 | Flag definitions module, read port, /flags endpoint resolving transitive requirements |
+
+**Running total: 46.3–60.3 h**

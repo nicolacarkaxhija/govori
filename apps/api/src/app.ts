@@ -9,12 +9,16 @@ import {
 import { z } from 'zod';
 import { ItemSchema } from '@govori/content';
 import { transliterate } from '@govori/transliteration';
+import { resolveFlags } from '@govori/config';
 import type { ApiConfig } from './config.js';
 import type { ItemQueries } from './content/ports.js';
+import { flagDefinitions } from './flags/definitions.js';
+import type { FlagStateSource } from './flags/ports.js';
 
 export interface AppDependencies {
   config: ApiConfig;
   items: ItemQueries;
+  flagStates: FlagStateSource;
 }
 
 const RenderedItemSchema = z.object({
@@ -34,7 +38,7 @@ const NotFoundSchema = z.object({ message: z.string() });
  * that (ADR 0018). Request/response schemas are Zod; the OpenAPI document
  * is generated from them (ADR 0019).
  */
-export function buildApp({ config, items }: AppDependencies) {
+export function buildApp({ config, items, flagStates }: AppDependencies) {
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
@@ -65,6 +69,31 @@ export function buildApp({ config, items }: AppDependencies) {
 
     routes.get('/openapi.json', { schema: { hide: true } }, () =>
       app.swagger(),
+    );
+
+    routes.get(
+      '/flags',
+      {
+        schema: {
+          response: {
+            200: z.object({ flags: z.record(z.string(), z.boolean()) }),
+          },
+        },
+      },
+      async () => {
+        const resolved = resolveFlags(
+          flagDefinitions,
+          await flagStates.getStates(),
+        );
+        return {
+          flags: Object.fromEntries(
+            Object.entries(resolved).map(([key, flag]) => [
+              key,
+              flag.effective,
+            ]),
+          ),
+        };
+      },
     );
 
     routes.get(

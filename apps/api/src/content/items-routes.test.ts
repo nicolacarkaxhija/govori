@@ -29,8 +29,16 @@ class FakeItemQueries implements ItemQueries {
   }
 }
 
+const noFlags = {
+  getStates: () => Promise.resolve({}),
+};
+
 function testApp() {
-  return buildApp({ config: loadConfig({}), items: new FakeItemQueries() });
+  return buildApp({
+    config: loadConfig({}),
+    items: new FakeItemQueries(),
+    flagStates: noFlags,
+  });
 }
 
 describe('GET /items/:id', () => {
