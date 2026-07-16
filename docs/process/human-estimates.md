@@ -15,4 +15,7 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | feat: add transliteration engine with etymological folding and Cyrillic mapping | 3–4 | Package scaffold, Vitest with 100% gates, 7 behavior tests from official orthography tables, digraph/case/folding engine |
 
-**Running total: 16.5–22 h**
+| 2026-07-16 | style: format readme with prettier | 0.1 | Formatting fix for pre-hook file |
+| 2026-07-16 | ci: keep releases in 0.x until launch | 0.5–1 | Release-please manifest config, pre-major bump strategy |
+
+**Running total: 17–23 h**
