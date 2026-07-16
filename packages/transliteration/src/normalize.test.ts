@@ -22,8 +22,12 @@ describe('normalize', () => {
     expect(normalize('mudrějši')).toBe(normalize('mudrejsi'));
   });
 
-  it('ignores case and surrounding or repeated whitespace', () => {
-    expect(normalize('  Kako   se maješ ')).toBe(normalize('kako se majes'));
+  it('produces the exact folded form', () => {
+    // Absolute expectations, so a broken pipeline cannot cancel itself out.
+    expect(normalize('  Kako   se maješ ')).toBe('kako se majes');
+    expect(normalize('Čĺovêk')).toBe('clovek');
+    expect(normalize('КОЊ')).toBe('konj');
+    expect(normalize('vȯlnų')).toBe('volnu');
   });
 
   it('is idempotent', () => {

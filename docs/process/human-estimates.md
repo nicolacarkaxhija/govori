@@ -20,4 +20,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | feat: add normalize and oracle-verified segment engine | 4–5 | Oracle fixtures from js-utils snapshots caught digraph/folding bug; segment rewrite, normalize(), 4 property-test invariants |
 
-**Running total: 21–28 h**
+| 2026-07-16 | test: kill mutants with table specs and wire nightly mutation gate | 2–3 | Mutation analysis, exhaustive alphabet specs, dead-code removal, Stryker config + nightly workflow |
+
+**Running total: 23–31 h**

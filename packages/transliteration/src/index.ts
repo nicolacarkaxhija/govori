@@ -25,16 +25,14 @@ const ETYMOLOGICAL_TO_STANDARD: ReadonlyMap<string, string> = new Map([
   ['ď', 'd'],
 ]);
 
-/** Bases that carry a combining acute in forms with no precomposed glyph. */
+/**
+ * Bases whose acute-accented forms have no precomposed glyph, so NFC leaves
+ * them as base + combining acute. Every other accented base normalizes to a
+ * precomposed letter handled by the etymological table.
+ */
 const ACUTE_BASE_TO_STANDARD: ReadonlyMap<string, string> = new Map([
-  ['c', 'č'],
   ['d', 'd'],
-  ['l', 'l'],
-  ['n', 'n'],
-  ['r', 'r'],
-  ['s', 's'],
   ['t', 't'],
-  ['z', 'z'],
 ]);
 
 const LATIN_TO_CYRILLIC: ReadonlyMap<string, string> = new Map([
@@ -84,25 +82,22 @@ function segmentize(text: string): Segment[] {
   while (i < nfc.length) {
     const char = nfc.charAt(i);
     const lower = char.toLowerCase();
+    let folded: string | undefined;
+    let consumed = 1;
     if (nfc.charAt(i + 1) === COMBINING_ACUTE) {
-      const folded = ACUTE_BASE_TO_STANDARD.get(lower);
+      folded = ACUTE_BASE_TO_STANDARD.get(lower);
       if (folded !== undefined) {
-        segments.push({
-          folded: restoreCase(char, folded),
-          digraphable: false,
-        });
-        i += 2;
-        continue;
+        consumed = 2;
       }
     }
-    const folded = ETYMOLOGICAL_TO_STANDARD.get(lower);
-    if (folded !== undefined) {
-      segments.push({ folded: restoreCase(char, folded), digraphable: false });
+    folded ??= ETYMOLOGICAL_TO_STANDARD.get(lower);
+    if (folded === undefined) {
+      segments.push({ folded: char, digraphable: true });
       i += 1;
-      continue;
+    } else {
+      segments.push({ folded: restoreCase(char, folded), digraphable: false });
+      i += consumed;
     }
-    segments.push({ folded: char, digraphable: true });
-    i += 1;
   }
   return segments;
 }

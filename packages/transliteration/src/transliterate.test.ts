@@ -21,6 +21,38 @@ describe('transliterate to Cyrillic', () => {
   });
 });
 
+describe('complete correspondence tables', () => {
+  it('maps the full standard alphabet to Cyrillic', () => {
+    expect(
+      transliterate('abcčdeěfghijklmnoprsštuvyzž', { script: 'cyrillic' }),
+    ).toBe('абцчдеєфгхијклмнопрсштувызж');
+  });
+
+  it('folds every etymological letter to its standard form', () => {
+    expect(transliterate('åȯęųćđĺńŕśźťď', { script: 'latin' })).toBe(
+      'aoeučdžlnrsztd',
+    );
+  });
+
+  it('folds combining-acute forms of every foldable base', () => {
+    expect(
+      transliterate('ćd́ĺńŕśt́ź', {
+        script: 'latin',
+      }),
+    ).toBe('čdlnrstz');
+  });
+});
+
+describe('digraph boundaries', () => {
+  it('does not form a digraph across a folded combining-acute letter', () => {
+    expect(transliterate('ńj', { script: 'cyrillic' })).toBe('нј');
+  });
+
+  it('detects digraphs case-insensitively in mixed case', () => {
+    expect(transliterate('lJubov', { script: 'cyrillic' })).toBe('љубов');
+  });
+});
+
 describe('etymological orthography folds to standard', () => {
   it('folds etymological letters when targeting standard Latin', () => {
     expect(transliterate('męso', { script: 'latin' })).toBe('meso');
