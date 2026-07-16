@@ -99,6 +99,36 @@ describe('DrizzleItemRepository through importArtifact', () => {
   });
 });
 
+describe('DrizzleItemRepository reads', () => {
+  it('finds an item by id with translations and notes', async () => {
+    const repository = new DrizzleItemRepository(db);
+    const item = await repository.findById(
+      '9b8a7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d',
+    );
+    expect(item?.kind).toBe('sentence');
+    expect(item?.translations).toHaveLength(2);
+    expect(item?.notes).toEqual([{ sourceLang: 'pl', text: 'čista ≈ czysta' }]);
+    expect(item?.audit?.status).toBe('clean');
+  });
+
+  it('returns undefined for unknown ids', async () => {
+    const repository = new DrizzleItemRepository(db);
+    expect(
+      await repository.findById('00000000-0000-4000-8000-000000000000'),
+    ).toBeUndefined();
+  });
+
+  it('lists deterministically with pagination', async () => {
+    const repository = new DrizzleItemRepository(db);
+    const first = await repository.list(2, 0);
+    const rest = await repository.list(2, 2);
+    expect(first).toHaveLength(2);
+    expect(rest).toHaveLength(1);
+    const all = [...first, ...rest].map((item) => item.id);
+    expect(new Set(all).size).toBe(3);
+  });
+});
+
 describe('DrizzleFlagStore', () => {
   it('stores states and appends to the audit trail', async () => {
     const store = new DrizzleFlagStore(db);

@@ -11,6 +11,9 @@ const configSchema = z.object({
     shortName: z.string().min(1),
     fullName: z.string().min(1),
   }),
+  db: z.object({
+    url: z.string().min(1),
+  }),
 });
 
 export type ApiConfig = ReturnType<typeof loadConfig>;
@@ -20,6 +23,9 @@ const defaults = {
   brand: {
     shortName: 'Govori',
     fullName: 'Govori — Interslavic Learning App',
+  },
+  db: {
+    url: 'postgres://govori:govori@localhost:5432/govori',
   },
 };
 

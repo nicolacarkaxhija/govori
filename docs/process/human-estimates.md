@@ -40,4 +40,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | feat: add postgres persistence, artifact importer, and flag store | 5–6 | Drizzle schema+migrations, item/flag adapters, importer use case, Testcontainers integration tests, pnpm build-approval wrangling |
 
-**Running total: 41.8–54.3 h**
+| 2026-07-16 | feat: add item read api with generated openapi | 3–4 | ItemQueries port, Drizzle reads, zod type provider, swagger onRoute ordering, script renderings at the edge |
+
+**Running total: 44.8–58.3 h**

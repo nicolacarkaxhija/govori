@@ -1,12 +1,61 @@
-import { count, eq } from 'drizzle-orm';
+import { asc, count, eq, inArray } from 'drizzle-orm';
 import type { Item } from '@govori/content';
 import type { Db } from '../db/client.js';
 import { contrastiveNotes, items, translations } from '../db/schema.js';
-import type { ItemRepository } from './ports.js';
+import type { ItemQueries, ItemRepository } from './ports.js';
 
-/** Postgres adapter for the item port (ADR 0020). */
-export class DrizzleItemRepository implements ItemRepository {
+type ItemRow = typeof items.$inferSelect;
+
+/** Postgres adapter for the item ports (ADR 0020). */
+export class DrizzleItemRepository implements ItemRepository, ItemQueries {
   constructor(private readonly db: Db) {}
+
+  async findById(id: string): Promise<Item | undefined> {
+    const [row] = await this.db.select().from(items).where(eq(items.id, id));
+    if (row === undefined) {
+      return undefined;
+    }
+    const [assembled] = await this.assemble([row]);
+    return assembled;
+  }
+
+  async list(limit: number, offset: number): Promise<Item[]> {
+    const rows = await this.db
+      .select()
+      .from(items)
+      .orderBy(asc(items.createdAt), asc(items.id))
+      .limit(limit)
+      .offset(offset);
+    return this.assemble(rows);
+  }
+
+  private async assemble(rows: readonly ItemRow[]): Promise<Item[]> {
+    if (rows.length === 0) {
+      return [];
+    }
+    const ids = rows.map((row) => row.id);
+    const allTranslations = await this.db
+      .select()
+      .from(translations)
+      .where(inArray(translations.itemId, ids));
+    const allNotes = await this.db
+      .select()
+      .from(contrastiveNotes)
+      .where(inArray(contrastiveNotes.itemId, ids));
+    return rows.map((row) => ({
+      id: row.id,
+      kind: row.kind,
+      text: row.text,
+      provenance: row.provenance,
+      translations: allTranslations
+        .filter((translation) => translation.itemId === row.id)
+        .map(({ lang, text }) => ({ lang, text })),
+      notes: allNotes
+        .filter((note) => note.itemId === row.id)
+        .map(({ sourceLang, text }) => ({ sourceLang, text })),
+      ...(row.audit === null ? {} : { audit: row.audit }),
+    }));
+  }
 
   async upsertMany(toUpsert: readonly Item[]): Promise<void> {
     await this.db.transaction(async (tx) => {

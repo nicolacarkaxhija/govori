@@ -6,3 +6,9 @@ export interface ItemRepository {
   upsertMany(items: readonly Item[]): Promise<void>;
   count(): Promise<number>;
 }
+
+/** Read port for serving content. */
+export interface ItemQueries {
+  findById(id: string): Promise<Item | undefined>;
+  list(limit: number, offset: number): Promise<Item[]>;
+}
