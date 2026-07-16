@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Turborepo
+.turbo/
+
+# Test artifacts
+coverage/
+playwright-report/
+test-results/
+.stryker-tmp/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
