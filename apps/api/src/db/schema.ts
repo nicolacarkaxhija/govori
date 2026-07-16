@@ -125,6 +125,25 @@ export const verification = pgTable('verification', {
     .defaultNow(),
 });
 
+/**
+ * Append-only review events per user (ADR 0030); the event id is the
+ * identity, so set-union sync is INSERT ... ON CONFLICT DO NOTHING.
+ */
+export const reviewEvents = pgTable('review_events', {
+  id: uuid('id').primaryKey(),
+  userId: text('user_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  itemId: uuid('item_id').notNull(),
+  reviewedAt: timestamp('reviewed_at', { withTimezone: true }).notNull(),
+  grade: text('grade', {
+    enum: ['again', 'hard', 'good', 'easy'],
+  }).notNull(),
+  receivedAt: timestamp('received_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 /** Runtime feature-flag states; the dependency graph lives in code (ADR 0025). */
 export const flagStates = pgTable('flag_states', {
   key: text('key').primaryKey(),

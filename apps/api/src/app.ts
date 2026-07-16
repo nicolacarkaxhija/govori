@@ -16,6 +16,7 @@ import type { ItemQueries } from './content/ports.js';
 import { flagDefinitions } from './flags/definitions.js';
 import type { FlagStore } from './flags/ports.js';
 import type { UserRoles } from './auth/ports.js';
+import type { ReviewEventStore } from './reviews/ports.js';
 
 export interface AppDependencies {
   config: ApiConfig;
@@ -23,6 +24,7 @@ export interface AppDependencies {
   flagStates: FlagStore;
   auth: Auth;
   userRoles: UserRoles;
+  reviews: ReviewEventStore;
 }
 
 /** Bridges Fastify's raw request to the Web Request better-auth consumes. */
@@ -65,6 +67,13 @@ const RenderedItemSchema = z.object({
 
 const NotFoundSchema = z.object({ message: z.string() });
 
+const ReviewEventSchema = z.object({
+  id: z.uuid(),
+  itemId: z.uuid(),
+  reviewedAt: z.iso.datetime(),
+  grade: z.enum(['again', 'hard', 'good', 'easy']),
+});
+
 /**
  * Builds the HTTP adapter over injected dependencies. Pure of process state:
  * no environment access, no listening — the composition root (main.ts) does
@@ -77,6 +86,7 @@ export function buildApp({
   flagStates,
   auth,
   userRoles,
+  reviews,
 }: AppDependencies) {
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
   app.setValidatorCompiler(validatorCompiler);
@@ -220,6 +230,67 @@ export function buildApp({
           `user:${sessionResult.user.id}`,
         );
         return { flags: await effectiveFlags() };
+      },
+    );
+
+    routes.post(
+      '/sync/reviews',
+      {
+        schema: {
+          body: z.object({ events: z.array(ReviewEventSchema).max(1000) }),
+          response: {
+            200: z.object({ received: z.number(), stored: z.number() }),
+            401: z.object({ message: z.string() }),
+          },
+        },
+      },
+      async (request, reply) => {
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        const stored = await reviews.addAll(
+          sessionResult.user.id,
+          request.body.events,
+        );
+        return { received: request.body.events.length, stored };
+      },
+    );
+
+    routes.get(
+      '/sync/reviews',
+      {
+        schema: {
+          querystring: z.object({ since: z.iso.datetime().optional() }),
+          response: {
+            200: z.object({ events: z.array(ReviewEventSchema) }),
+            401: z.object({ message: z.string() }),
+          },
+        },
+      },
+      async (request, reply) => {
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        return {
+          events: await reviews.listSince(
+            sessionResult.user.id,
+            request.query.since,
+          ),
+        };
       },
     );
 

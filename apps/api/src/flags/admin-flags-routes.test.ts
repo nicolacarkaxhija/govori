@@ -4,6 +4,11 @@ import { loadConfig } from '../config.js';
 import type { Auth } from '../auth/auth.js';
 import type { ItemQueries } from '../content/ports.js';
 
+const noReviews = {
+  addAll: () => Promise.resolve(0),
+  listSince: () => Promise.resolve([]),
+};
+
 const noItems: ItemQueries = {
   findById: () => Promise.resolve(undefined),
   list: () => Promise.resolve([]),
@@ -47,6 +52,7 @@ function testApp({ userRole = 'learner', session = 'u1' }: Setup = {}) {
     userRoles: {
       getRole: () => Promise.resolve(userRole),
     },
+    reviews: noReviews,
   };
   return { app: buildApp(deps), written };
 }

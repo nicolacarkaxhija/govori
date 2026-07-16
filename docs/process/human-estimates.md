@@ -56,4 +56,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | feat: add role-gated admin flag management | 2.5–3 | Role column+migration, UserRoles/FlagStore ports, guarded PUT with audit identity, 4 guard tests |
 
-**Running total: 62.2–80.7 h**
+| 2026-07-16 | feat: add review-event sync with set-union semantics | 3.5–4 | Events table+migration, review store adapter, gated sync routes, real-session integration incl. admin promotion path |
+
+**Running total: 65.7–84.7 h**

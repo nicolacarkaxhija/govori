@@ -40,6 +40,11 @@ const learnerRoles = {
   getRole: () => Promise.resolve('learner' as const),
 };
 
+const noReviews = {
+  addAll: () => Promise.resolve(0),
+  listSince: () => Promise.resolve([]),
+};
+
 const noFlags = {
   getStates: () => Promise.resolve({}),
   setFlag: () => Promise.resolve(),
@@ -52,6 +57,7 @@ function testApp() {
     flagStates: noFlags,
     auth: noAuth,
     userRoles: learnerRoles,
+    reviews: noReviews,
   });
 }
 

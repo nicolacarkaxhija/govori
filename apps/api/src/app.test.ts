@@ -19,6 +19,11 @@ const learnerRoles = {
   getRole: () => Promise.resolve('learner' as const),
 };
 
+const noReviews = {
+  addAll: () => Promise.resolve(0),
+  listSince: () => Promise.resolve([]),
+};
+
 const noFlags = {
   getStates: () => Promise.resolve({}),
   setFlag: () => Promise.resolve(),
@@ -32,6 +37,7 @@ describe('buildApp', () => {
       flagStates: noFlags,
       auth: noAuth,
       userRoles: learnerRoles,
+      reviews: noReviews,
     });
     const response = await app.inject({
       method: 'GET',
@@ -49,6 +55,7 @@ describe('buildApp', () => {
       flagStates: noFlags,
       auth: noAuth,
       userRoles: learnerRoles,
+      reviews: noReviews,
     });
     const response = await app.inject({ method: 'GET', url: '/health' });
     expect(response.statusCode).toBe(200);
@@ -63,6 +70,7 @@ describe('buildApp', () => {
       flagStates: noFlags,
       auth: noAuth,
       userRoles: learnerRoles,
+      reviews: noReviews,
     });
     const response = await app.inject({ method: 'GET', url: '/meta' });
     expect(response.statusCode).toBe(200);

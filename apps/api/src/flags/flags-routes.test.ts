@@ -11,6 +11,11 @@ const noAuth = {
   api: { getSession: () => Promise.resolve(null) },
 } as unknown as Auth;
 
+const noReviews = {
+  addAll: () => Promise.resolve(0),
+  listSince: () => Promise.resolve([]),
+};
+
 const noItems: ItemQueries = {
   findById: () => Promise.resolve(undefined),
   list: () => Promise.resolve([]),
@@ -27,6 +32,7 @@ function appWithStates(states: Record<string, boolean>) {
     flagStates,
     auth: noAuth,
     userRoles: { getRole: () => Promise.resolve('learner' as const) },
+    reviews: noReviews,
   });
 }
 
