@@ -11,4 +11,6 @@ developer working alone. Appended in the same commit it describes.
 | 2026-07-16 | docs: seed architecture decision records 0001-0035              | 6–8        | 35 grounded ADRs with dependencies and alternatives                                                         |
 | 2026-07-16 | docs: add documentation registries, governance, and conventions | 2–2.5      | Registry skeleton, continuity/succession policy, repo conventions                                           |
 
-**Running total: 12–16 h**
+| 2026-07-16 | ci: add verification workflow and release automation | 1.5–2 | PR wall (format/lint/typecheck/build/test) + release-please |
+
+**Running total: 13.5–18 h**
