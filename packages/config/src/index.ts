@@ -62,10 +62,17 @@ export function buildConfig<TSchema extends z.ZodType>(
   return deepFreeze(result.data);
 }
 
+function camelize(segment: string): string {
+  return segment
+    .toLowerCase()
+    .replace(/_+(.)/gu, (_match, letter: string) => letter.toUpperCase());
+}
+
 /**
  * Reads prefixed environment variables into a nested partial config source:
- * `GOVORI_SERVER__PORT=8080` → `{ server: { port: '8080' } }`. Values stay
- * strings; the schema's coercion is the single place types are decided.
+ * `GOVORI_SERVER__PORT=8080` → `{ server: { port: '8080' } }`; single
+ * underscores camelize (`BRAND__SHORT_NAME` → `brand.shortName`). Values
+ * stay strings; the schema's coercion is the single place types are decided.
  */
 export function envSource(
   env: Readonly<Record<string, string | undefined>>,
@@ -76,10 +83,7 @@ export function envSource(
     if (!name.startsWith(prefix) || value === undefined) {
       continue;
     }
-    const path = name
-      .slice(prefix.length)
-      .split('__')
-      .map((segment) => segment.toLowerCase());
+    const path = name.slice(prefix.length).split('__').map(camelize);
     let node = source;
     path.forEach((segment, index) => {
       if (index === path.length - 1) {

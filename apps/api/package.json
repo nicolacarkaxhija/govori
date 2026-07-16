@@ -1,0 +1,24 @@
+{
+  "name": "@govori/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-only",
+  "description": "Govori API server",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint src",
+    "test": "vitest run --coverage",
+    "dev": "node --watch --experimental-strip-types src/main.ts"
+  },
+  "dependencies": {
+    "fastify": "^5.7.1",
+    "zod": "catalog:",
+    "@govori/config": "workspace:*",
+    "@govori/content": "workspace:*",
+    "@govori/srs": "workspace:*",
+    "@govori/transliteration": "workspace:*"
+  },
+  "devDependencies": {}
+}

@@ -36,4 +36,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | ci: build dependencies before typed linting | 0.3 | Cross-package typed lint needs emitted declarations |
 
-**Running total: 34.8–45.8 h**
+| 2026-07-16 | feat: scaffold api with composition root and instance meta | 2–2.5 | Fastify app factory (DI, no process state), config schema, env camelization fix in @govori/config, /health + /meta |
+
+**Running total: 36.8–48.3 h**

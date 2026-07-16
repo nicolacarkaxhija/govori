@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { envSource } from './index.js';
 
 describe('envSource', () => {
-  it('converts prefixed variables into a nested partial, lowercasing keys', () => {
+  it('converts prefixed variables into a nested partial, camelizing keys', () => {
     expect(
       envSource(
         {
@@ -14,7 +14,7 @@ describe('envSource', () => {
       ),
     ).toEqual({
       server: { port: '8080' },
-      brand: { short_name: 'Govori' },
+      brand: { shortName: 'Govori' },
     });
   });
 
