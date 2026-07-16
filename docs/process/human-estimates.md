@@ -28,4 +28,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | docs: split content preparation into dedicated repo (adr 0037) | 0.5 | Decision record + amendment of 0035 |
 
-**Running total: 28–37 h**
+| 2026-07-16 | feat: add config and feature-flag machinery | 3–4 | buildConfig/envSource/defineFlags/resolveFlags, 16 tests, diamond-dependency semantics, mutation-tested |
+
+**Running total: 31–41 h**
