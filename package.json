@@ -1,0 +1,31 @@
+{
+  "name": "govori",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Govori — community-driven Interslavic learning app",
+  "license": "AGPL-3.0-only",
+  "author": "Nicola Carkaxhija",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nicolacarkaxhija/govori.git"
+  },
+  "engines": {
+    "node": ">=24",
+    "pnpm": ">=11"
+  },
+  "packageManager": "pnpm@11.5.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.9.5",
+    "turbo": "^2.10.5",
+    "typescript": "^7.0.2"
+  }
+}
