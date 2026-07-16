@@ -1,0 +1,53 @@
+:root {
+  --color-bg: #faf6f4;
+  --color-surface: #ffffff;
+  --color-text: #1a1a1a;
+  --color-text-muted: #5a5a5a;
+  --color-primary: #c41e3a;
+  --color-primary-hover: #a5182f;
+  --color-on-primary: #ffffff;
+  --color-border: #e7ded9;
+
+  --font-sans:
+    system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --radius-md: 0.5rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 2rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #171412;
+    --color-surface: #211c1a;
+    --color-text: #f5efec;
+    --color-text-muted: #c9beb8;
+    --color-primary: #ff6b81;
+    --color-primary-hover: #ff8494;
+    --color-on-primary: #2a0a10;
+    --color-border: #362e2b;
+  }
+}
+
+/* Manual override wins over the system preference regardless of source order. */
+:root[data-theme='light'] {
+  --color-bg: #faf6f4;
+  --color-surface: #ffffff;
+  --color-text: #1a1a1a;
+  --color-text-muted: #5a5a5a;
+  --color-primary: #c41e3a;
+  --color-primary-hover: #a5182f;
+  --color-on-primary: #ffffff;
+  --color-border: #e7ded9;
+}
+
+:root[data-theme='dark'] {
+  --color-bg: #171412;
+  --color-surface: #211c1a;
+  --color-text: #f5efec;
+  --color-text-muted: #c9beb8;
+  --color-primary: #ff6b81;
+  --color-primary-hover: #ff8494;
+  --color-on-primary: #2a0a10;
+  --color-border: #362e2b;
+}

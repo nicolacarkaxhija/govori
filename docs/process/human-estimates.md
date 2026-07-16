@@ -50,4 +50,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | docs: draft partner outreach plan | 1–1.5 | Stage-0 contacts, pitch structure, disclosure rules |
 
-**Running total: 48.7–63.7 h**
+| 2026-07-16 | feat: scaffold web pwa shell with token theming | 6–8 | Vite+React PWA, WCAG-validated token system, dual dark-mode strategy, typed meta client, 12 tests at 100% coverage |
+
+**Running total: 54.7–71.7 h**
