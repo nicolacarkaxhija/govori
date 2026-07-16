@@ -36,8 +36,13 @@ class FakeItemQueries implements ItemQueries {
   }
 }
 
+const learnerRoles = {
+  getRole: () => Promise.resolve('learner' as const),
+};
+
 const noFlags = {
   getStates: () => Promise.resolve({}),
+  setFlag: () => Promise.resolve(),
 };
 
 function testApp() {
@@ -46,6 +51,7 @@ function testApp() {
     items: new FakeItemQueries(),
     flagStates: noFlags,
     auth: noAuth,
+    userRoles: learnerRoles,
   });
 }
 

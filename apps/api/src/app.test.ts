@@ -15,8 +15,13 @@ const noItems: ItemQueries = {
   list: () => Promise.resolve([]),
 };
 
+const learnerRoles = {
+  getRole: () => Promise.resolve('learner' as const),
+};
+
 const noFlags = {
   getStates: () => Promise.resolve({}),
+  setFlag: () => Promise.resolve(),
 };
 
 describe('buildApp', () => {
@@ -26,6 +31,7 @@ describe('buildApp', () => {
       items: noItems,
       flagStates: noFlags,
       auth: noAuth,
+      userRoles: learnerRoles,
     });
     const response = await app.inject({
       method: 'GET',
@@ -42,6 +48,7 @@ describe('buildApp', () => {
       items: noItems,
       flagStates: noFlags,
       auth: noAuth,
+      userRoles: learnerRoles,
     });
     const response = await app.inject({ method: 'GET', url: '/health' });
     expect(response.statusCode).toBe(200);
@@ -55,6 +62,7 @@ describe('buildApp', () => {
       items: noItems,
       flagStates: noFlags,
       auth: noAuth,
+      userRoles: learnerRoles,
     });
     const response = await app.inject({ method: 'GET', url: '/meta' });
     expect(response.statusCode).toBe(200);

@@ -54,4 +54,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | feat: add self-hosted auth with session gate | 5–6 | better-auth wiring, auth tables migration, web-request bridge, /me, signup/session integration tests |
 
-**Running total: 59.7–77.7 h**
+| 2026-07-16 | feat: add role-gated admin flag management | 2.5–3 | Role column+migration, UserRoles/FlagStore ports, guarded PUT with audit identity, 4 guard tests |
+
+**Running total: 62.2–80.7 h**

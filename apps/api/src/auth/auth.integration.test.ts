@@ -33,11 +33,15 @@ function realApp() {
   return buildApp({
     config,
     items: noItems,
-    flagStates: { getStates: () => Promise.resolve({}) },
+    flagStates: {
+      getStates: () => Promise.resolve({}),
+      setFlag: () => Promise.resolve(),
+    },
     auth: createAuth(db, {
       secret: config.auth.secret,
       baseUrl: config.server.baseUrl,
     }),
+    userRoles: { getRole: () => Promise.resolve('learner' as const) },
   });
 }
 

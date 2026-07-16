@@ -14,13 +14,15 @@ import type { Auth } from './auth/auth.js';
 import type { ApiConfig } from './config.js';
 import type { ItemQueries } from './content/ports.js';
 import { flagDefinitions } from './flags/definitions.js';
-import type { FlagStateSource } from './flags/ports.js';
+import type { FlagStore } from './flags/ports.js';
+import type { UserRoles } from './auth/ports.js';
 
 export interface AppDependencies {
   config: ApiConfig;
   items: ItemQueries;
-  flagStates: FlagStateSource;
+  flagStates: FlagStore;
   auth: Auth;
+  userRoles: UserRoles;
 }
 
 /** Bridges Fastify's raw request to the Web Request better-auth consumes. */
@@ -69,7 +71,13 @@ const NotFoundSchema = z.object({ message: z.string() });
  * that (ADR 0018). Request/response schemas are Zod; the OpenAPI document
  * is generated from them (ADR 0019).
  */
-export function buildApp({ config, items, flagStates, auth }: AppDependencies) {
+export function buildApp({
+  config,
+  items,
+  flagStates,
+  auth,
+  userRoles,
+}: AppDependencies) {
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
@@ -83,6 +91,16 @@ export function buildApp({ config, items, flagStates, auth }: AppDependencies) {
     },
     transform: jsonSchemaTransform,
   });
+
+  async function effectiveFlags(): Promise<Record<string, boolean>> {
+    const resolved = resolveFlags(
+      flagDefinitions,
+      await flagStates.getStates(),
+    );
+    return Object.fromEntries(
+      Object.entries(resolved).map(([key, flag]) => [key, flag.effective]),
+    );
+  }
 
   // better-auth owns everything under /api/auth (ADR 0021).
   app.route({
@@ -160,19 +178,48 @@ export function buildApp({ config, items, flagStates, auth }: AppDependencies) {
           },
         },
       },
-      async () => {
-        const resolved = resolveFlags(
-          flagDefinitions,
-          await flagStates.getStates(),
+      async () => ({ flags: await effectiveFlags() }),
+    );
+
+    routes.put(
+      '/admin/flags/:key',
+      {
+        schema: {
+          params: z.object({ key: z.string().min(1) }),
+          body: z.object({ enabled: z.boolean() }),
+          response: {
+            200: z.object({ flags: z.record(z.string(), z.boolean()) }),
+            401: z.object({ message: z.string() }),
+            403: z.object({ message: z.string() }),
+            404: z.object({ message: z.string() }),
+          },
+        },
+      },
+      async (request, reply) => {
+        const webRequest = toWebRequest(config, {
+          method: 'GET',
+          url: request.url,
+          headers: request.headers,
+        });
+        const sessionResult = await auth.api.getSession({
+          headers: webRequest.headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        const role = await userRoles.getRole(sessionResult.user.id);
+        if (role !== 'admin') {
+          return reply.status(403).send({ message: 'admin role required' });
+        }
+        if (!(request.params.key in flagDefinitions)) {
+          return reply.status(404).send({ message: 'unknown flag' });
+        }
+        await flagStates.setFlag(
+          request.params.key,
+          request.body.enabled,
+          `user:${sessionResult.user.id}`,
         );
-        return {
-          flags: Object.fromEntries(
-            Object.entries(resolved).map(([key, flag]) => [
-              key,
-              flag.effective,
-            ]),
-          ),
-        };
+        return { flags: await effectiveFlags() };
       },
     );
 

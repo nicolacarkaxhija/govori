@@ -5,6 +5,7 @@ import { runMigrations } from './db/migrate.js';
 import { DrizzleItemRepository } from './content/drizzle-item-repository.js';
 import { DrizzleFlagStore } from './flags/drizzle-flag-store.js';
 import { createAuth } from './auth/auth.js';
+import { DrizzleUserRoles } from './auth/drizzle-user-roles.js';
 
 // Composition root: the only place that touches process state (ADR 0024).
 const config = loadConfig(process.env);
@@ -18,6 +19,7 @@ const app = buildApp({
     secret: config.auth.secret,
     baseUrl: config.server.baseUrl,
   }),
+  userRoles: new DrizzleUserRoles(db),
 });
 
 try {

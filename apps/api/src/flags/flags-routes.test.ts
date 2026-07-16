@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { buildApp } from '../app.js';
 import { loadConfig } from '../config.js';
 import type { ItemQueries } from '../content/ports.js';
-import type { FlagStateSource } from './ports.js';
+import type { FlagStore } from './ports.js';
 
 import type { Auth } from '../auth/auth.js';
 
@@ -17,14 +17,16 @@ const noItems: ItemQueries = {
 };
 
 function appWithStates(states: Record<string, boolean>) {
-  const flagStates: FlagStateSource = {
+  const flagStates: FlagStore = {
     getStates: () => Promise.resolve(states),
+    setFlag: () => Promise.resolve(),
   };
   return buildApp({
     config: loadConfig({}),
     items: noItems,
     flagStates,
     auth: noAuth,
+    userRoles: { getRole: () => Promise.resolve('learner' as const) },
   });
 }
 

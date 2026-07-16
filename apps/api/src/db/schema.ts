@@ -57,6 +57,9 @@ export const user = pgTable('user', {
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').notNull().default(false),
+  role: text('role', { enum: ['learner', 'admin'] })
+    .notNull()
+    .default('learner'),
   image: text('image'),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()

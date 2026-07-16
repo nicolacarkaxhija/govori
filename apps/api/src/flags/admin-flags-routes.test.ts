@@ -1,0 +1,111 @@
+import { describe, expect, it } from 'vitest';
+import { buildApp, type AppDependencies } from '../app.js';
+import { loadConfig } from '../config.js';
+import type { Auth } from '../auth/auth.js';
+import type { ItemQueries } from '../content/ports.js';
+
+const noItems: ItemQueries = {
+  findById: () => Promise.resolve(undefined),
+  list: () => Promise.resolve([]),
+};
+
+function sessionAs(userId: string | null): Auth {
+  return {
+    handler: () => Promise.resolve(new Response(null, { status: 404 })),
+    api: {
+      getSession: () =>
+        Promise.resolve(
+          userId === null
+            ? null
+            : { user: { id: userId, email: `${userId}@example.com` } },
+        ),
+    },
+  } as unknown as Auth;
+}
+
+interface Setup {
+  userRole?: 'learner' | 'admin';
+  session?: string | null;
+}
+
+function testApp({ userRole = 'learner', session = 'u1' }: Setup = {}) {
+  const written: { key: string; enabled: boolean; changedBy: string }[] = [];
+  const deps: AppDependencies = {
+    config: loadConfig({}),
+    items: noItems,
+    auth: sessionAs(session),
+    flagStates: {
+      getStates: () =>
+        Promise.resolve(
+          Object.fromEntries(written.map((w) => [w.key, w.enabled])),
+        ),
+      setFlag: (key, enabled, changedBy) => {
+        written.push({ key, enabled, changedBy });
+        return Promise.resolve();
+      },
+    },
+    userRoles: {
+      getRole: () => Promise.resolve(userRole),
+    },
+  };
+  return { app: buildApp(deps), written };
+}
+
+describe('PUT /admin/flags/:key', () => {
+  it('rejects anonymous callers', async () => {
+    const { app } = testApp({ session: null });
+    const response = await app.inject({
+      method: 'PUT',
+      url: '/admin/flags/audio',
+      payload: { enabled: true },
+    });
+    expect(response.statusCode).toBe(401);
+    await app.close();
+  });
+
+  it('rejects non-admin users', async () => {
+    const { app, written } = testApp({ userRole: 'learner' });
+    const response = await app.inject({
+      method: 'PUT',
+      url: '/admin/flags/audio',
+      payload: { enabled: true },
+    });
+    expect(response.statusCode).toBe(403);
+    expect(written).toHaveLength(0);
+    await app.close();
+  });
+
+  it('rejects unknown flag keys', async () => {
+    const { app } = testApp({ userRole: 'admin' });
+    const response = await app.inject({
+      method: 'PUT',
+      url: '/admin/flags/ghost',
+      payload: { enabled: true },
+    });
+    expect(response.statusCode).toBe(404);
+    await app.close();
+  });
+
+  it('lets admins flip a flag, recording who did it', async () => {
+    const { app, written } = testApp({ userRole: 'admin' });
+    const response = await app.inject({
+      method: 'PUT',
+      url: '/admin/flags/audio',
+      payload: { enabled: true },
+    });
+    expect(response.statusCode).toBe(200);
+    expect(written).toEqual([
+      { key: 'audio', enabled: true, changedBy: 'user:u1' },
+    ]);
+    expect(response.json()).toEqual({
+      flags: {
+        accounts: false,
+        social: false,
+        leaderboards: false,
+        audio: true,
+        recordAndCompare: false,
+      },
+    });
+    await app.close();
+  });
+});
