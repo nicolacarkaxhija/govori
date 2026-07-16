@@ -38,4 +38,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | feat: scaffold api with composition root and instance meta | 2–2.5 | Fastify app factory (DI, no process state), config schema, env camelization fix in @govori/config, /health + /meta |
 
-**Running total: 36.8–48.3 h**
+| 2026-07-16 | feat: add postgres persistence, artifact importer, and flag store | 5–6 | Drizzle schema+migrations, item/flag adapters, importer use case, Testcontainers integration tests, pnpm build-approval wrangling |
+
+**Running total: 41.8–54.3 h**

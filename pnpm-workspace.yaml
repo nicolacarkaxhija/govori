@@ -2,8 +2,22 @@ packages:
   - apps/*
   - packages/*
 
+allowBuilds:
+  cpu-features: set this to true or false
+  esbuild: set this to true or false
+  protobufjs: set this to true or false
+  ssh2: set this to true or false
+
 catalog:
   zod: ^4.3.5
   fast-check: ^4.5.0
   '@stryker-mutator/core': ^9.6.1
   '@stryker-mutator/vitest-runner': ^9.6.1
+
+onlyBuiltDependencies:
+  - esbuild
+  - cpu-features
+  - ssh2
+  - protobufjs
+
+verifyDepsBeforeRun: false
