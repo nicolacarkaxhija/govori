@@ -42,6 +42,18 @@ const artifact = {
       audit: { status: 'exempt-import', auditedAt: '2026-07-16T00:00:00Z' },
     },
     {
+      // Human contributions carry no originality audit (ADR 0035).
+      id: '5a4b3c2d-1e0f-4a9b-8c7d-6e5f4a3b2c1d',
+      kind: 'phrase',
+      text: 'dobry denj',
+      translations: [{ lang: 'en', text: 'good day' }],
+      notes: [],
+      provenance: {
+        origin: 'human',
+        contributorId: '7c6d5e4f-3a2b-4c1d-9e8f-7a6b5c4d3e2f',
+      },
+    },
+    {
       id: '9b8a7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d',
       kind: 'sentence',
       text: 'Voda je čista.',
@@ -68,8 +80,8 @@ describe('DrizzleItemRepository through importArtifact', () => {
   it('imports an artifact into Postgres', async () => {
     const repository = new DrizzleItemRepository(db);
     const result = await importArtifact(artifact, repository);
-    expect(result.imported).toBe(2);
-    expect(await repository.count()).toBe(2);
+    expect(result.imported).toBe(3);
+    expect(await repository.count()).toBe(3);
   });
 
   it('reimports idempotently, updating in place', async () => {
@@ -83,7 +95,7 @@ describe('DrizzleItemRepository through importArtifact', () => {
       ),
     };
     await importArtifact(updated, repository);
-    expect(await repository.count()).toBe(2);
+    expect(await repository.count()).toBe(3);
   });
 });
 
