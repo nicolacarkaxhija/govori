@@ -13,4 +13,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | ci: add verification workflow and release automation | 1.5–2 | PR wall (format/lint/typecheck/build/test) + release-please |
 
-**Running total: 13.5–18 h**
+| 2026-07-16 | feat: add transliteration engine with etymological folding and Cyrillic mapping | 3–4 | Package scaffold, Vitest with 100% gates, 7 behavior tests from official orthography tables, digraph/case/folding engine |
+
+**Running total: 16.5–22 h**
