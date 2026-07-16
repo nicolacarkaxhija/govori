@@ -34,4 +34,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | feat: add content schemas and artifact contract | 2.5–3 | Item/provenance/audit discriminated unions, canonical-text enforcement, versioned artifact seam |
 
-**Running total: 34.5–45.5 h**
+| 2026-07-16 | ci: build dependencies before typed linting | 0.3 | Cross-package typed lint needs emitted declarations |
+
+**Running total: 34.8–45.8 h**
