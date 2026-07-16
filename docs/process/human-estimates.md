@@ -26,4 +26,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | feat: add event-sourced srs engine with sm-2 scheduling | 4–5 | ADR 0036, SM-2 worked examples, replay/selectDue, 4 sync invariants (one caught an id-identity contract gap), 100% mutation |
 
-**Running total: 27.5–36.5 h**
+| 2026-07-16 | docs: split content preparation into dedicated repo (adr 0037) | 0.5 | Decision record + amendment of 0035 |
+
+**Running total: 28–37 h**
