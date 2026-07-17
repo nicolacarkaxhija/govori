@@ -380,3 +380,34 @@ export async function setUserRole(
     return false;
   }
 }
+
+export type ContributeResult =
+  'accepted' | 'invalid' | 'unauthenticated' | 'failed';
+
+/** Sends a learner's suggestion into the community review queue. */
+export async function contribute(
+  kind: 'word' | 'phrase' | 'sentence',
+  text: string,
+  translations: { lang: string; text: string }[],
+): Promise<ContributeResult> {
+  try {
+    const response = await fetch(new URL('/contribute', apiBaseUrl), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ kind, text, translations }),
+    });
+    if (response.status === 202) {
+      return 'accepted';
+    }
+    if (response.status === 401) {
+      return 'unauthenticated';
+    }
+    if (response.status === 400) {
+      return 'invalid';
+    }
+    return 'failed';
+  } catch {
+    return 'failed';
+  }
+}

@@ -9,6 +9,7 @@ import { AccountView } from './account/AccountView';
 import { StatsView } from './stats/StatsView';
 import { ReviewView } from './review/ReviewView';
 import { UsersView } from './review/UsersView';
+import { ContributeView } from './review/ContributeView';
 import { LanguageProvider, useLanguage, useT } from './i18n';
 import { streakDays } from './learn/progress';
 
@@ -41,6 +42,7 @@ function AppShell({
     | { name: 'account' }
     | { name: 'review' }
     | { name: 'users' }
+    | { name: 'contribute' }
   >({ name: 'home' });
 
   useEffect(() => {
@@ -146,6 +148,15 @@ function AppShell({
             setView({ name: 'users' });
           }}
         />
+      ) : view.name === 'contribute' ? (
+        <ContributeView
+          onExit={() => {
+            setView({ name: 'home' });
+          }}
+          onSignIn={() => {
+            setView({ name: 'account' });
+          }}
+        />
       ) : view.name === 'users' ? (
         <UsersView
           onExit={() => {
@@ -178,6 +189,15 @@ function AppShell({
       <footer className="footer">
         <p>{t('codeLicense')}</p>
         <p>{t('contentLicense')}</p>
+        <button
+          type="button"
+          className="footer-link"
+          onClick={() => {
+            setView({ name: 'contribute' });
+          }}
+        >
+          {t('contribute')}
+        </button>
         <button
           type="button"
           className="footer-link"

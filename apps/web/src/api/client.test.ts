@@ -272,3 +272,37 @@ describe('account clients fail closed', () => {
     expect(await deleteAccount()).toBe(true);
   });
 });
+
+describe('contribute', () => {
+  it('maps every server response to a result', async () => {
+    const { contribute } = await import('./client');
+    const post = (status: number) =>
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(() => Promise.resolve({ status, ok: status < 300 })),
+      );
+    post(202);
+    expect(
+      await contribute('word', 'sněg', [{ lang: 'en', text: 'snow' }]),
+    ).toBe('accepted');
+    post(401);
+    expect(
+      await contribute('word', 'sněg', [{ lang: 'en', text: 'snow' }]),
+    ).toBe('unauthenticated');
+    post(400);
+    expect(
+      await contribute('word', 'снег', [{ lang: 'en', text: 'snow' }]),
+    ).toBe('invalid');
+    post(500);
+    expect(
+      await contribute('word', 'sněg', [{ lang: 'en', text: 'snow' }]),
+    ).toBe('failed');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.reject(new Error('offline'))),
+    );
+    expect(
+      await contribute('word', 'sněg', [{ lang: 'en', text: 'snow' }]),
+    ).toBe('failed');
+  });
+});
