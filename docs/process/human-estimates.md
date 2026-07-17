@@ -159,5 +159,6 @@ developer working alone. Appended in the same commit it describes.
 | 2026-07-17 | feat: add sentence assembly and a pure rotation planner | 2–2.5 | Word-bank card with index-tracked duplicates, Fisher-Yates with solved-order guard, rotation logic extracted into an exhaustively tested pure planner alternating cloze and assembly |
 
 | 2026-07-17 | feat: wrap the web app in a native android shell | 2.5–3 | Toolchain bootstrap (JDK 21, SDK command-line tools, platform 35), Capacitor config over the built PWA, generated android project, verified debug APK build |
+| 2026-07-17 | feat: open review decisions to the reviewer tier | 1–1.5 | Role widened through port/schema/route enums, reviewer-or-admin guard on both review routes, promotion and guard tests; user and flag administration kept admin-only |
 
-**Running total: 188.2–238.2 h**
+**Running total: 189.2–239.7 h**

@@ -37,7 +37,7 @@ function sessionAs(userId: string | null): Auth {
 }
 
 interface Setup {
-  userRole?: 'learner' | 'admin';
+  userRole?: 'learner' | 'reviewer' | 'admin';
   session?: string | null;
 }
 
@@ -97,6 +97,14 @@ describe('GET /admin/review', () => {
     expect(body.pending[0]?.text).toBe('Ja pijų vodų.');
     await app.close();
   });
+
+  it('lists pending drafts for reviewers (ADR 0008)', async () => {
+    const { app } = testApp({ userRole: 'reviewer' });
+    const response = await app.inject({ method: 'GET', url: '/admin/review' });
+    expect(response.statusCode).toBe(200);
+    expect(response.json<{ pending: Item[] }>().pending).toHaveLength(1);
+    await app.close();
+  });
 });
 
 describe('POST /admin/review/:id', () => {
@@ -115,6 +123,31 @@ describe('POST /admin/review/:id', () => {
       decision: 'approved',
       decidedBy: 'user:u1',
     });
+    await app.close();
+  });
+
+  it('a single reviewer approval publishes (ADR 0008)', async () => {
+    const { app, decisions, published } = testApp({ userRole: 'reviewer' });
+    const response = await app.inject({
+      method: 'POST',
+      url: `/admin/review/${draft.id}`,
+      payload: { decision: 'approve' },
+    });
+    expect(response.statusCode).toBe(200);
+    expect(published.map((item) => item.id)).toEqual([draft.id]);
+    expect(decisions[0]?.decidedBy).toBe('user:u1');
+    await app.close();
+  });
+
+  it('keeps decisions closed to learners', async () => {
+    const { app, published } = testApp({ userRole: 'learner' });
+    const response = await app.inject({
+      method: 'POST',
+      url: `/admin/review/${draft.id}`,
+      payload: { decision: 'approve' },
+    });
+    expect(response.statusCode).toBe(403);
+    expect(published).toHaveLength(0);
     await app.close();
   });
 

@@ -1,4 +1,5 @@
-export type Role = 'learner' | 'admin';
+/** The trust ladder: Contributor → Reviewer → Admin (ADR 0008). */
+export type Role = 'learner' | 'reviewer' | 'admin';
 
 /** Read port for user roles; roles live in our schema, not in auth internals. */
 export interface UserRoles {

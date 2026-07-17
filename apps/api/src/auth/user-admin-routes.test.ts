@@ -26,7 +26,7 @@ function sessionAs(userId: string | null): Auth {
   } as unknown as Auth;
 }
 
-function testApp(userRole: 'learner' | 'admin' = 'admin') {
+function testApp(userRole: 'learner' | 'reviewer' | 'admin' = 'admin') {
   const changes: { id: string; role: string }[] = [];
   const deps = makeTestDeps({
     auth: sessionAs('u1'),
@@ -53,6 +53,14 @@ describe('GET /admin/users', () => {
         .statusCode,
     ).toBe(403);
     await forbidden.app.close();
+
+    // User administration stays above the reviewer tier (ADR 0008).
+    const reviewer = testApp('reviewer');
+    expect(
+      (await reviewer.app.inject({ method: 'GET', url: '/admin/users' }))
+        .statusCode,
+    ).toBe(403);
+    await reviewer.app.close();
 
     const { app } = testApp();
     const response = await app.inject({ method: 'GET', url: '/admin/users' });
@@ -86,6 +94,28 @@ describe('PUT /admin/users/:id/role', () => {
       payload: { role: 'admin' },
     });
     expect(missing.statusCode).toBe(404);
+    await app.close();
+  });
+
+  it('promotes a contributor to the reviewer tier (ADR 0008)', async () => {
+    const { app, changes } = testApp();
+    const promoted = await app.inject({
+      method: 'PUT',
+      url: `/admin/users/${learner.id}/role`,
+      payload: { role: 'reviewer' },
+    });
+    expect(promoted.statusCode).toBe(200);
+    expect(promoted.json()).toEqual({ id: learner.id, role: 'reviewer' });
+    expect(changes).toEqual([{ id: learner.id, role: 'reviewer' }]);
+
+    const asReviewer = testApp('reviewer');
+    const refused = await asReviewer.app.inject({
+      method: 'PUT',
+      url: `/admin/users/${learner.id}/role`,
+      payload: { role: 'admin' },
+    });
+    expect(refused.statusCode).toBe(403);
+    await asReviewer.app.close();
     await app.close();
   });
 });

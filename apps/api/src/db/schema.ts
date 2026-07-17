@@ -115,7 +115,7 @@ export const user = pgTable('user', {
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').notNull().default(false),
-  role: text('role', { enum: ['learner', 'admin'] })
+  role: text('role', { enum: ['learner', 'reviewer', 'admin'] })
     .notNull()
     .default('learner'),
   image: text('image'),

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildApp, toWebRequest } from './app.js';
+import type { Auth } from './auth/auth.js';
 import { loadConfig } from './config.js';
 import { makeTestDeps } from './test-support.js';
 
@@ -12,6 +13,28 @@ describe('buildApp', () => {
       headers: { 'x-forwarded-for': ['10.0.0.1', '10.0.0.2'] },
     });
     expect(response.statusCode).toBe(401);
+    await app.close();
+  });
+
+  it('serves the reviewer tier through /me (ADR 0008)', async () => {
+    const auth: Auth = {
+      handler: () => Promise.resolve(new Response(null, { status: 404 })),
+      api: {
+        getSession: () =>
+          Promise.resolve({ user: { id: 'u1', email: 'u1@example.com' } }),
+      },
+    } as unknown as Auth;
+    const app = buildApp(
+      makeTestDeps({
+        auth,
+        userRoles: { getRole: () => Promise.resolve('reviewer' as const) },
+      }),
+    );
+    const response = await app.inject({ method: 'GET', url: '/me' });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      user: { id: 'u1', email: 'u1@example.com', role: 'reviewer' },
+    });
     await app.close();
   });
 

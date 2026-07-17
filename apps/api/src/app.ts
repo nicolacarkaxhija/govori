@@ -187,7 +187,7 @@ export function buildApp({
               user: z.object({
                 id: z.string(),
                 email: z.string(),
-                role: z.enum(['learner', 'admin']),
+                role: z.enum(['learner', 'reviewer', 'admin']),
               }),
             }),
             401: z.object({ message: z.string() }),
@@ -535,9 +535,11 @@ export function buildApp({
         if (sessionResult === null) {
           return reply.status(401).send({ message: 'not signed in' });
         }
+        // A single Reviewer approval publishes (ADR 0008), so reviewers
+        // see the same queue admins do.
         const role = await userRoles.getRole(sessionResult.user.id);
-        if (role !== 'admin') {
-          return reply.status(403).send({ message: 'admin role required' });
+        if (role !== 'reviewer' && role !== 'admin') {
+          return reply.status(403).send({ message: 'reviewer role required' });
         }
         return { pending: await reviewQueue.listPending(request.query.limit) };
       },
@@ -569,8 +571,8 @@ export function buildApp({
           return reply.status(401).send({ message: 'not signed in' });
         }
         const role = await userRoles.getRole(sessionResult.user.id);
-        if (role !== 'admin') {
-          return reply.status(403).send({ message: 'admin role required' });
+        if (role !== 'reviewer' && role !== 'admin') {
+          return reply.status(403).send({ message: 'reviewer role required' });
         }
         const decision: 'approved' | 'rejected' =
           request.body.decision === 'approve' ? 'approved' : 'rejected';
@@ -603,7 +605,7 @@ export function buildApp({
                   id: z.string(),
                   email: z.string(),
                   name: z.string(),
-                  role: z.enum(['learner', 'admin']),
+                  role: z.enum(['learner', 'reviewer', 'admin']),
                   createdAt: z.iso.datetime(),
                 }),
               ),
@@ -637,11 +639,11 @@ export function buildApp({
       {
         schema: {
           params: z.object({ id: z.string().min(1) }),
-          body: z.object({ role: z.enum(['learner', 'admin']) }),
+          body: z.object({ role: z.enum(['learner', 'reviewer', 'admin']) }),
           response: {
             200: z.object({
               id: z.string(),
-              role: z.enum(['learner', 'admin']),
+              role: z.enum(['learner', 'reviewer', 'admin']),
             }),
             401: z.object({ message: z.string() }),
             403: z.object({ message: z.string() }),
