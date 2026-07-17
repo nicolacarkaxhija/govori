@@ -13,6 +13,7 @@ import { loadEvents } from '../learn/progress';
 
 export interface AccountViewProps {
   onExit: () => void;
+  onReview: () => void;
 }
 
 type Session =
@@ -24,7 +25,7 @@ type Session =
  * Anonymous-first (ADR 0022): an account only adds sync. On sign-in the
  * local review log is pushed unchanged; the server unions by event id.
  */
-export function AccountView({ onExit }: AccountViewProps) {
+export function AccountView({ onExit, onReview }: AccountViewProps) {
   const [session, setSession] = useState<Session>({ name: 'checking' });
   const [mode, setMode] = useState<'signIn' | 'signUp'>('signUp');
   const [email, setEmail] = useState('');
@@ -149,6 +150,11 @@ export function AccountView({ onExit }: AccountViewProps) {
           <p className="account-note">
             Your progress now follows you across devices.
           </p>
+          {session.me.user.role === 'admin' && (
+            <button type="button" className="continue" onClick={onReview}>
+              Review drafts
+            </button>
+          )}
           <button type="button" className="quiet" onClick={() => void leave()}>
             Sign out
           </button>

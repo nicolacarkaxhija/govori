@@ -143,7 +143,11 @@ export async function fetchLessonSentences(id: string): Promise<LearnItem[]> {
 }
 
 const meSchema = z.object({
-  user: z.object({ id: z.string(), email: z.string() }),
+  user: z.object({
+    id: z.string(),
+    email: z.string(),
+    role: z.enum(['learner', 'admin']),
+  }),
 });
 
 export type Me = z.infer<typeof meSchema>;
@@ -240,6 +244,42 @@ export async function deleteAccount(): Promise<boolean> {
     const response = await fetch(new URL('/me', apiBaseUrl), {
       method: 'DELETE',
       credentials: 'include',
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+const pendingSchema = z.object({ pending: z.array(learnItemSchema) });
+
+/** Admin-only: drafts awaiting review; null when not allowed/unreachable. */
+export async function fetchPendingReviews(): Promise<LearnItem[] | null> {
+  try {
+    const response = await fetch(new URL('/admin/review', apiBaseUrl), {
+      credentials: 'include',
+    });
+    if (!response.ok) {
+      return null;
+    }
+    const payload: unknown = await response.json();
+    return pendingSchema.parse(payload).pending;
+  } catch {
+    return null;
+  }
+}
+
+/** Admin-only: records a decision; true when the entry was decided. */
+export async function decideReview(
+  id: string,
+  decision: 'approve' | 'reject',
+): Promise<boolean> {
+  try {
+    const response = await fetch(new URL(`/admin/review/${id}`, apiBaseUrl), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ decision }),
     });
     return response.ok;
   } catch {

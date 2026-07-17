@@ -15,7 +15,7 @@
 }
 
 .wordmark {
-  font-family: var(--font-display);
+  font-weight: 600;
   font-weight: 650;
   color: var(--color-primary);
   letter-spacing: 0.01em;
@@ -52,7 +52,7 @@
 }
 
 .hero-name {
-  font-family: var(--font-display);
+  font-weight: 600;
   font-size: clamp(3rem, 10vw, 4.5rem);
   font-weight: 700;
   letter-spacing: -0.015em;
@@ -142,7 +142,7 @@ button:active {
 }
 
 .lesson-done h2 {
-  font-family: var(--font-display);
+  font-weight: 600;
   font-size: 2rem;
   color: var(--color-text);
 }
@@ -178,7 +178,7 @@ button:active {
 }
 
 .card-prompt {
-  font-family: var(--font-display);
+  font-weight: 600;
   font-size: clamp(1.9rem, 6vw, 2.6rem);
   font-weight: 600;
   line-height: 1.15;
@@ -268,7 +268,7 @@ button:active {
 }
 
 .feedback-answer {
-  font-family: var(--font-display);
+  font-weight: 600;
   font-weight: 600;
 }
 
@@ -299,7 +299,7 @@ button:active {
 }
 
 .stats-title {
-  font-family: var(--font-display);
+  font-weight: 600;
   font-size: 2rem;
   color: var(--color-text);
 }
@@ -332,7 +332,7 @@ button:active {
 }
 
 .stat dd {
-  font-family: var(--font-display);
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
   font-size: 1.7rem;
   font-weight: 650;
@@ -359,7 +359,7 @@ button:active {
 }
 
 .unit-title {
-  font-family: var(--font-display);
+  font-weight: 600;
   font-size: 1.3rem;
   color: var(--color-text);
   margin-bottom: var(--space-sm);
@@ -409,7 +409,7 @@ button:active {
 }
 
 .account-title {
-  font-family: var(--font-display);
+  font-weight: 600;
   font-size: 1.8rem;
   color: var(--color-text);
 }
@@ -491,4 +491,33 @@ button:active {
   color: var(--color-text-muted);
   font-style: italic;
   margin-block: 0.25rem 0.75rem;
+}
+
+.review-list {
+  list-style: none;
+  display: grid;
+  gap: 0.75rem;
+  padding: 0;
+}
+
+.review-entry {
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.review-text {
+  font-weight: 600;
+  font-size: 1.15rem;
+}
+
+.review-translation {
+  color: var(--color-text-muted);
+}
+
+.review-actions {
+  display: flex;
+  gap: 0.5rem;
 }

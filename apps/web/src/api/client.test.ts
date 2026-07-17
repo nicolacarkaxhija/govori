@@ -119,3 +119,50 @@ describe('fetchCourse and fetchLesson', () => {
     );
   });
 });
+
+describe('review clients', () => {
+  it('fetchPendingReviews parses the queue and fails closed', async () => {
+    const { fetchPendingReviews } = await import('./client');
+    stubFetch({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          pending: [
+            {
+              id: 'cccccccc-0000-4000-8000-000000000001',
+              kind: 'sentence',
+              text: 'Ja piju vodu.',
+              translations: [{ lang: 'en', text: 'I drink water.' }],
+            },
+          ],
+        }),
+    });
+    expect(await fetchPendingReviews()).toHaveLength(1);
+    stubFetch({ ok: false, json: () => Promise.resolve({}) });
+    expect(await fetchPendingReviews()).toBeNull();
+  });
+
+  it('decideReview reports whether the decision landed', async () => {
+    const { decideReview } = await import('./client');
+    stubFetch({ ok: true, json: () => Promise.resolve({}) });
+    expect(
+      await decideReview('cccccccc-0000-4000-8000-000000000001', 'approve'),
+    ).toBe(true);
+    stubFetch({ ok: false, json: () => Promise.resolve({}) });
+    expect(
+      await decideReview('cccccccc-0000-4000-8000-000000000001', 'reject'),
+    ).toBe(false);
+  });
+
+  it('fetchLessonSentences returns empty on failure', async () => {
+    const { fetchLessonSentences } = await import('./client');
+    stubFetch({ ok: true, json: () => Promise.resolve({ sentences: [] }) });
+    expect(
+      await fetchLessonSentences('cccccccc-0000-4000-8000-000000000001'),
+    ).toEqual([]);
+    stubFetch({ ok: false, json: () => Promise.resolve({}) });
+    expect(
+      await fetchLessonSentences('cccccccc-0000-4000-8000-000000000001'),
+    ).toEqual([]);
+  });
+});

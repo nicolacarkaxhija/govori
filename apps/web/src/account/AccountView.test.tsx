@@ -25,11 +25,13 @@ describe('AccountView', () => {
   it('creates an account and pushes the local log', async () => {
     client.fetchMe
       .mockResolvedValueOnce(null)
-      .mockResolvedValue({ user: { id: 'u1', email: 'ovca@example.com' } });
+      .mockResolvedValue({
+        user: { id: 'u1', email: 'ovca@example.com', role: 'learner' },
+      });
     client.signUp.mockResolvedValue(true);
     client.pushReviews.mockResolvedValue({ received: 3, stored: 3 });
     const user = userEvent.setup();
-    render(<AccountView onExit={vi.fn()} />);
+    render(<AccountView onExit={vi.fn()} onReview={vi.fn()} />);
     await user.type(await screen.findByLabelText('Display name'), 'Ovca');
     await user.type(screen.getByLabelText('Email'), 'ovca@example.com');
     await user.type(screen.getByLabelText('Password'), 'vlna-i-konji');
@@ -43,7 +45,7 @@ describe('AccountView', () => {
     client.fetchMe.mockResolvedValue(null);
     client.signUp.mockResolvedValue(true);
     const user = userEvent.setup();
-    render(<AccountView onExit={vi.fn()} />);
+    render(<AccountView onExit={vi.fn()} onReview={vi.fn()} />);
     await user.type(await screen.findByLabelText('Email'), 'o@example.com');
     await user.type(screen.getByLabelText('Password'), 'vlna-i-konji');
     await user.click(screen.getByRole('button', { name: 'Create account' }));
@@ -54,7 +56,7 @@ describe('AccountView', () => {
     client.fetchMe.mockResolvedValue(null);
     client.signIn.mockResolvedValue(false);
     const user = userEvent.setup();
-    render(<AccountView onExit={vi.fn()} />);
+    render(<AccountView onExit={vi.fn()} onReview={vi.fn()} />);
     await user.click(await screen.findByRole('button', { name: /Sign in$/ }));
     await user.type(screen.getByLabelText('Email'), 'ovca@example.com');
     await user.type(screen.getByLabelText('Password'), 'wrong-password');
@@ -64,11 +66,11 @@ describe('AccountView', () => {
 
   it('shows the signed-in state and signs out', async () => {
     client.fetchMe.mockResolvedValue({
-      user: { id: 'u1', email: 'ovca@example.com' },
+      user: { id: 'u1', email: 'ovca@example.com', role: 'learner' },
     });
     client.signOut.mockResolvedValue(true);
     const user = userEvent.setup();
-    render(<AccountView onExit={vi.fn()} />);
+    render(<AccountView onExit={vi.fn()} onReview={vi.fn()} />);
     expect(await screen.findByText('ovca@example.com')).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'Sign out' }));
     expect(
@@ -80,7 +82,7 @@ describe('AccountView', () => {
 describe('data rights', () => {
   it('downloads the export bundle', async () => {
     client.fetchMe.mockResolvedValue({
-      user: { id: 'u1', email: 'ovca@example.com' },
+      user: { id: 'u1', email: 'ovca@example.com', role: 'learner' },
     });
     client.exportData.mockResolvedValue({ user: {}, reviews: [] });
     const createObjectURL = vi.fn(() => 'blob:x');
@@ -90,7 +92,7 @@ describe('data rights', () => {
       Object.assign(URL, { createObjectURL, revokeObjectURL }),
     );
     const user = userEvent.setup();
-    render(<AccountView onExit={vi.fn()} />);
+    render(<AccountView onExit={vi.fn()} onReview={vi.fn()} />);
     await user.click(
       await screen.findByRole('button', { name: 'Download my data' }),
     );
@@ -100,11 +102,11 @@ describe('data rights', () => {
 
   it('erases only after the confirmation press', async () => {
     client.fetchMe.mockResolvedValue({
-      user: { id: 'u1', email: 'ovca@example.com' },
+      user: { id: 'u1', email: 'ovca@example.com', role: 'learner' },
     });
     client.deleteAccount.mockResolvedValue(true);
     const user = userEvent.setup();
-    render(<AccountView onExit={vi.fn()} />);
+    render(<AccountView onExit={vi.fn()} onReview={vi.fn()} />);
     await user.click(
       await screen.findByRole('button', { name: 'Delete my account' }),
     );
@@ -116,5 +118,21 @@ describe('data rights', () => {
     expect(
       await screen.findByText(/account and its data are gone/),
     ).toBeDefined();
+  });
+});
+
+describe('AccountView admin entry', () => {
+  it('shows the review button only for admins and forwards the click', async () => {
+    const onReview = vi.fn();
+    client.fetchMe.mockResolvedValue({
+      user: { id: 'u1', email: 'ovca@example.com', role: 'admin' },
+    });
+    client.pushReviews.mockResolvedValue(null);
+    const user = userEvent.setup();
+    render(<AccountView onExit={vi.fn()} onReview={onReview} />);
+    await user.click(
+      await screen.findByRole('button', { name: 'Review drafts' }),
+    );
+    expect(onReview).toHaveBeenCalledTimes(1);
   });
 });

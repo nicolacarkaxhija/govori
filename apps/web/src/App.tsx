@@ -7,6 +7,7 @@ import { LessonView } from './learn/LessonView';
 import { CourseView } from './learn/CourseView';
 import { AccountView } from './account/AccountView';
 import { StatsView } from './stats/StatsView';
+import { ReviewView } from './review/ReviewView';
 
 export function App() {
   const { theme, toggle } = useTheme();
@@ -19,6 +20,7 @@ export function App() {
     | { name: 'lesson'; lessonId: string }
     | { name: 'stats' }
     | { name: 'account' }
+    | { name: 'review' }
   >({ name: 'home' });
 
   useEffect(() => {
@@ -105,6 +107,16 @@ export function App() {
         <AccountView
           onExit={() => {
             setView({ name: 'home' });
+          }}
+          onReview={() => {
+            setView({ name: 'review' });
+          }}
+        />
+      ) : view.name === 'review' ? (
+        <ReviewView
+          script={script}
+          onExit={() => {
+            setView({ name: 'account' });
           }}
         />
       ) : view.name === 'lesson' ? (
