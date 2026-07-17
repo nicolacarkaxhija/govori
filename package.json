@@ -2,8 +2,8 @@
   "name": "govori",
   "private": true,
   "type": "module",
-  "version": "0.0.0",
-  "description": "Govori \u2014 community-driven Interslavic learning app",
+  "version": "0.1.0",
+  "description": "Govori — community-driven Interslavic learning app",
   "license": "AGPL-3.0-only",
   "author": "Nicola Carkaxhija",
   "repository": {
