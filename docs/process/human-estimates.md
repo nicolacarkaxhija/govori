@@ -97,4 +97,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | docs: record the course draft completion estimate | 4–5 | Forge batch (5 commits): unit 3–5 grammar facts (past tense, agreement, instrumental, double negation, locative), 12 lessons generated in parallel and reviewed (188 sentences), containment-matcher fix for hyphenated and short agreement forms, one lesson regenerated for suppletive byti |
 
-**Running total: 129.2–164.2 h**
+| 2026-07-17 | docs: record the originality audit estimate | 2.5–3 | Forge batch (2 commits): normalize-folded n-gram shingle audit (module + tests + CLI), reference corpus wiring (interslavic.fun archive 504 pages + Tatoeba), all 316 draft sentences audited clean |
+
+**Running total: 131.7–167.2 h**
