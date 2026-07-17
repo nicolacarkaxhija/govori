@@ -1,0 +1,52 @@
+name: govori
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: govori
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: govori
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U govori -d govori']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      GOVORI_DB__URL: postgres://govori:${POSTGRES_PASSWORD}@db:5432/govori
+      GOVORI_SERVER__BASE_URL: ${PUBLIC_URL:-http://localhost:8080}
+      GOVORI_SERVER__CORS_ORIGINS: ${PUBLIC_URL:-http://localhost:8080}
+      GOVORI_AUTH__SECRET: ${AUTH_SECRET:?set AUTH_SECRET}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    ports:
+      - '${HTTP_PORT:-8080}:80'
+      - '${HTTPS_PORT:-8443}:443'
+    depends_on:
+      - api
+    volumes:
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  db-data:
+  caddy-data:
+  caddy-config:

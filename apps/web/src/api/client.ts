@@ -9,7 +9,9 @@ const metaSchema = z.object({
 
 export type Meta = z.infer<typeof metaSchema>;
 
-const apiBaseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+// Same-origin by default: production serves web and api behind one host
+// (ADR 0027); dev and e2e builds inject an explicit origin.
+const apiBaseUrl = import.meta.env.VITE_API_URL ?? window.location.origin;
 
 export async function fetchMeta(): Promise<Meta | null> {
   try {

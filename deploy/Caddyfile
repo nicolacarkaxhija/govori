@@ -1,0 +1,17 @@
+# One origin serves everything: static PWA with SPA fallback, api proxied
+# by path (ADR 0027). SITE_ADDRESS comes from the environment — ":80" behind
+# an edge proxy, or the real domain for automatic TLS.
+{$SITE_ADDRESS::80} {
+	encode zstd gzip
+
+	@api path /health /meta /flags /items /items/* /openapi.json /me /sync/* /admin/* /api/*
+	handle @api {
+		reverse_proxy api:3000
+	}
+
+	handle {
+		root * /srv/web
+		try_files {path} /index.html
+		file_server
+	}
+}
