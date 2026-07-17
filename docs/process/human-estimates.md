@@ -93,4 +93,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | docs: record the generation groundwork estimate | 4–5 | Forge batch (7 commits): fact-pack builder with closed support vocabulary and sanctioned forms, committed unit-1 grammar facts + prompt template, draft schema + canonical/vocabulary validators, prompt emitter + validation CLI, calibrated lesson-1 generation (16 sentences, 0 errors, 0 warnings) |
 
-**Running total: 122.2–155.2 h**
+| 2026-07-17 | docs: record the lesson draft generation estimate | 3–4 | Forge batch (5 commits): cumulative lesson-pack loader (multi-unit facts/forms, prefix filtering), unit-2 grammar facts, 7 lesson drafts generated and human-reviewed (128 sentences total incl. lesson 1; 0 validation errors, every off-list token flagged) |
+
+**Running total: 125.2–159.2 h**
