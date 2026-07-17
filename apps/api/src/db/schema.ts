@@ -8,7 +8,12 @@ import {
   timestamp,
   uuid,
 } from 'drizzle-orm/pg-core';
-import type { Item, OriginalityAudit, Provenance } from '@govori/content';
+import type {
+  CurriculumArtifact,
+  Item,
+  OriginalityAudit,
+  Provenance,
+} from '@govori/content';
 
 /** The content atom (ADR 0002/0003); text is canonical etymological Latin. */
 export const items = pgTable('items', {
@@ -75,8 +80,13 @@ export const units = pgTable('units', {
   position: real('position').notNull(),
 });
 
+type LessonDialogue = NonNullable<
+  CurriculumArtifact['units'][number]['lessons'][number]['dialogue']
+>;
+
 export const lessons = pgTable('lessons', {
   id: uuid('id').primaryKey(),
+  dialogue: jsonb('dialogue').$type<LessonDialogue>(),
   unitId: uuid('unit_id')
     .notNull()
     .references(() => units.id, { onDelete: 'cascade' }),

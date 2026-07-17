@@ -3,7 +3,12 @@ import type { CurriculumArtifact, Item } from '@govori/content';
 import type { Db } from '../db/client.js';
 import { lessonItems, lessons, units } from '../db/schema.js';
 import type { ItemQueries } from '../content/ports.js';
-import type { CourseQueries, CourseRepository, UnitSummary } from './ports.js';
+import type {
+  CourseQueries,
+  CourseRepository,
+  LessonDialogue,
+  UnitSummary,
+} from './ports.js';
 
 export class DrizzleCourse implements CourseRepository, CourseQueries {
   constructor(
@@ -26,6 +31,7 @@ export class DrizzleCourse implements CourseRepository, CourseQueries {
             unitId,
             title: lesson.title,
             position: lessonIndex,
+            dialogue: lesson.dialogue ?? null,
           });
           await tx.insert(lessonItems).values(
             lesson.itemIds.map((itemId, itemIndex) => ({
@@ -65,7 +71,9 @@ export class DrizzleCourse implements CourseRepository, CourseQueries {
 
   async lessonItems(
     lessonId: string,
-  ): Promise<{ title: string; items: Item[] } | undefined> {
+  ): Promise<
+    { title: string; items: Item[]; dialogue?: LessonDialogue } | undefined
+  > {
     const [lesson] = await this.db
       .select()
       .from(lessons)
@@ -79,6 +87,10 @@ export class DrizzleCourse implements CourseRepository, CourseQueries {
       .where(eq(lessonItems.lessonId, lessonId))
       .orderBy(asc(lessonItems.position));
     const found = await this.items.findByIds(links.map((link) => link.itemId));
-    return { title: lesson.title, items: found };
+    return {
+      title: lesson.title,
+      items: found,
+      ...(lesson.dialogue === null ? {} : { dialogue: lesson.dialogue }),
+    };
   }
 }

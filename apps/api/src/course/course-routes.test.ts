@@ -80,3 +80,44 @@ describe('GET /lessons/:id', () => {
     await app.close();
   });
 });
+
+describe('GET /lessons/:id dialogue', () => {
+  it('serves the intro dialogue with its provenance', async () => {
+    const app = buildApp(
+      makeTestDeps({
+        course: {
+          overview: () => Promise.resolve([]),
+          lessonItems: () =>
+            Promise.resolve({
+              title: 'Lekcija 1',
+              items: [voda],
+              dialogue: {
+                turns: [
+                  {
+                    speaker: 'Ana',
+                    text: 'Kto jesi ty?',
+                    translation: 'Who are you?',
+                  },
+                ],
+                provenance: {
+                  origin: 'ai-draft',
+                  model: 'calibration',
+                  generatedAt: '2026-07-17T12:00:00.000Z',
+                },
+              },
+            }),
+        },
+      }),
+    );
+    const response = await app.inject({
+      method: 'GET',
+      url: `/lessons/${LESSON_ID}`,
+    });
+    expect(response.statusCode).toBe(200);
+    const body = response.json<{
+      dialogue?: { turns: { speaker: string }[] };
+    }>();
+    expect(body.dialogue?.turns[0]?.speaker).toBe('Ana');
+    await app.close();
+  });
+});

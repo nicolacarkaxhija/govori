@@ -1,5 +1,9 @@
 import type { CurriculumArtifact, Item } from '@govori/content';
 
+export type LessonDialogue = NonNullable<
+  CurriculumArtifact['units'][number]['lessons'][number]['dialogue']
+>;
+
 export interface LessonSummary {
   id: string;
   title: string;
@@ -22,5 +26,7 @@ export interface CourseQueries {
   overview(): Promise<UnitSummary[]>;
   lessonItems(
     lessonId: string,
-  ): Promise<{ title: string; items: Item[] } | undefined>;
+  ): Promise<
+    { title: string; items: Item[]; dialogue?: LessonDialogue } | undefined
+  >;
 }

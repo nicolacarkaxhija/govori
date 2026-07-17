@@ -8,7 +8,7 @@ import {
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
 import { z } from 'zod';
-import { ItemSchema, type Item } from '@govori/content';
+import { ItemSchema, ProvenanceSchema, type Item } from '@govori/content';
 import { transliterate } from '@govori/transliteration';
 import { resolveFlags } from '@govori/config';
 import type { Auth } from './auth/auth.js';
@@ -617,6 +617,19 @@ export function buildApp({
             200: z.object({
               title: z.string(),
               items: z.array(ItemSchema),
+              /** Intro scene with disclosed provenance (ADR 0012/0039). */
+              dialogue: z
+                .object({
+                  turns: z.array(
+                    z.object({
+                      speaker: z.string(),
+                      text: z.string(),
+                      translation: z.string(),
+                    }),
+                  ),
+                  provenance: ProvenanceSchema,
+                })
+                .optional(),
             }),
             404: NotFoundSchema,
           },

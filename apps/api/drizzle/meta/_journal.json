@@ -50,6 +50,13 @@
       "when": 1784288913027,
       "tag": "0006_review-queue",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1784296945032,
+      "tag": "0007_lesson-dialogue",
+      "breakpoints": true
     }
   ]
 }
