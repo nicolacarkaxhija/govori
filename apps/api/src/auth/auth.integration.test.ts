@@ -5,6 +5,7 @@ import {
 } from '@testcontainers/postgresql';
 import { buildApp } from '../app.js';
 import { loadConfig } from '../config.js';
+import { makeTestDeps } from '../test-support.js';
 import { createDb, type Db } from '../db/client.js';
 import { runMigrations } from '../db/migrate.js';
 import { createAuth } from './auth.js';
@@ -12,15 +13,9 @@ import { DrizzleReviewStore } from '../reviews/drizzle-review-store.js';
 import { DrizzleUserRoles } from './drizzle-user-roles.js';
 import { DrizzleFlagStore } from '../flags/drizzle-flag-store.js';
 import { sql } from 'drizzle-orm';
-import type { ItemQueries } from '../content/ports.js';
 
 let container: StartedPostgreSqlContainer;
 let db: Db;
-
-const noItems: ItemQueries = {
-  findById: () => Promise.resolve(undefined),
-  list: () => Promise.resolve([]),
-};
 
 beforeAll(async () => {
   container = await new PostgreSqlContainer('postgres:17-alpine').start();
@@ -34,21 +29,18 @@ afterAll(async () => {
 
 function realApp() {
   const config = loadConfig({});
-  return buildApp({
-    config,
-    items: noItems,
-    flagStates: new DrizzleFlagStore(db),
-    auth: createAuth(db, {
-      secret: config.auth.secret,
-      baseUrl: config.server.baseUrl,
+  return buildApp(
+    makeTestDeps({
+      config,
+      auth: createAuth(db, {
+        secret: config.auth.secret,
+        baseUrl: config.server.baseUrl,
+      }),
+      userRoles: new DrizzleUserRoles(db),
+      reviews: new DrizzleReviewStore(db),
+      flagStates: new DrizzleFlagStore(db),
     }),
-    userRoles: new DrizzleUserRoles(db),
-    reviews: new DrizzleReviewStore(db),
-    stats: {
-      counts: () =>
-        Promise.resolve({ items: 0, translations: 0, reviews: 0, learners: 0 }),
-    },
-  });
+  );
 }
 
 describe('auth end to end', () => {

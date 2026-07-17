@@ -99,6 +99,47 @@ export type OriginalityAudit = z.infer<typeof OriginalityAuditSchema>;
 export type Item = z.infer<typeof ItemSchema>;
 export type ContentArtifact = z.infer<typeof ContentArtifactSchema>;
 
+/**
+ * Curriculum: the gated course structure over the item pool (ADR 0009).
+ * Shipped as its own artifact so structure and items version independently.
+ */
+export const CurriculumArtifactSchema = z.object({
+  schemaVersion: z.literal(1),
+  createdAt: z.iso.datetime(),
+  producer: z.object({
+    name: z.string().min(1),
+    version: z.string().min(1),
+  }),
+  units: z
+    .array(
+      z.object({
+        title: z.string().min(1),
+        lessons: z
+          .array(
+            z.object({
+              title: z.string().min(1),
+              itemIds: z.array(z.uuid()).min(1),
+            }),
+          )
+          .min(1),
+      }),
+    )
+    .min(1),
+});
+
+export type CurriculumArtifact = z.infer<typeof CurriculumArtifactSchema>;
+
+export function parseCurriculumArtifact(input: unknown): CurriculumArtifact {
+  const result = CurriculumArtifactSchema.safeParse(input);
+  if (!result.success) {
+    const details = result.error.issues
+      .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
+      .join('; ');
+    throw new ArtifactError(`invalid curriculum artifact — ${details}`);
+  }
+  return result.data;
+}
+
 /** Parses an untrusted artifact, throwing ArtifactError with every path. */
 export function parseContentArtifact(input: unknown): ContentArtifact {
   const result = ContentArtifactSchema.safeParse(input);

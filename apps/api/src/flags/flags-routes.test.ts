@@ -1,43 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { buildApp } from '../app.js';
-import { loadConfig } from '../config.js';
-import type { ItemQueries } from '../content/ports.js';
-import type { FlagStore } from './ports.js';
-
-import type { Auth } from '../auth/auth.js';
-
-const noAuth = {
-  handler: () => Promise.resolve(new Response(null, { status: 404 })),
-  api: { getSession: () => Promise.resolve(null) },
-} as unknown as Auth;
-
-const noReviews = {
-  addAll: () => Promise.resolve(0),
-  listSince: () => Promise.resolve([]),
-};
-
-const noItems: ItemQueries = {
-  findById: () => Promise.resolve(undefined),
-  list: () => Promise.resolve([]),
-};
+import { makeTestDeps } from '../test-support.js';
 
 function appWithStates(states: Record<string, boolean>) {
-  const flagStates: FlagStore = {
-    getStates: () => Promise.resolve(states),
-    setFlag: () => Promise.resolve(),
-  };
-  return buildApp({
-    config: loadConfig({}),
-    items: noItems,
-    flagStates,
-    auth: noAuth,
-    userRoles: { getRole: () => Promise.resolve('learner' as const) },
-    reviews: noReviews,
-    stats: {
-      counts: () =>
-        Promise.resolve({ items: 0, translations: 0, reviews: 0, learners: 0 }),
-    },
-  });
+  return buildApp(
+    makeTestDeps({
+      flagStates: {
+        getStates: () => Promise.resolve(states),
+        setFlag: () => Promise.resolve(),
+      },
+    }),
+  );
 }
 
 describe('GET /flags', () => {

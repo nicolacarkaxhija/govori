@@ -8,14 +8,16 @@ import { createAuth } from './auth/auth.js';
 import { DrizzleUserRoles } from './auth/drizzle-user-roles.js';
 import { DrizzleReviewStore } from './reviews/drizzle-review-store.js';
 import { DrizzleStats } from './stats/drizzle-stats.js';
+import { DrizzleCourse } from './course/drizzle-course.js';
 
 // Composition root: the only place that touches process state (ADR 0024).
 const config = loadConfig(process.env);
 const db = createDb(config.db.url);
 await runMigrations(db);
+const itemRepository = new DrizzleItemRepository(db);
 const app = buildApp({
   config,
-  items: new DrizzleItemRepository(db),
+  items: itemRepository,
   flagStates: new DrizzleFlagStore(db),
   auth: createAuth(db, {
     secret: config.auth.secret,
@@ -24,6 +26,7 @@ const app = buildApp({
   userRoles: new DrizzleUserRoles(db),
   reviews: new DrizzleReviewStore(db),
   stats: new DrizzleStats(db),
+  course: new DrizzleCourse(db, itemRepository),
 });
 
 try {

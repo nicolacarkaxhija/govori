@@ -19,6 +19,22 @@ export class DrizzleItemRepository implements ItemRepository, ItemQueries {
     return assembled;
   }
 
+  async findByIds(ids: readonly string[]): Promise<Item[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+    const rows = await this.db
+      .select()
+      .from(items)
+      .where(inArray(items.id, [...ids]));
+    const assembled = await this.assemble(rows);
+    const byId = new Map(assembled.map((item) => [item.id, item]));
+    return ids.flatMap((id) => {
+      const item = byId.get(id);
+      return item === undefined ? [] : [item];
+    });
+  }
+
   async list(limit: number, offset: number): Promise<Item[]> {
     const rows = await this.db
       .select()

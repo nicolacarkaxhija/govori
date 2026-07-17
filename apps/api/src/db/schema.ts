@@ -53,6 +53,36 @@ export const contrastiveNotes = pgTable(
   ],
 );
 
+/** Gated course structure over the item pool (ADR 0009). */
+export const units = pgTable('units', {
+  id: uuid('id').primaryKey(),
+  title: text('title').notNull(),
+  position: real('position').notNull(),
+});
+
+export const lessons = pgTable('lessons', {
+  id: uuid('id').primaryKey(),
+  unitId: uuid('unit_id')
+    .notNull()
+    .references(() => units.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  position: real('position').notNull(),
+});
+
+export const lessonItems = pgTable(
+  'lesson_items',
+  {
+    lessonId: uuid('lesson_id')
+      .notNull()
+      .references(() => lessons.id, { onDelete: 'cascade' }),
+    itemId: uuid('item_id')
+      .notNull()
+      .references(() => items.id, { onDelete: 'cascade' }),
+    position: real('position').notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.lessonId, table.itemId] })],
+);
+
 /** Auth tables owned by better-auth (ADR 0021); shapes follow its core schema. */
 export const user = pgTable('user', {
   id: text('id').primaryKey(),

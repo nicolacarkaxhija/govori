@@ -4,6 +4,7 @@ import {
   ContentArtifactSchema,
   ItemSchema,
   parseContentArtifact,
+  parseCurriculumArtifact,
 } from './index.js';
 
 const validItem = {
@@ -136,5 +137,41 @@ describe('parseContentArtifact', () => {
     };
     expect(() => parseContentArtifact(broken)).toThrow(ArtifactError);
     expect(() => parseContentArtifact(broken)).toThrow(/items\.0\.text/);
+  });
+});
+
+describe('parseCurriculumArtifact', () => {
+  const curriculum = {
+    schemaVersion: 1,
+    createdAt: '2026-07-17T00:00:00Z',
+    producer: { name: 'govori-content-forge', version: '0.1.0' },
+    units: [
+      {
+        title: 'Jedinica 1',
+        lessons: [
+          {
+            title: 'Lekcija 1',
+            itemIds: ['3e2d8f0a-4b1c-4f6e-9a7d-1c2b3a4d5e6f'],
+          },
+        ],
+      },
+    ],
+  };
+
+  it('accepts a structured curriculum', () => {
+    expect(parseCurriculumArtifact(curriculum).units).toHaveLength(1);
+  });
+
+  it('rejects lessons without items, naming the path', () => {
+    const broken = {
+      ...curriculum,
+      units: [
+        { title: 'Jedinica 1', lessons: [{ title: 'Lekcija 1', itemIds: [] }] },
+      ],
+    };
+    expect(() => parseCurriculumArtifact(broken)).toThrow(ArtifactError);
+    expect(() => parseCurriculumArtifact(broken)).toThrow(
+      /units\.0\.lessons\.0\.itemIds/,
+    );
   });
 });

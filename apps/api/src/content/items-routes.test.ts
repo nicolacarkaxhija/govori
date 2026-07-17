@@ -1,15 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { Item } from '@govori/content';
 import { buildApp } from './../app.js';
-import { loadConfig } from './../config.js';
+import { makeTestDeps } from '../test-support.js';
 import type { ItemQueries } from './ports.js';
-
-import type { Auth } from '../auth/auth.js';
-
-const noAuth = {
-  handler: () => Promise.resolve(new Response(null, { status: 404 })),
-  api: { getSession: () => Promise.resolve(null) },
-} as unknown as Auth;
 
 const voda: Item = {
   id: '3e2d8f0a-4b1c-4f6e-9a7d-1c2b3a4d5e6f',
@@ -31,38 +24,17 @@ class FakeItemQueries implements ItemQueries {
     return Promise.resolve(id === voda.id ? voda : undefined);
   }
 
+  findByIds(ids: readonly string[]): Promise<Item[]> {
+    return Promise.resolve(ids.includes(voda.id) ? [voda] : []);
+  }
+
   list(limit: number, offset: number): Promise<Item[]> {
     return Promise.resolve(offset > 0 ? [] : [voda].slice(0, limit));
   }
 }
 
-const learnerRoles = {
-  getRole: () => Promise.resolve('learner' as const),
-};
-
-const noReviews = {
-  addAll: () => Promise.resolve(0),
-  listSince: () => Promise.resolve([]),
-};
-
-const noFlags = {
-  getStates: () => Promise.resolve({}),
-  setFlag: () => Promise.resolve(),
-};
-
 function testApp() {
-  return buildApp({
-    config: loadConfig({}),
-    items: new FakeItemQueries(),
-    flagStates: noFlags,
-    auth: noAuth,
-    userRoles: learnerRoles,
-    reviews: noReviews,
-    stats: {
-      counts: () =>
-        Promise.resolve({ items: 0, translations: 0, reviews: 0, learners: 0 }),
-    },
-  });
+  return buildApp(makeTestDeps({ items: new FakeItemQueries() }));
 }
 
 describe('GET /items/:id', () => {

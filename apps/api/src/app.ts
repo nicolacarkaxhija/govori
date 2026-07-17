@@ -19,6 +19,7 @@ import type { FlagStore } from './flags/ports.js';
 import type { UserRoles } from './auth/ports.js';
 import type { ReviewEventStore } from './reviews/ports.js';
 import type { StatsQueries } from './stats/ports.js';
+import type { CourseQueries } from './course/ports.js';
 
 export interface AppDependencies {
   config: ApiConfig;
@@ -28,6 +29,7 @@ export interface AppDependencies {
   userRoles: UserRoles;
   reviews: ReviewEventStore;
   stats: StatsQueries;
+  course: CourseQueries;
 }
 
 /** Bridges Fastify's raw request to the Web Request better-auth consumes. */
@@ -91,6 +93,7 @@ export function buildApp({
   userRoles,
   reviews,
   stats,
+  course,
 }: AppDependencies) {
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
   app.setValidatorCompiler(validatorCompiler);
@@ -317,6 +320,55 @@ export function buildApp({
             request.query.since,
           ),
         };
+      },
+    );
+
+    routes.get(
+      '/course',
+      {
+        schema: {
+          response: {
+            200: z.object({
+              units: z.array(
+                z.object({
+                  id: z.uuid(),
+                  title: z.string(),
+                  lessons: z.array(
+                    z.object({
+                      id: z.uuid(),
+                      title: z.string(),
+                      itemCount: z.number(),
+                    }),
+                  ),
+                }),
+              ),
+            }),
+          },
+        },
+      },
+      async () => ({ units: await course.overview() }),
+    );
+
+    routes.get(
+      '/lessons/:id',
+      {
+        schema: {
+          params: z.object({ id: z.uuid() }),
+          response: {
+            200: z.object({
+              title: z.string(),
+              items: z.array(ItemSchema),
+            }),
+            404: NotFoundSchema,
+          },
+        },
+      },
+      async (request, reply) => {
+        const lesson = await course.lessonItems(request.params.id);
+        if (lesson === undefined) {
+          return reply.status(404).send({ message: 'lesson not found' });
+        }
+        return lesson;
       },
     );
 

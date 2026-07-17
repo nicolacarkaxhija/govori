@@ -10,5 +10,7 @@ export interface ItemRepository {
 /** Read port for serving content. */
 export interface ItemQueries {
   findById(id: string): Promise<Item | undefined>;
+  /** Preserves the order of the requested ids; unknown ids are skipped. */
+  findByIds(ids: readonly string[]): Promise<Item[]>;
   list(limit: number, offset: number): Promise<Item[]>;
 }

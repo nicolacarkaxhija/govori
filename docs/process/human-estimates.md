@@ -77,4 +77,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: order lessons by community frequency | 2–2.5 | Frequency through schema/forge/db/serving; the pool now teaches common words first |
 
-**Running total: 93.7–119.7 h**
+| 2026-07-17 | feat: add the gated course model | 4–5 | Units/lessons tables+migration, course ports+adapter, curriculum artifact contract, importer mode, routes, suites migrated to makeTestDeps |
+
+**Running total: 97.7–124.7 h**

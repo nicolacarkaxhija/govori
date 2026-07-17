@@ -14,6 +14,7 @@ export function makeTestDeps(
     config: loadConfig(env),
     items: {
       findById: () => Promise.resolve(undefined),
+      findByIds: () => Promise.resolve([]),
       list: () => Promise.resolve([]),
     },
     flagStates: {
@@ -32,6 +33,10 @@ export function makeTestDeps(
     stats: {
       counts: () =>
         Promise.resolve({ items: 0, translations: 0, reviews: 0, learners: 0 }),
+    },
+    course: {
+      overview: () => Promise.resolve([]),
+      lessonItems: () => Promise.resolve(undefined),
     },
     ...overrides,
   };

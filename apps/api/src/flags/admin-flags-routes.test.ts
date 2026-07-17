@@ -1,18 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { buildApp, type AppDependencies } from '../app.js';
-import { loadConfig } from '../config.js';
+import { buildApp } from '../app.js';
 import type { Auth } from '../auth/auth.js';
-import type { ItemQueries } from '../content/ports.js';
-
-const noReviews = {
-  addAll: () => Promise.resolve(0),
-  listSince: () => Promise.resolve([]),
-};
-
-const noItems: ItemQueries = {
-  findById: () => Promise.resolve(undefined),
-  list: () => Promise.resolve([]),
-};
+import { makeTestDeps } from '../test-support.js';
 
 function sessionAs(userId: string | null): Auth {
   return {
@@ -35,9 +24,7 @@ interface Setup {
 
 function testApp({ userRole = 'learner', session = 'u1' }: Setup = {}) {
   const written: { key: string; enabled: boolean; changedBy: string }[] = [];
-  const deps: AppDependencies = {
-    config: loadConfig({}),
-    items: noItems,
+  const deps = makeTestDeps({
     auth: sessionAs(session),
     flagStates: {
       getStates: () =>
@@ -49,15 +36,8 @@ function testApp({ userRole = 'learner', session = 'u1' }: Setup = {}) {
         return Promise.resolve();
       },
     },
-    userRoles: {
-      getRole: () => Promise.resolve(userRole),
-    },
-    reviews: noReviews,
-    stats: {
-      counts: () =>
-        Promise.resolve({ items: 0, translations: 0, reviews: 0, learners: 0 }),
-    },
-  };
+    userRoles: { getRole: () => Promise.resolve(userRole) },
+  });
   return { app: buildApp(deps), written };
 }
 

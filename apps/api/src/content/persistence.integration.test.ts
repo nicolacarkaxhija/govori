@@ -9,6 +9,7 @@ import { DrizzleItemRepository } from './drizzle-item-repository.js';
 import { DrizzleFlagStore } from '../flags/drizzle-flag-store.js';
 import { importArtifact } from './import-artifact.js';
 import { DrizzleStats } from '../stats/drizzle-stats.js';
+import { DrizzleCourse } from '../course/drizzle-course.js';
 
 let container: StartedPostgreSqlContainer;
 let db: Db;
@@ -130,6 +131,44 @@ describe('DrizzleItemRepository reads', () => {
     expect(first[0]?.frequency).toBeCloseTo(9.9, 5);
     const all = [...first, ...rest].map((item) => item.id);
     expect(new Set(all).size).toBe(3);
+  });
+});
+
+describe('DrizzleCourse', () => {
+  it('replaces the curriculum and serves ordered lesson items', async () => {
+    const repository = new DrizzleItemRepository(db);
+    const course = new DrizzleCourse(db, repository);
+    const curriculum = {
+      schemaVersion: 1 as const,
+      createdAt: '2026-07-17T00:00:00Z',
+      producer: { name: 'test', version: '0.0.1' },
+      units: [
+        {
+          title: 'Jedinica 1',
+          lessons: [
+            {
+              title: 'Lekcija 1',
+              itemIds: [
+                '9b8a7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d',
+                '3e2d8f0a-4b1c-4f6e-9a7d-1c2b3a4d5e6f',
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    await course.replaceCurriculum(curriculum);
+    await course.replaceCurriculum(curriculum);
+    const overview = await course.overview();
+    expect(overview).toHaveLength(1);
+    expect(overview[0]?.lessons[0]?.itemCount).toBe(2);
+    const lessonId = overview[0]?.lessons[0]?.id ?? '';
+    const lesson = await course.lessonItems(lessonId);
+    expect(lesson?.title).toBe('Lekcija 1');
+    expect(lesson?.items.map((item) => item.text)).toEqual([
+      'Voda je čista.',
+      'voda',
+    ]);
   });
 });
 

@@ -1,15 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { ReviewEvent } from '@govori/srs';
-import { buildApp, type AppDependencies } from '../app.js';
-import { loadConfig } from '../config.js';
+import { buildApp } from '../app.js';
 import type { Auth } from '../auth/auth.js';
-import type { ItemQueries } from '../content/ports.js';
+import { makeTestDeps } from '../test-support.js';
 import type { ReviewEventStore } from './ports.js';
-
-const noItems: ItemQueries = {
-  findById: () => Promise.resolve(undefined),
-  list: () => Promise.resolve([]),
-};
 
 function sessionAs(userId: string | null): Auth {
   return {
@@ -59,21 +53,7 @@ class FakeReviewStore implements ReviewEventStore {
 
 function testApp(session: string | null) {
   const store = new FakeReviewStore();
-  const deps: AppDependencies = {
-    config: loadConfig({}),
-    items: noItems,
-    auth: sessionAs(session),
-    flagStates: {
-      getStates: () => Promise.resolve({}),
-      setFlag: () => Promise.resolve(),
-    },
-    userRoles: { getRole: () => Promise.resolve('learner' as const) },
-    reviews: store,
-    stats: {
-      counts: () =>
-        Promise.resolve({ items: 0, translations: 0, reviews: 0, learners: 0 }),
-    },
-  };
+  const deps = makeTestDeps({ auth: sessionAs(session), reviews: store });
   return { app: buildApp(deps), store };
 }
 
