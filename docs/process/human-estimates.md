@@ -103,4 +103,10 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: add the cloze exercise over real sentences | 2.5–3 | buildCloze with stem-tolerant blanking crediting the pool word, ClozeCard, sentence-aware mode rotation with deferred advance, client fn, styles, tests at all gates |
 
-**Running total: 135.7–172.2 h**
+| 2026-07-17 | docs: decide the review queue publication path | 0.5 | ADR 0038 + registry row |
+
+| 2026-07-17 | feat: gate ai drafts behind an admin review queue | 3–4 | review_queue table + migration, port + Drizzle adapter (insert-once, decide-once), import-cli --drafts, admin list/decide routes with approve-publishes semantics, role on /me, route + integration tests |
+
+| 2026-07-17 | feat: let admins review drafts in the app | 2.5–3 | Review clients, ReviewView (approve/reject, script-aware, unavailable state), admin entry in AccountView, App wiring, styles, tests to all gates; live end-to-end verification (314 queued → approve → served publicly) |
+
+**Running total: 141.7–179.7 h**
