@@ -147,4 +147,7 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: approve the unit 1 dialogues after review + draft units 2–5 (forge) | 3–3.5 | Review-driven line revisions, approval flow exercised end to end (rebuild → reimport → scenes live), 16 further scenes generated in two parallel waves, all validated clean and queued for review |
 
-**Running total: 174.7–221.2 h**
+| 2026-07-17 | feat: accept learner contributions into review | 1.5–2 | Provenance schema loosened to real auth ids, authenticated POST /contribute building fully validated items with human provenance into the existing review queue, three-path route tests |
+| 2026-07-17 | feat: add the contribute form | 1.5–2 | New view wired into the app shell, client call with four-way status mapping, canonical pre-check before the network, sign-in handoff, i18n in both languages, coverage gates held |
+
+**Running total: 177.7–225.2 h**

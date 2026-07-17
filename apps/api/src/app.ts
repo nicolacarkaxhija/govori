@@ -349,6 +349,65 @@ export function buildApp({
       },
     );
 
+    routes.post(
+      '/contribute',
+      {
+        schema: {
+          body: z.object({
+            kind: z.enum(['word', 'phrase', 'sentence']),
+            text: z.string().trim().min(1).max(500),
+            translations: z
+              .array(
+                z.object({
+                  lang: z.string().min(2).max(11),
+                  text: z.string().trim().min(1).max(500),
+                }),
+              )
+              .min(1)
+              .max(8),
+          }),
+          response: {
+            202: z.object({ status: z.literal('pending-review') }),
+            400: z.object({ message: z.string() }),
+            401: z.object({ message: z.string() }),
+          },
+        },
+      },
+      async (request, reply) => {
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        // Contributions are open to every learner (ADR 0009); they enter
+        // the same review queue AI drafts do (ADR 0038).
+        const candidate = ItemSchema.safeParse({
+          id: crypto.randomUUID(),
+          kind: request.body.kind,
+          text: request.body.text,
+          translations: request.body.translations,
+          notes: [],
+          provenance: {
+            origin: 'human',
+            contributorId: sessionResult.user.id,
+          },
+        });
+        if (!candidate.success) {
+          return reply.status(400).send({
+            message:
+              'the Interslavic text must use canonical etymological Latin',
+          });
+        }
+        await reviewQueue.addPending([candidate.data]);
+        return reply.status(202).send({ status: 'pending-review' });
+      },
+    );
+
     routes.get(
       '/admin/review',
       {

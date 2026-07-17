@@ -25,7 +25,8 @@ export const ContrastiveNoteSchema = z.object({
 export const ProvenanceSchema = z.discriminatedUnion('origin', [
   z.object({
     origin: z.literal('human'),
-    contributorId: z.uuid(),
+    /** The auth system's user id — an opaque string, not a UUID. */
+    contributorId: z.string().min(1),
   }),
   z.object({
     origin: z.literal('ai-draft'),
