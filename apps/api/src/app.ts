@@ -23,6 +23,7 @@ import type { CourseQueries } from './course/ports.js';
 import type { AccountRights } from './account/ports.js';
 import type { ReviewQueue } from './review/ports.js';
 import type { UserDirectory } from './auth/ports.js';
+import type { RecordingStore } from './audio/ports.js';
 
 export interface AppDependencies {
   config: ApiConfig;
@@ -38,6 +39,7 @@ export interface AppDependencies {
   /** Write side used when a draft is approved (ADR 0038). */
   itemWriter: { upsertMany(items: readonly Item[]): Promise<void> };
   userDirectory: UserDirectory;
+  recordings: RecordingStore;
 }
 
 /** Bridges Fastify's raw request to the Web Request better-auth consumes. */
@@ -106,6 +108,7 @@ export function buildApp({
   reviewQueue,
   itemWriter,
   userDirectory,
+  recordings,
 }: AppDependencies) {
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
   app.setValidatorCompiler(validatorCompiler);
@@ -405,6 +408,105 @@ export function buildApp({
         }
         await reviewQueue.addPending([candidate.data]);
         return reply.status(202).send({ status: 'pending-review' });
+      },
+    );
+
+    // Community audio (ADR 0004): fully built, dark until the flag flips.
+    // Recordings publish without review (ADR 0008); accents stay diverse.
+    routes.post(
+      '/items/:id/audio',
+      {
+        schema: {
+          params: z.object({ id: z.uuid() }),
+          body: z.object({
+            mime: z.enum(['audio/webm', 'audio/ogg', 'audio/mpeg']),
+            /** ~1 MiB of audio once decoded — cost caution (ADR 0004). */
+            data: z.base64().min(1).max(1_400_000),
+          }),
+          response: {
+            201: z.object({ id: z.uuid() }),
+            401: z.object({ message: z.string() }),
+            404: z.object({ message: z.string() }),
+          },
+        },
+      },
+      async (request, reply) => {
+        const flags = await effectiveFlags();
+        if (flags.audio !== true) {
+          return reply.status(404).send({ message: 'not found' });
+        }
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        const item = await items.findById(request.params.id);
+        if (item === undefined) {
+          return reply.status(404).send({ message: 'unknown item' });
+        }
+        const id = crypto.randomUUID();
+        await recordings.add({
+          id,
+          itemId: item.id,
+          mime: request.body.mime,
+          contributorId: sessionResult.user.id,
+          bytes: Buffer.from(request.body.data, 'base64'),
+        });
+        return reply.status(201).send({ id });
+      },
+    );
+
+    routes.get(
+      '/items/:id/audio',
+      {
+        schema: {
+          params: z.object({ id: z.uuid() }),
+          response: {
+            200: z.object({
+              recordings: z.array(z.object({ id: z.uuid(), mime: z.string() })),
+            }),
+            404: z.object({ message: z.string() }),
+          },
+        },
+      },
+      async (request, reply) => {
+        const flags = await effectiveFlags();
+        if (flags.audio !== true) {
+          return reply.status(404).send({ message: 'not found' });
+        }
+        const found = await recordings.listForItem(request.params.id);
+        return {
+          recordings: found.map(({ id, mime }) => ({ id, mime })),
+        };
+      },
+    );
+
+    // No response schema: the 200 body is raw audio, not JSON.
+    routes.get(
+      '/audio/:id',
+      {
+        schema: {
+          params: z.object({ id: z.uuid() }),
+        },
+      },
+      async (request, reply) => {
+        const flags = await effectiveFlags();
+        if (flags.audio !== true) {
+          return reply.status(404).send({ message: 'not found' });
+        }
+        const recording = await recordings.get(request.params.id);
+        if (recording === undefined) {
+          return reply.status(404).send({ message: 'unknown recording' });
+        }
+
+        return reply
+          .header('content-type', recording.mime)
+          .send(Buffer.from(recording.bytes));
       },
     );
 

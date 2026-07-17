@@ -1,5 +1,6 @@
 import {
   boolean,
+  customType,
   jsonb,
   pgTable,
   primaryKey,
@@ -218,6 +219,24 @@ export const flagAudit = pgTable('flag_audit', {
   enabled: boolean('enabled').notNull(),
   changedBy: text('changed_by').notNull(),
   changedAt: timestamp('changed_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+const bytea = customType<{ data: Uint8Array; driverData: Uint8Array }>({
+  dataType: () => 'bytea',
+});
+
+/** Community recordings: many per item, published unreviewed (ADR 0004/0008). */
+export const recordings = pgTable('recordings', {
+  id: uuid('id').primaryKey(),
+  itemId: uuid('item_id')
+    .notNull()
+    .references(() => items.id, { onDelete: 'cascade' }),
+  contributorId: text('contributor_id').notNull(),
+  mime: text('mime').notNull(),
+  bytes: bytea('bytes').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),
 });

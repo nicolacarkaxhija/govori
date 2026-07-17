@@ -53,6 +53,11 @@ export function makeTestDeps(
       listUsers: () => Promise.resolve([]),
       setRole: () => Promise.resolve(false),
     },
+    recordings: {
+      add: () => Promise.resolve(),
+      listForItem: () => Promise.resolve([]),
+      get: () => Promise.resolve(undefined),
+    },
     ...overrides,
   };
 }

@@ -150,4 +150,6 @@ developer working alone. Appended in the same commit it describes.
 | 2026-07-17 | feat: accept learner contributions into review | 1.5–2 | Provenance schema loosened to real auth ids, authenticated POST /contribute building fully validated items with human provenance into the existing review queue, three-path route tests |
 | 2026-07-17 | feat: add the contribute form | 1.5–2 | New view wired into the app shell, client call with four-way status mapping, canonical pre-check before the network, sign-in handoff, i18n in both languages, coverage gates held |
 
-**Running total: 177.7–225.2 h**
+| 2026-07-17 | feat: store and serve community recordings behind the audio flag | 2.5–3 | New hexagonal port with Postgres bytea adapter via custom type, three flag-dark routes with session gating and base64 size caps, migration untangled from stale snapshot drift, real-database roundtrip test |
+
+**Running total: 180.2–228.2 h**

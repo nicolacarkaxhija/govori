@@ -57,6 +57,13 @@
       "when": 1784296945032,
       "tag": "0007_lesson-dialogue",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1784303085404,
+      "tag": "0008_recordings",
+      "breakpoints": true
     }
   ]
 }

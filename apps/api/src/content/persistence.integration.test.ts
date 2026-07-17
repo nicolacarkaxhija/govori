@@ -12,6 +12,7 @@ import { importArtifact } from './import-artifact.js';
 import { DrizzleStats } from '../stats/drizzle-stats.js';
 import { DrizzleCourse } from '../course/drizzle-course.js';
 import { DrizzleReviewQueue } from '../review/drizzle-review-queue.js';
+import { DrizzleRecordingStore } from '../audio/drizzle-recording-store.js';
 
 let container: StartedPostgreSqlContainer;
 let db: Db;
@@ -257,5 +258,43 @@ describe('DrizzleFlagStore', () => {
       'admin:setup',
       'admin:launch',
     ]);
+  });
+});
+
+describe('DrizzleRecordingStore', () => {
+  it('roundtrips audio bytes and lists per item in insertion order', async () => {
+    const store = new DrizzleRecordingStore(db);
+    const itemId = '3e2d8f0a-4b1c-4f6e-9a7d-1c2b3a4d5e6f';
+    const first = {
+      id: 'aa0b1c2d-3e4f-4a5b-8c6d-7e8f9a0b1c2d',
+      itemId,
+      contributorId: 'u-accent-a',
+      mime: 'audio/webm',
+      bytes: new Uint8Array([0x1a, 0x45, 0xdf, 0xa3, 0x00, 0xff]),
+    };
+    await store.add(first);
+    await store.add({
+      ...first,
+      id: 'bb0b1c2d-3e4f-4a5b-8c6d-7e8f9a0b1c2d',
+      contributorId: 'u-accent-b',
+      mime: 'audio/ogg',
+    });
+    const listed = await store.listForItem(itemId);
+    expect(listed.map((row) => row.mime)).toEqual(['audio/webm', 'audio/ogg']);
+    expect(listed.map((row) => row.contributorId)).toEqual([
+      'u-accent-a',
+      'u-accent-b',
+    ]);
+    const served = await store.get(first.id);
+    expect(served?.mime).toBe('audio/webm');
+    expect([...(served?.bytes ?? [])]).toEqual([
+      0x1a, 0x45, 0xdf, 0xa3, 0x00, 0xff,
+    ]);
+    expect(await store.get('00000000-0000-4000-8000-00000000beef')).toBe(
+      undefined,
+    );
+    expect(
+      await store.listForItem('00000000-0000-4000-8000-00000000dead'),
+    ).toEqual([]);
   });
 });
