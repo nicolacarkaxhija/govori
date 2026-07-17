@@ -125,4 +125,8 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: promote reviewers from the admin directory | 2–2.5 | Directory clients, UsersView with role flip and refusal handling, admin entry point, catalog keys, client fail-path coverage sweep |
 
-**Running total: 155.7–197.2 h**
+| 2026-07-17 | docs: add web and deploy tech specs | 1.5–2 | ts-006/ts-007 + registry backfill (ts-003..005 rows had drifted) |
+
+| 2026-07-17 | docs: draft the privacy policy and terms | 2–2.5 | GDPR-grounded privacy draft matching the actual data model, contribution-licensing terms, legal registry; operator placeholders for the human pass |
+
+**Running total: 159.2–201.7 h**
