@@ -16,6 +16,7 @@ export function makeTestDeps(
       findById: () => Promise.resolve(undefined),
       findByIds: () => Promise.resolve([]),
       list: () => Promise.resolve([]),
+      findSentencesContaining: () => Promise.resolve([]),
     },
     flagStates: {
       getStates: () => Promise.resolve({}),

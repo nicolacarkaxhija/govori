@@ -13,4 +13,9 @@ export interface ItemQueries {
   /** Preserves the order of the requested ids; unknown ids are skipped. */
   findByIds(ids: readonly string[]): Promise<Item[]>;
   list(limit: number, offset: number): Promise<Item[]>;
+  /** Sentence items containing any of the words (whole-word, any case). */
+  findSentencesContaining(
+    words: readonly string[],
+    limit: number,
+  ): Promise<Item[]>;
 }

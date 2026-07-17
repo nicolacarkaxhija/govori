@@ -441,6 +441,27 @@ export function buildApp({
     );
 
     routes.get(
+      '/lessons/:id/sentences',
+      {
+        schema: {
+          params: z.object({ id: z.uuid() }),
+          response: {
+            200: z.object({ sentences: z.array(ItemSchema) }),
+            404: NotFoundSchema,
+          },
+        },
+      },
+      async (request, reply) => {
+        const lesson = await course.lessonItems(request.params.id);
+        if (lesson === undefined) {
+          return reply.status(404).send({ message: 'lesson not found' });
+        }
+        const words = lesson.items.map((item) => item.text);
+        return { sentences: await items.findSentencesContaining(words, 20) };
+      },
+    );
+
+    routes.get(
       '/items',
       {
         schema: {

@@ -143,6 +143,23 @@ describe('DrizzleItemRepository reads', () => {
   });
 });
 
+describe('DrizzleItemRepository sentence search', () => {
+  it('finds sentences containing a lesson word, whole-word and any case', async () => {
+    const repository = new DrizzleItemRepository(db);
+    const sentences = await repository.findSentencesContaining(['voda'], 20);
+    expect(sentences.map((item) => item.text)).toEqual(['Voda je čista.']);
+    expect(sentences[0]?.kind).toBe('sentence');
+  });
+
+  it('ignores partial-word matches and survives regex metacharacters', async () => {
+    const repository = new DrizzleItemRepository(db);
+    // "vod" must not match inside "Voda"; "č." must not act as a regex.
+    expect(await repository.findSentencesContaining(['vod'], 20)).toEqual([]);
+    expect(await repository.findSentencesContaining(['č.'], 20)).toEqual([]);
+    expect(await repository.findSentencesContaining([], 20)).toEqual([]);
+  });
+});
+
 describe('DrizzleCourse', () => {
   it('replaces the curriculum and serves ordered lesson items', async () => {
     const repository = new DrizzleItemRepository(db);

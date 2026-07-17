@@ -31,6 +31,10 @@ class FakeItemQueries implements ItemQueries {
   list(limit: number, offset: number): Promise<Item[]> {
     return Promise.resolve(offset > 0 ? [] : [voda].slice(0, limit));
   }
+
+  findSentencesContaining(): Promise<Item[]> {
+    return Promise.resolve([]);
+  }
 }
 
 function testApp() {

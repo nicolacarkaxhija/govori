@@ -1,4 +1,4 @@
-import { asc, count, eq, inArray, sql } from 'drizzle-orm';
+import { and, asc, count, eq, inArray, or, sql } from 'drizzle-orm';
 import type { Item } from '@govori/content';
 import type { Db } from '../db/client.js';
 import { contrastiveNotes, items, translations } from '../db/schema.js';
@@ -42,6 +42,28 @@ export class DrizzleItemRepository implements ItemRepository, ItemQueries {
       .orderBy(sql`${items.frequency} DESC NULLS LAST`, asc(items.id))
       .limit(limit)
       .offset(offset);
+    return this.assemble(rows);
+  }
+
+  async findSentencesContaining(
+    words: readonly string[],
+    limit: number,
+  ): Promise<Item[]> {
+    if (words.length === 0) {
+      return [];
+    }
+    // Whole-word, case-insensitive match; regex metacharacters in the
+    // word are neutralized so dictionary entries cannot break the query.
+    const matches = words.map((word) => {
+      const pattern = `\\m${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\M`;
+      return sql`${items.text} ~* ${pattern}`;
+    });
+    const rows = await this.db
+      .select()
+      .from(items)
+      .where(and(eq(items.kind, 'sentence'), or(...matches)))
+      .orderBy(asc(items.id))
+      .limit(limit);
     return this.assemble(rows);
   }
 
