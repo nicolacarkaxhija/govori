@@ -97,48 +97,59 @@ export class DrizzleItemRepository implements ItemRepository, ItemQueries {
   }
 
   async upsertMany(toUpsert: readonly Item[]): Promise<void> {
+    // Chunked bulk statements: a 19k-item artifact imports in seconds
+    // instead of minutes. The chunk size keeps each statement well under
+    // Postgres's parameter limit even with 26 translations per item.
+    const CHUNK = 200;
     await this.db.transaction(async (tx) => {
-      for (const item of toUpsert) {
+      for (let start = 0; start < toUpsert.length; start += CHUNK) {
+        const chunk = toUpsert.slice(start, start + CHUNK);
+        const ids = chunk.map((item) => item.id);
         await tx
           .insert(items)
-          .values({
-            id: item.id,
-            kind: item.kind,
-            text: item.text,
-            provenance: item.provenance,
-            audit: item.audit ?? null,
-            frequency: item.frequency ?? null,
-          })
-          .onConflictDoUpdate({
-            target: items.id,
-            set: {
+          .values(
+            chunk.map((item) => ({
+              id: item.id,
               kind: item.kind,
               text: item.text,
               provenance: item.provenance,
               audit: item.audit ?? null,
               frequency: item.frequency ?? null,
+            })),
+          )
+          .onConflictDoUpdate({
+            target: items.id,
+            set: {
+              kind: sql`excluded."kind"`,
+              text: sql`excluded."text"`,
+              provenance: sql`excluded."provenance"`,
+              audit: sql`excluded."audit"`,
+              frequency: sql`excluded."frequency"`,
               updatedAt: new Date(),
             },
           });
-        await tx.delete(translations).where(eq(translations.itemId, item.id));
+        await tx.delete(translations).where(inArray(translations.itemId, ids));
         await tx.insert(translations).values(
-          item.translations.map((translation) => ({
-            itemId: item.id,
-            lang: translation.lang,
-            text: translation.text,
-          })),
+          chunk.flatMap((item) =>
+            item.translations.map((translation) => ({
+              itemId: item.id,
+              lang: translation.lang,
+              text: translation.text,
+            })),
+          ),
         );
         await tx
           .delete(contrastiveNotes)
-          .where(eq(contrastiveNotes.itemId, item.id));
-        if (item.notes.length > 0) {
-          await tx.insert(contrastiveNotes).values(
-            item.notes.map((note) => ({
-              itemId: item.id,
-              sourceLang: note.sourceLang,
-              text: note.text,
-            })),
-          );
+          .where(inArray(contrastiveNotes.itemId, ids));
+        const notes = chunk.flatMap((item) =>
+          item.notes.map((note) => ({
+            itemId: item.id,
+            sourceLang: note.sourceLang,
+            text: note.text,
+          })),
+        );
+        if (notes.length > 0) {
+          await tx.insert(contrastiveNotes).values(notes);
         }
       }
     });
