@@ -83,4 +83,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: add accounts with local-progress sync | 4–5 | Auth/sync clients with credentials, AccountView (signup/signin/signout, error states), push-on-auth of the local log, 6 new tests |
 
-**Running total: 105.7–134.7 h**
+| 2026-07-17 | feat: add self-serve data export and account erasure | 3–4 | AccountRights port+adapter, GET /me/export + DELETE /me, full-lifecycle integration (signup→sync→export→erase→401), defensive-lookup coverage |
+
+**Running total: 108.7–138.7 h**

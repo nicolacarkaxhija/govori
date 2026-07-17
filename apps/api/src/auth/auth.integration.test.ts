@@ -12,6 +12,7 @@ import { createAuth } from './auth.js';
 import { DrizzleReviewStore } from '../reviews/drizzle-review-store.js';
 import { DrizzleUserRoles } from './drizzle-user-roles.js';
 import { DrizzleFlagStore } from '../flags/drizzle-flag-store.js';
+import { DrizzleAccount } from '../account/drizzle-account.js';
 import { sql } from 'drizzle-orm';
 
 let container: StartedPostgreSqlContainer;
@@ -39,6 +40,7 @@ function realApp() {
       userRoles: new DrizzleUserRoles(db),
       reviews: new DrizzleReviewStore(db),
       flagStates: new DrizzleFlagStore(db),
+      account: new DrizzleAccount(db),
     }),
   );
 }
@@ -173,6 +175,75 @@ describe('auth end to end', () => {
       everything.json<{ events: unknown[] }>().events.length,
     ).toBeGreaterThanOrEqual(2);
     await app.close();
+  });
+
+  it('exports everything, then erases the account for good', async () => {
+    const app = realApp();
+    const signup = await app.inject({
+      method: 'POST',
+      url: '/api/auth/sign-up/email',
+      payload: {
+        email: 'zajec@example.com',
+        password: 'skoky-po-lěsu-2026',
+        name: 'Zajec',
+      },
+    });
+    expect(signup.statusCode).toBe(200);
+    const cookies = signup.headers['set-cookie'];
+    const cookieHeader = (Array.isArray(cookies) ? cookies : [cookies])
+      .map((cookie) => String(cookie).split(';')[0])
+      .join('; ');
+
+    await app.inject({
+      method: 'POST',
+      url: '/sync/reviews',
+      headers: { cookie: cookieHeader },
+      payload: {
+        events: [
+          {
+            id: '8a7b6c5d-4e3f-4a2b-9c1d-0e9f8a7b6c5d',
+            itemId: '11111111-1111-4111-8111-111111111111',
+            reviewedAt: '2026-07-17T12:00:00.000Z',
+            grade: 'good',
+          },
+        ],
+      },
+    });
+
+    const exported = await app.inject({
+      method: 'GET',
+      url: '/me/export',
+      headers: { cookie: cookieHeader },
+    });
+    expect(exported.statusCode).toBe(200);
+    const bundle = exported.json<{
+      user: { email: string; name: string };
+      reviews: { id: string }[];
+    }>();
+    expect(bundle.user.email).toBe('zajec@example.com');
+    expect(bundle.reviews).toHaveLength(1);
+
+    const erased = await app.inject({
+      method: 'DELETE',
+      url: '/me',
+      headers: { cookie: cookieHeader },
+    });
+    expect(erased.statusCode).toBe(204);
+
+    const afterwards = await app.inject({
+      method: 'GET',
+      url: '/me',
+      headers: { cookie: cookieHeader },
+    });
+    expect(afterwards.statusCode).toBe(401);
+    await app.close();
+  });
+
+  it('answers adapter lookups for unknown users defensively', async () => {
+    const ghost = '00000000-0000-4000-8000-00000000dead';
+    expect(await new DrizzleAccount(db).exportData(ghost)).toBeUndefined();
+    expect(await new DrizzleUserRoles(db).getRole(ghost)).toBe('learner');
+    expect(await new DrizzleReviewStore(db).addAll(ghost, [])).toBe(0);
   });
 
   it('rejects a second signup with the same email', async () => {

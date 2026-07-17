@@ -20,6 +20,7 @@ import type { UserRoles } from './auth/ports.js';
 import type { ReviewEventStore } from './reviews/ports.js';
 import type { StatsQueries } from './stats/ports.js';
 import type { CourseQueries } from './course/ports.js';
+import type { AccountRights } from './account/ports.js';
 
 export interface AppDependencies {
   config: ApiConfig;
@@ -30,6 +31,7 @@ export interface AppDependencies {
   reviews: ReviewEventStore;
   stats: StatsQueries;
   course: CourseQueries;
+  account: AccountRights;
 }
 
 /** Bridges Fastify's raw request to the Web Request better-auth consumes. */
@@ -94,6 +96,7 @@ export function buildApp({
   reviews,
   stats,
   course,
+  account,
 }: AppDependencies) {
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
   app.setValidatorCompiler(validatorCompiler);
@@ -188,6 +191,71 @@ export function buildApp({
           return reply.status(401).send({ message: 'not signed in' });
         }
         return { user: { id: result.user.id, email: result.user.email } };
+      },
+    );
+
+    routes.get(
+      '/me/export',
+      {
+        schema: {
+          response: {
+            200: z.object({
+              user: z.object({
+                id: z.string(),
+                email: z.string(),
+                name: z.string(),
+                role: z.string(),
+                createdAt: z.string(),
+              }),
+              reviews: z.array(ReviewEventSchema),
+            }),
+            401: z.object({ message: z.string() }),
+            404: NotFoundSchema,
+          },
+        },
+      },
+      async (request, reply) => {
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        const bundle = await account.exportData(sessionResult.user.id);
+        if (bundle === undefined) {
+          return reply.status(404).send({ message: 'account not found' });
+        }
+        return bundle;
+      },
+    );
+
+    routes.delete(
+      '/me',
+      {
+        schema: {
+          response: {
+            204: z.null(),
+            401: z.object({ message: z.string() }),
+          },
+        },
+      },
+      async (request, reply) => {
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        await account.deleteAccount(sessionResult.user.id);
+        return reply.status(204).send(null);
       },
     );
 

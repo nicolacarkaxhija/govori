@@ -38,6 +38,10 @@ export function makeTestDeps(
       overview: () => Promise.resolve([]),
       lessonItems: () => Promise.resolve(undefined),
     },
+    account: {
+      exportData: () => Promise.resolve(undefined),
+      deleteAccount: () => Promise.resolve(),
+    },
     ...overrides,
   };
 }

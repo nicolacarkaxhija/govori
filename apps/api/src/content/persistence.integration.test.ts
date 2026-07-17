@@ -121,6 +121,15 @@ describe('DrizzleItemRepository reads', () => {
     ).toBeUndefined();
   });
 
+  it('answers unknown lookups defensively', async () => {
+    const repository = new DrizzleItemRepository(db);
+    expect(await repository.findByIds([])).toEqual([]);
+    const course = new DrizzleCourse(db, repository);
+    expect(
+      await course.lessonItems('00000000-0000-4000-8000-00000000dead'),
+    ).toBeUndefined();
+  });
+
   it('lists by frequency first, deterministically paginated', async () => {
     const repository = new DrizzleItemRepository(db);
     const first = await repository.list(2, 0);
