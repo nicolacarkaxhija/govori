@@ -39,3 +39,29 @@ export function checkTyped(expected: string, given: string): boolean {
   const normalized = normalize(given);
   return normalized.length > 0 && normalized === normalize(expected);
 }
+
+export interface MatchingPair {
+  itemId: string;
+  isv: string;
+  translation: string;
+}
+
+/** Picks distinct items for a matching board; deterministic under `random`. */
+export function buildMatching(
+  pool: readonly LearnItem[],
+  count: number,
+  random: () => number = Math.random,
+): MatchingPair[] {
+  const usable = pool.filter((item) => primaryTranslation(item) !== '');
+  const picked: LearnItem[] = [];
+  const remaining = [...usable];
+  while (picked.length < count && remaining.length > 0) {
+    const index = Math.floor(random() * remaining.length);
+    picked.push(...remaining.splice(index, 1));
+  }
+  return picked.map((item) => ({
+    itemId: item.id,
+    isv: item.text,
+    translation: primaryTranslation(item),
+  }));
+}

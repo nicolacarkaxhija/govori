@@ -467,3 +467,15 @@ button:active {
 .footer-link.danger {
   color: var(--color-primary);
 }
+
+.matching {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.matching-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}

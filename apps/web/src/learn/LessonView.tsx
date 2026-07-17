@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Grade } from '@govori/srs';
 import { fetchLesson, type LearnItem } from '../api/client';
 import { ExerciseCard } from './ExerciseCard';
+import { MatchingCard } from './MatchingCard';
 import { nextItemId, recordReview } from './progress';
 import type { Script } from './useScript';
 
@@ -20,7 +21,7 @@ type Phase =
 export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
   const [pool, setPool] = useState<LearnItem[]>([]);
   const [phase, setPhase] = useState<Phase>({ name: 'loading' });
-  const [mode, setMode] = useState<'choices' | 'typed'>('choices');
+  const [mode, setMode] = useState<'choices' | 'typed' | 'matching'>('choices');
   const [answered, setAnswered] = useState(0);
 
   useEffect(() => {
@@ -51,11 +52,27 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
     );
   }
 
+  const nextMode = (current: 'choices' | 'typed' | 'matching') =>
+    current === 'choices'
+      ? 'typed'
+      : current === 'typed' && pool.length >= 4
+        ? 'matching'
+        : 'choices';
+
   const grade = (item: LearnItem) => (value: Grade) => {
     recordReview(item.id, value);
     setAnswered((count) => count + 1);
-    // Alternate recognition and production, friction-free.
-    setMode((current) => (current === 'choices' ? 'typed' : 'choices'));
+    // Rotate recognition, production, and matching, friction-free.
+    setMode(nextMode);
+    advance(pool);
+  };
+
+  const gradeMany = (results: { itemId: string; grade: Grade }[]) => {
+    for (const result of results) {
+      recordReview(result.itemId, result.grade);
+    }
+    setAnswered((count) => count + results.length);
+    setMode('choices');
     advance(pool);
   };
 
@@ -83,7 +100,15 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
           <p>Nothing is due right now. Come back later.</p>
         </div>
       )}
-      {phase.name === 'exercise' && (
+      {phase.name === 'exercise' && mode === 'matching' && (
+        <MatchingCard
+          key={'matching' + String(answered)}
+          pool={pool}
+          script={script}
+          onComplete={gradeMany}
+        />
+      )}
+      {phase.name === 'exercise' && mode !== 'matching' && (
         <ExerciseCard
           key={phase.item.id + String(answered)}
           item={phase.item}

@@ -87,4 +87,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: let learners download and erase their data | 2.5–3 | Export blob download, two-step erasure with honest copy, rights client fns |
 
-**Running total: 111.2–141.7 h**
+| 2026-07-17 | feat: add the matching exercise | 3–3.5 | Matching board logic + card, per-item first-try grading, mode rotation with pool guard |
+
+**Running total: 114.2–145.2 h**

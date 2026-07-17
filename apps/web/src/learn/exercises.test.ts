@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { LearnItem } from '../api/client';
-import { buildChoices, checkTyped } from './exercises';
+import { buildChoices, buildMatching, checkTyped } from './exercises';
 
 const items: LearnItem[] = [
   {
@@ -59,5 +59,26 @@ describe('checkTyped', () => {
   it('rejects genuinely wrong answers', () => {
     expect(checkTyped('hlěb', 'voda')).toBe(false);
     expect(checkTyped('hlěb', '')).toBe(false);
+  });
+});
+
+describe('buildMatching', () => {
+  it('picks distinct items with their translations', () => {
+    const pairs = buildMatching(items, 3, () => 0.1);
+    expect(pairs).toHaveLength(3);
+    expect(new Set(pairs.map((pair) => pair.itemId)).size).toBe(3);
+    for (const pair of pairs) {
+      expect(pair.translation.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('is deterministic for a fixed random source', () => {
+    expect(buildMatching(items, 4, () => 0.42)).toEqual(
+      buildMatching(items, 4, () => 0.42),
+    );
+  });
+
+  it('caps at the pool size', () => {
+    expect(buildMatching(items.slice(0, 2), 4, () => 0.5)).toHaveLength(2);
   });
 });
