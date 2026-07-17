@@ -1,9 +1,10 @@
 # Performance budgets
 
 **Lighthouse** runs in CI over the built PWA shell (static, no API):
-resource budgets error the build, category scores warn at 0.9 except
-accessibility, which blocks. Budgets live in `budgets.json` — raise them
-consciously, in a commit that says why.
+resource-size assertions error the build (script 400 KB, css 40 KB,
+fonts 300 KB, total 900 KB), category scores warn at 0.9 except
+accessibility, which blocks. Raise a budget consciously, in a commit
+that says why.
 
 **k6** exercises the API read paths against a running, seeded instance —
 not in CI, since it needs real data:
