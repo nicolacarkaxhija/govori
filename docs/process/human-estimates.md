@@ -129,4 +129,10 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | docs: draft the privacy policy and terms | 2–2.5 | GDPR-grounded privacy draft matching the actual data model, contribution-licensing terms, legal registry; operator placeholders for the human pass |
 
-**Running total: 159.2–201.7 h**
+| 2026-07-17 | feat: describe the app to crawlers and language models | 0.5 | Meta description + OpenGraph, llms.txt with content policy and self-host pointers |
+
+| 2026-07-17 | feat: keep content available offline | 1–1.5 | Workbox NetworkFirst runtime cache over the content routes; lessons survive losing the network |
+
+| 2026-07-17 | feat: show the daily learning streak | 1.5–2 | streakDays derivation over the local event log (UTC days, yesterday-grace), hero + lesson-done display, catalog keys, 3 new tests |
+
+**Running total: 162.2–205.7 h**
