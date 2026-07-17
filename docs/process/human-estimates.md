@@ -99,4 +99,8 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | docs: record the originality audit estimate | 2.5–3 | Forge batch (2 commits): normalize-folded n-gram shingle audit (module + tests + CLI), reference corpus wiring (interslavic.fun archive 504 pages + Tatoeba), all 316 draft sentences audited clean |
 
-**Running total: 131.7–167.2 h**
+| 2026-07-17 | feat: serve lesson sentences for cloze exercises | 1.5–2 | findSentencesContaining port + whole-word regex query, GET /lessons/:id/sentences, route + integration tests |
+
+| 2026-07-17 | feat: add the cloze exercise over real sentences | 2.5–3 | buildCloze with stem-tolerant blanking crediting the pool word, ClozeCard, sentence-aware mode rotation with deferred advance, client fn, styles, tests at all gates |
+
+**Running total: 135.7–172.2 h**
