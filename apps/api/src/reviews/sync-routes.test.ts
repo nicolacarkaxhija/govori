@@ -69,6 +69,10 @@ function testApp(session: string | null) {
     },
     userRoles: { getRole: () => Promise.resolve('learner' as const) },
     reviews: store,
+    stats: {
+      counts: () =>
+        Promise.resolve({ items: 0, translations: 0, reviews: 0, learners: 0 }),
+    },
   };
   return { app: buildApp(deps), store };
 }

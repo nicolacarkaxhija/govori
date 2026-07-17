@@ -69,4 +69,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: add production deployment stack | 3–4 | Multi-stage Dockerfiles (pnpm deploy pruning), one-origin Caddy proxy+SPA, compose with healthchecks, verified locally |
 
-**Running total: 87.7–112.2 h**
+| 2026-07-17 | feat: serve public aggregate stats | 1.5–2 | Stats port + branch-free adapter, /stats route, shared test-deps helper ending fixture churn |
+
+**Running total: 89.2–114.2 h**

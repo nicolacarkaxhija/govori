@@ -53,6 +53,10 @@ function testApp({ userRole = 'learner', session = 'u1' }: Setup = {}) {
       getRole: () => Promise.resolve(userRole),
     },
     reviews: noReviews,
+    stats: {
+      counts: () =>
+        Promise.resolve({ items: 0, translations: 0, reviews: 0, learners: 0 }),
+    },
   };
   return { app: buildApp(deps), written };
 }

@@ -38,6 +38,15 @@ describe('buildApp', () => {
       auth: noAuth,
       userRoles: learnerRoles,
       reviews: noReviews,
+      stats: {
+        counts: () =>
+          Promise.resolve({
+            items: 0,
+            translations: 0,
+            reviews: 0,
+            learners: 0,
+          }),
+      },
     });
     const response = await app.inject({
       method: 'GET',
@@ -56,6 +65,15 @@ describe('buildApp', () => {
       auth: noAuth,
       userRoles: learnerRoles,
       reviews: noReviews,
+      stats: {
+        counts: () =>
+          Promise.resolve({
+            items: 0,
+            translations: 0,
+            reviews: 0,
+            learners: 0,
+          }),
+      },
     });
     const response = await app.inject({ method: 'GET', url: '/health' });
     expect(response.statusCode).toBe(200);
@@ -71,6 +89,15 @@ describe('buildApp', () => {
       auth: noAuth,
       userRoles: learnerRoles,
       reviews: noReviews,
+      stats: {
+        counts: () =>
+          Promise.resolve({
+            items: 0,
+            translations: 0,
+            reviews: 0,
+            learners: 0,
+          }),
+      },
     });
     const response = await app.inject({ method: 'GET', url: '/meta' });
     expect(response.statusCode).toBe(200);
@@ -125,6 +152,15 @@ describe('cors', () => {
       auth: noAuth,
       userRoles: learnerRoles,
       reviews: noReviews,
+      stats: {
+        counts: () =>
+          Promise.resolve({
+            items: 0,
+            translations: 0,
+            reviews: 0,
+            learners: 0,
+          }),
+      },
     });
     const response = await app.inject({
       method: 'GET',

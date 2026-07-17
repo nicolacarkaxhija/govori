@@ -58,6 +58,10 @@ function testApp() {
     auth: noAuth,
     userRoles: learnerRoles,
     reviews: noReviews,
+    stats: {
+      counts: () =>
+        Promise.resolve({ items: 0, translations: 0, reviews: 0, learners: 0 }),
+    },
   });
 }
 

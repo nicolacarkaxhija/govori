@@ -8,6 +8,7 @@ import { runMigrations } from '../db/migrate.js';
 import { DrizzleItemRepository } from './drizzle-item-repository.js';
 import { DrizzleFlagStore } from '../flags/drizzle-flag-store.js';
 import { importArtifact } from './import-artifact.js';
+import { DrizzleStats } from '../stats/drizzle-stats.js';
 
 let container: StartedPostgreSqlContainer;
 let db: Db;
@@ -126,6 +127,17 @@ describe('DrizzleItemRepository reads', () => {
     expect(rest).toHaveLength(1);
     const all = [...first, ...rest].map((item) => item.id);
     expect(new Set(all).size).toBe(3);
+  });
+});
+
+describe('DrizzleStats', () => {
+  it('counts public aggregates from the live tables', async () => {
+    const stats = new DrizzleStats(db);
+    const counts = await stats.counts();
+    expect(counts.items).toBe(3);
+    expect(counts.translations).toBeGreaterThanOrEqual(4);
+    expect(counts.reviews).toBe(0);
+    expect(counts.learners).toBe(0);
   });
 });
 

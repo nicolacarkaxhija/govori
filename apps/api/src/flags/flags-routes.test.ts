@@ -33,6 +33,10 @@ function appWithStates(states: Record<string, boolean>) {
     auth: noAuth,
     userRoles: { getRole: () => Promise.resolve('learner' as const) },
     reviews: noReviews,
+    stats: {
+      counts: () =>
+        Promise.resolve({ items: 0, translations: 0, reviews: 0, learners: 0 }),
+    },
   });
 }
 

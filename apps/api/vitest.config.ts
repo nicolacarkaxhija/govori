@@ -15,6 +15,7 @@ export default defineConfig({
         // Declarative drizzle table metadata; verified through migrations
         // and the Testcontainers integration suite.
         'src/db/schema.ts',
+        'src/test-support.ts',
       ],
       thresholds: {
         branches: 85,

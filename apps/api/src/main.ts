@@ -7,6 +7,7 @@ import { DrizzleFlagStore } from './flags/drizzle-flag-store.js';
 import { createAuth } from './auth/auth.js';
 import { DrizzleUserRoles } from './auth/drizzle-user-roles.js';
 import { DrizzleReviewStore } from './reviews/drizzle-review-store.js';
+import { DrizzleStats } from './stats/drizzle-stats.js';
 
 // Composition root: the only place that touches process state (ADR 0024).
 const config = loadConfig(process.env);
@@ -22,6 +23,7 @@ const app = buildApp({
   }),
   userRoles: new DrizzleUserRoles(db),
   reviews: new DrizzleReviewStore(db),
+  stats: new DrizzleStats(db),
 });
 
 try {

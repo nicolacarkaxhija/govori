@@ -18,6 +18,7 @@ import { flagDefinitions } from './flags/definitions.js';
 import type { FlagStore } from './flags/ports.js';
 import type { UserRoles } from './auth/ports.js';
 import type { ReviewEventStore } from './reviews/ports.js';
+import type { StatsQueries } from './stats/ports.js';
 
 export interface AppDependencies {
   config: ApiConfig;
@@ -26,6 +27,7 @@ export interface AppDependencies {
   auth: Auth;
   userRoles: UserRoles;
   reviews: ReviewEventStore;
+  stats: StatsQueries;
 }
 
 /** Bridges Fastify's raw request to the Web Request better-auth consumes. */
@@ -88,6 +90,7 @@ export function buildApp({
   auth,
   userRoles,
   reviews,
+  stats,
 }: AppDependencies) {
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
   app.setValidatorCompiler(validatorCompiler);
@@ -183,6 +186,23 @@ export function buildApp({
         }
         return { user: { id: result.user.id, email: result.user.email } };
       },
+    );
+
+    routes.get(
+      '/stats',
+      {
+        schema: {
+          response: {
+            200: z.object({
+              items: z.number(),
+              translations: z.number(),
+              reviews: z.number(),
+              learners: z.number(),
+            }),
+          },
+        },
+      },
+      () => stats.counts(),
     );
 
     routes.get(

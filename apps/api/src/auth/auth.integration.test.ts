@@ -44,6 +44,10 @@ function realApp() {
     }),
     userRoles: new DrizzleUserRoles(db),
     reviews: new DrizzleReviewStore(db),
+    stats: {
+      counts: () =>
+        Promise.resolve({ items: 0, translations: 0, reviews: 0, learners: 0 }),
+    },
   });
 }
 
