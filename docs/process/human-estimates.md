@@ -91,4 +91,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | docs: record the seeding expansion estimate | 4–5 | Forge batch (4 commits): additional-languages sheet merge (16+10 langs), Tatoeba corpus fetcher (resumable API paging), sentence converter with license gating + attribution, artifact assembly; verified 19,790 items / 250,887 translations / 26 langs via importer |
 
-**Running total: 118.2–150.2 h**
+| 2026-07-17 | docs: record the generation groundwork estimate | 4–5 | Forge batch (7 commits): fact-pack builder with closed support vocabulary and sanctioned forms, committed unit-1 grammar facts + prompt template, draft schema + canonical/vocabulary validators, prompt emitter + validation CLI, calibrated lesson-1 generation (16 sentences, 0 errors, 0 warnings) |
+
+**Running total: 122.2–155.2 h**
