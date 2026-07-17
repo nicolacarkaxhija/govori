@@ -22,6 +22,7 @@ import type { StatsQueries } from './stats/ports.js';
 import type { CourseQueries } from './course/ports.js';
 import type { AccountRights } from './account/ports.js';
 import type { ReviewQueue } from './review/ports.js';
+import type { UserDirectory } from './auth/ports.js';
 
 export interface AppDependencies {
   config: ApiConfig;
@@ -36,6 +37,7 @@ export interface AppDependencies {
   reviewQueue: ReviewQueue;
   /** Write side used when a draft is approved (ADR 0038). */
   itemWriter: { upsertMany(items: readonly Item[]): Promise<void> };
+  userDirectory: UserDirectory;
 }
 
 /** Bridges Fastify's raw request to the Web Request better-auth consumes. */
@@ -103,6 +105,7 @@ export function buildApp({
   account,
   reviewQueue,
   itemWriter,
+  userDirectory,
 }: AppDependencies) {
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
   app.setValidatorCompiler(validatorCompiler);
@@ -422,6 +425,99 @@ export function buildApp({
           await itemWriter.upsertMany([item]);
         }
         return { decided: decision };
+      },
+    );
+
+    routes.get(
+      '/admin/users',
+      {
+        schema: {
+          querystring: z.object({
+            limit: z.coerce.number().int().min(1).max(200).default(100),
+          }),
+          response: {
+            200: z.object({
+              users: z.array(
+                z.object({
+                  id: z.string(),
+                  email: z.string(),
+                  name: z.string(),
+                  role: z.enum(['learner', 'admin']),
+                  createdAt: z.iso.datetime(),
+                }),
+              ),
+            }),
+            401: z.object({ message: z.string() }),
+            403: z.object({ message: z.string() }),
+          },
+        },
+      },
+      async (request, reply) => {
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        const role = await userRoles.getRole(sessionResult.user.id);
+        if (role !== 'admin') {
+          return reply.status(403).send({ message: 'admin role required' });
+        }
+        return { users: await userDirectory.listUsers(request.query.limit) };
+      },
+    );
+
+    routes.put(
+      '/admin/users/:id/role',
+      {
+        schema: {
+          params: z.object({ id: z.string().min(1) }),
+          body: z.object({ role: z.enum(['learner', 'admin']) }),
+          response: {
+            200: z.object({
+              id: z.string(),
+              role: z.enum(['learner', 'admin']),
+            }),
+            401: z.object({ message: z.string() }),
+            403: z.object({ message: z.string() }),
+            404: NotFoundSchema,
+            409: z.object({ message: z.string() }),
+          },
+        },
+      },
+      async (request, reply) => {
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        const role = await userRoles.getRole(sessionResult.user.id);
+        if (role !== 'admin') {
+          return reply.status(403).send({ message: 'admin role required' });
+        }
+        if (request.params.id === sessionResult.user.id) {
+          // The last admin locking themselves out is one click away.
+          return reply
+            .status(409)
+            .send({ message: 'you cannot change your own role' });
+        }
+        const changed = await userDirectory.setRole(
+          request.params.id,
+          request.body.role,
+        );
+        if (!changed) {
+          return reply.status(404).send({ message: 'user not found' });
+        }
+        return { id: request.params.id, role: request.body.role };
       },
     );
 

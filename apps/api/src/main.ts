@@ -26,6 +26,7 @@ const app = buildApp({
     baseUrl: config.server.baseUrl,
   }),
   userRoles: new DrizzleUserRoles(db),
+  userDirectory: new DrizzleUserRoles(db),
   reviews: new DrizzleReviewStore(db),
   stats: new DrizzleStats(db),
   course: new DrizzleCourse(db, itemRepository),

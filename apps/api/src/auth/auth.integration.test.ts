@@ -248,6 +248,21 @@ describe('auth end to end', () => {
     expect(await new DrizzleAccount(db).exportData(ghost)).toBeUndefined();
     expect(await new DrizzleUserRoles(db).getRole(ghost)).toBe('learner');
     expect(await new DrizzleReviewStore(db).addAll(ghost, [])).toBe(0);
+    expect(await new DrizzleUserRoles(db).setRole(ghost, 'admin')).toBe(false);
+  });
+
+  it('lists users newest first and changes roles', async () => {
+    const directory = new DrizzleUserRoles(db);
+    const users = await directory.listUsers(50);
+    expect(users.length).toBeGreaterThan(0);
+    const [newest] = users;
+    if (newest === undefined) {
+      throw new Error('expected at least one user');
+    }
+    expect(newest.email).toContain('@');
+    expect(await directory.setRole(newest.id, 'admin')).toBe(true);
+    expect(await directory.getRole(newest.id)).toBe('admin');
+    expect(await directory.setRole(newest.id, 'learner')).toBe(true);
   });
 
   it('rejects a second signup with the same email', async () => {

@@ -49,6 +49,10 @@ export function makeTestDeps(
       decide: () => Promise.resolve(undefined),
     },
     itemWriter: { upsertMany: () => Promise.resolve() },
+    userDirectory: {
+      listUsers: () => Promise.resolve([]),
+      setRole: () => Promise.resolve(false),
+    },
     ...overrides,
   };
 }
