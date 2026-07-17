@@ -135,4 +135,10 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: show the daily learning streak | 1.5–2 | streakDays derivation over the local event log (UTC days, yesterday-grace), hero + lesson-done display, catalog keys, 3 new tests |
 
-**Running total: 162.2–205.7 h**
+| 2026-07-17 | feat: let lessons carry an intro dialogue | 1.5–2 | ADR 0039 (dialogues ride the curriculum artifact), optional canonical-text turns with provenance on the lesson schema, path-named rejections |
+
+| 2026-07-17 | feat: store and serve lesson dialogues | 1.5–2 | Dialogue column + migration, adapter passthrough, lesson route schema with disclosed provenance, route test |
+
+| 2026-07-17 | feat: open lessons with their dialogue scene | 2–2.5 | DialogueCard with AI-disclosure line, intro-first lesson flow, client schema, styles, catalog keys, tests |
+
+**Running total: 167.2–212.2 h**
