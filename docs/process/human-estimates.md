@@ -141,4 +141,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: open lessons with their dialogue scene | 2–2.5 | DialogueCard with AI-disclosure line, intro-first lesson flow, client schema, styles, catalog keys, tests |
 
-**Running total: 167.2–212.2 h**
+| 2026-07-17 | feat: generate lesson dialogues through the pipeline (forge) | 2.5–3 | Dialogue prompt template, emitter mode, unit-1 scenes generated and reviewed (4×6 turns, 0 errors), combined canonical/spelling/originality checker, approved-only curriculum attachment |
+
+**Running total: 169.7–215.2 h**
