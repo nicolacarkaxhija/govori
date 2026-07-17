@@ -1,6 +1,7 @@
 {
   "account": "Konto",
   "accountOptional": "Učenje funguje bez konta — konto samo synhronizuje tvoj progres prěko uredjenj.",
+  "aiDisclosure": "Napisano AI, pregledano člověkom",
   "allDone": "Vse gotovo.",
   "allReviewed": "Vse pregledano.",
   "answered": "{count} odgovorjeno",
@@ -53,6 +54,7 @@
   "signInTitle": "Vojdi",
   "signOut": "Izidi",
   "signUpFailed": "Ne udalo se sozdati konto — e-mail može byti zanjety, ili parola jest kratša než 8 znakov.",
+  "startExercises": "Načni vprågnjenja",
   "startLearning": "Načni učenje",
   "statItems": "Slovnikove jedinice",
   "statLearners": "Učenici",

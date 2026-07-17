@@ -4,9 +4,11 @@ import {
   fetchLesson,
   fetchLessonSentences,
   type LearnItem,
+  type LessonDialogue,
 } from '../api/client';
 import { useT } from '../i18n';
 import { ClozeCard } from './ClozeCard';
+import { DialogueCard } from './DialogueCard';
 import { ExerciseCard } from './ExerciseCard';
 import { MatchingCard } from './MatchingCard';
 import { buildCloze, type Cloze } from './exercises';
@@ -31,6 +33,7 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
   const t = useT();
   const [pool, setPool] = useState<LearnItem[]>([]);
   const [sentences, setSentences] = useState<LearnItem[]>([]);
+  const [intro, setIntro] = useState<LessonDialogue | null>(null);
   const [phase, setPhase] = useState<Phase>({ name: 'loading' });
   const [mode, setMode] = useState<Mode>('choices');
   const [answered, setAnswered] = useState(0);
@@ -50,6 +53,7 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
       } else {
         setPool(lesson.items);
         setSentences(lessonSentences);
+        setIntro(lesson.dialogue ?? null);
         advance(lesson.items);
       }
     };
@@ -159,7 +163,16 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
           )}
         </div>
       )}
-      {phase.name === 'exercise' && mode === 'matching' && (
+      {phase.name === 'exercise' && intro !== null && (
+        <DialogueCard
+          dialogue={intro}
+          script={script}
+          onContinue={() => {
+            setIntro(null);
+          }}
+        />
+      )}
+      {phase.name === 'exercise' && intro === null && mode === 'matching' && (
         <MatchingCard
           key={'matching' + String(answered)}
           pool={pool}
@@ -167,15 +180,19 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
           onComplete={gradeMany}
         />
       )}
-      {phase.name === 'exercise' && mode === 'cloze' && cloze !== null && (
-        <ClozeCard
-          key={'cloze' + String(answered)}
-          cloze={cloze}
-          script={script}
-          onGrade={gradeCloze(cloze)}
-        />
-      )}
       {phase.name === 'exercise' &&
+        intro === null &&
+        mode === 'cloze' &&
+        cloze !== null && (
+          <ClozeCard
+            key={'cloze' + String(answered)}
+            cloze={cloze}
+            script={script}
+            onGrade={gradeCloze(cloze)}
+          />
+        )}
+      {phase.name === 'exercise' &&
+        intro === null &&
         (mode === 'choices' || mode === 'typed') && (
           <ExerciseCard
             key={phase.item.id + String(answered)}

@@ -1,6 +1,7 @@
 {
   "account": "Account",
   "accountOptional": "Learning works without one — an account only syncs your progress across devices.",
+  "aiDisclosure": "AI-drafted, human-reviewed",
   "allDone": "Vse gotovo.",
   "allReviewed": "Vse pregledano.",
   "answered": "{count} answered",
@@ -53,6 +54,7 @@
   "signInTitle": "Sign in",
   "signOut": "Sign out",
   "signUpFailed": "Could not create the account — the email may be taken, or the password is shorter than 8 characters.",
+  "startExercises": "Start the exercises",
   "startLearning": "Start learning",
   "statItems": "Dictionary items",
   "statLearners": "Learners",

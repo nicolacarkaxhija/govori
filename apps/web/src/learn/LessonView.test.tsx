@@ -119,3 +119,40 @@ describe('LessonView cloze rotation', () => {
     expect(screen.getByText('3 answered')).toBeDefined();
   });
 });
+
+describe('LessonView dialogue intro', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    fetchLessonMock.mockReset();
+    fetchSentencesMock.mockReset();
+    fetchSentencesMock.mockResolvedValue([]);
+  });
+
+  it('shows the scene first, then hands over to exercises', async () => {
+    const user = userEvent.setup();
+    fetchLessonMock.mockResolvedValue({
+      title: 'Lekcija 1',
+      items: [items[0]],
+      dialogue: {
+        turns: [
+          { speaker: 'Ana', text: 'Kto jesi ty?', translation: 'Who are you?' },
+        ],
+        provenance: { origin: 'ai-draft' },
+      },
+    });
+    render(
+      <LessonView
+        lessonId="9c8d7e6f-5a4b-4c3d-8e2f-1a0b9c8d7e6f"
+        script="latin"
+        onExit={vi.fn()}
+      />,
+    );
+    expect(await screen.findByText('Kto jesi ty?')).toBeDefined();
+    expect(screen.getByText('AI-drafted, human-reviewed')).toBeDefined();
+    expect(screen.queryByRole('button', { name: 'water' })).toBeNull();
+    await user.click(
+      screen.getByRole('button', { name: 'Start the exercises' }),
+    );
+    expect(await screen.findByRole('button', { name: 'water' })).toBeDefined();
+  });
+});

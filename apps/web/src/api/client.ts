@@ -107,7 +107,23 @@ export async function fetchCourse(): Promise<Course | null> {
 const lessonSchema = z.object({
   title: z.string(),
   items: z.array(learnItemSchema).min(1),
+  dialogue: z
+    .object({
+      turns: z.array(
+        z.object({
+          speaker: z.string(),
+          text: z.string(),
+          translation: z.string(),
+        }),
+      ),
+      provenance: z.object({ origin: z.string() }).loose(),
+    })
+    .optional(),
 });
+
+export type LessonDialogue = NonNullable<
+  z.infer<typeof lessonSchema>['dialogue']
+>;
 
 export type Lesson = z.infer<typeof lessonSchema>;
 
