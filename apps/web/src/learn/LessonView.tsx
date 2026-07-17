@@ -5,6 +5,7 @@ import {
   fetchLessonSentences,
   type LearnItem,
 } from '../api/client';
+import { useT } from '../i18n';
 import { ClozeCard } from './ClozeCard';
 import { ExerciseCard } from './ExerciseCard';
 import { MatchingCard } from './MatchingCard';
@@ -27,6 +28,7 @@ type Phase =
 type Mode = 'choices' | 'typed' | 'matching' | 'cloze';
 
 export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
+  const t = useT();
   const [pool, setPool] = useState<LearnItem[]>([]);
   const [sentences, setSentences] = useState<LearnItem[]>([]);
   const [phase, setPhase] = useState<Phase>({ name: 'loading' });
@@ -132,24 +134,24 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
     <div className="lesson">
       <header className="lesson-bar">
         <button type="button" className="quiet" onClick={onExit}>
-          ← Back
+          {t('back')}
         </button>
         <p className="lesson-count" aria-live="polite">
-          {answered} answered
+          {t('answered', { count: answered })}
         </p>
       </header>
 
-      {phase.name === 'loading' && <p className="lesson-note">Loading…</p>}
+      {phase.name === 'loading' && (
+        <p className="lesson-note">{t('loading')}</p>
+      )}
       {phase.name === 'unreachable' && (
-        <p className="lesson-note">
-          The server is unreachable — try again in a moment.
-        </p>
+        <p className="lesson-note">{t('unreachable')}</p>
       )}
       {phase.name === 'done' && (
         <div className="lesson-done">
           <div className="stitch" aria-hidden="true" />
-          <h2>Vse gotovo.</h2>
-          <p>Nothing is due right now. Come back later.</p>
+          <h2>{t('allDone')}</h2>
+          <p>{t('nothingDue')}</p>
         </div>
       )}
       {phase.name === 'exercise' && mode === 'matching' && (

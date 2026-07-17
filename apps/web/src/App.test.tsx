@@ -138,3 +138,17 @@ describe('account entry', () => {
     ).toBeDefined();
   });
 });
+
+describe('ui language', () => {
+  it('toggles between English and Interslavic', async () => {
+    stubOfflineApi();
+    const user = userEvent.setup();
+    render(<App />);
+    expect(screen.getByText('Learn Interslavic')).toBeDefined();
+    await user.click(screen.getByRole('button', { name: 'Switch language' }));
+    expect(screen.getByText('Uči se medžuslovjansky')).toBeDefined();
+    expect(localStorage.getItem('govori.lang')).toBe('isv');
+    await user.click(screen.getByRole('button', { name: 'Prěključi jezyk' }));
+    expect(screen.getByText('Learn Interslavic')).toBeDefined();
+  });
+});

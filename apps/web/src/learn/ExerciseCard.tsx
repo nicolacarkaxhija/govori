@@ -4,6 +4,7 @@ import type { Grade } from '@govori/srs';
 import type { LearnItem } from '../api/client';
 import { buildChoices, checkTyped } from './exercises';
 import type { Script } from './useScript';
+import { useT } from '../i18n';
 
 export interface ExerciseCardProps {
   item: LearnItem;
@@ -22,6 +23,7 @@ export function ExerciseCard({
   mode,
   onGrade,
 }: ExerciseCardProps) {
+  const t = useT();
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [picked, setPicked] = useState<string | null>(null);
   const [typed, setTyped] = useState('');
@@ -54,13 +56,25 @@ export function ExerciseCard({
 
   return (
     <section className="card" data-outcome={outcome ?? 'open'}>
-      <p className="card-kind">{item.kind}</p>
+      <p className="card-kind">
+        {t(
+          item.kind === 'word'
+            ? 'kindWord'
+            : item.kind === 'phrase'
+              ? 'kindPhrase'
+              : 'kindSentence',
+        )}
+      </p>
       <h2 className="card-prompt" lang="isv">
         {prompt}
       </h2>
 
       {mode === 'choices' ? (
-        <div className="card-choices" role="group" aria-label="translations">
+        <div
+          className="card-choices"
+          role="group"
+          aria-label={t('translationsAria')}
+        >
           {choices.map((choice) => (
             <button
               key={choice}
@@ -86,7 +100,7 @@ export function ExerciseCard({
       ) : (
         <form className="card-typed" onSubmit={answerTyped}>
           <label className="typed-label" htmlFor="typed-answer">
-            Type it in Interslavic — any script, accents optional
+            {t('typedLabel')}
           </label>
           <input
             id="typed-answer"
@@ -104,7 +118,7 @@ export function ExerciseCard({
             type="submit"
             disabled={outcome !== null}
           >
-            Check
+            {t('check')}
           </button>
         </form>
       )}
@@ -112,14 +126,14 @@ export function ExerciseCard({
       {outcome !== null && (
         <div className="card-feedback">
           <p className="feedback-text">
-            {outcome === 'correct' ? 'Pravilno!' : 'Ne sovsěm.'}{' '}
+            {outcome === 'correct' ? t('correct') : t('incorrect')}{' '}
             <span lang="isv" className="feedback-answer">
               {prompt}
             </span>{' '}
             = {correct}
           </p>
           <button type="button" className="continue" onClick={finish} autoFocus>
-            Continue
+            {t('continueButton')}
           </button>
         </div>
       )}

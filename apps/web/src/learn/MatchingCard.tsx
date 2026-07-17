@@ -4,6 +4,7 @@ import type { Grade } from '@govori/srs';
 import type { LearnItem } from '../api/client';
 import { buildMatching } from './exercises';
 import type { Script } from './useScript';
+import { useT } from '../i18n';
 
 export interface MatchingCardProps {
   pool: readonly LearnItem[];
@@ -25,6 +26,7 @@ function shuffled<T>(values: readonly T[], random: () => number): T[] {
 
 /** Match ISV words to translations; a miss marks both items for relearning. */
 export function MatchingCard({ pool, script, onComplete }: MatchingCardProps) {
+  const t = useT();
   const pairs = useMemo(() => buildMatching(pool, 4), [pool]);
   const [left, right] = useMemo(
     () => [
@@ -75,9 +77,13 @@ export function MatchingCard({ pool, script, onComplete }: MatchingCardProps) {
 
   return (
     <section className="card">
-      <p className="card-kind">match the pairs</p>
+      <p className="card-kind">{t('matchPairs')}</p>
       <div className="matching">
-        <div className="matching-column" role="group" aria-label="Interslavic">
+        <div
+          className="matching-column"
+          role="group"
+          aria-label={t('interslavicAria')}
+        >
           {left.map((side) => (
             <button
               key={side.itemId}
@@ -100,7 +106,11 @@ export function MatchingCard({ pool, script, onComplete }: MatchingCardProps) {
             </button>
           ))}
         </div>
-        <div className="matching-column" role="group" aria-label="translations">
+        <div
+          className="matching-column"
+          role="group"
+          aria-label={t('translationsAria')}
+        >
           {right.map((side) => (
             <button
               key={side.itemId}

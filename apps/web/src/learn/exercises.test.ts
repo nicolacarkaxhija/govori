@@ -137,3 +137,11 @@ describe('buildCloze', () => {
     expect(buildCloze(sentence, [hlebWord], () => 0)).toBeNull();
   });
 });
+
+describe('translated kinds render', () => {
+  it('covers phrase and sentence kind labels', async () => {
+    const { translate } = await import('../i18n');
+    expect(translate('en', 'kindPhrase')).toBe('phrase');
+    expect(translate('isv', 'kindSentence')).toBe('rěčenje');
+  });
+});

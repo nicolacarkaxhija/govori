@@ -8,8 +8,25 @@ import { CourseView } from './learn/CourseView';
 import { AccountView } from './account/AccountView';
 import { StatsView } from './stats/StatsView';
 import { ReviewView } from './review/ReviewView';
+import { LanguageProvider, useLanguage, useT } from './i18n';
 
 export function App() {
+  const { language, toggle: toggleLanguage } = useLanguage();
+  return (
+    <LanguageProvider language={language}>
+      <AppShell onToggleLanguage={toggleLanguage} language={language} />
+    </LanguageProvider>
+  );
+}
+
+function AppShell({
+  onToggleLanguage,
+  language,
+}: {
+  onToggleLanguage: () => void;
+  language: 'en' | 'isv';
+}) {
+  const t = useT();
   const { theme, toggle } = useTheme();
   const { script, toggle: toggleScript } = useScript();
   const [shortName, setShortName] = useState<string>(brand.shortName);
@@ -42,8 +59,6 @@ export function App() {
     document.title = fullName;
   }, [fullName]);
 
-  const nextTheme = theme === 'dark' ? 'light' : 'dark';
-
   return (
     <div className="shell">
       <header className="topbar">
@@ -58,13 +73,21 @@ export function App() {
               setView({ name: 'account' });
             }}
           >
-            Account
+            {t('account')}
+          </button>
+          <button
+            type="button"
+            className="quiet"
+            onClick={onToggleLanguage}
+            aria-label={t('languageSwitch')}
+          >
+            {language === 'en' ? 'MS' : 'EN'}
           </button>
           <button
             type="button"
             className="quiet"
             onClick={toggleScript}
-            aria-label="Switch script"
+            aria-label={t('switchScript')}
           >
             {script === 'latin' ? 'Aa → Аа' : 'Аа → Aa'}
           </button>
@@ -72,7 +95,7 @@ export function App() {
             type="button"
             className="quiet"
             onClick={toggle}
-            aria-label={`Switch to ${nextTheme} theme`}
+            aria-label={t('toggleTheme')}
           >
             {theme === 'dark' ? '☼' : '☾'}
           </button>
@@ -83,7 +106,7 @@ export function App() {
         <main className="hero">
           <div className="stitch" aria-hidden="true" />
           <h1 className="hero-name">{shortName}</h1>
-          <p className="hero-tagline">Learn Interslavic</p>
+          <p className="hero-tagline">{t('tagline')}</p>
           <button
             type="button"
             className="primary"
@@ -91,7 +114,7 @@ export function App() {
               setView({ name: 'course' });
             }}
           >
-            Start learning
+            {t('startLearning')}
           </button>
         </main>
       ) : view.name === 'course' ? (
@@ -136,8 +159,8 @@ export function App() {
       )}
 
       <footer className="footer">
-        <p>Code: AGPL-3.0-only</p>
-        <p>Content: CC BY-SA 4.0</p>
+        <p>{t('codeLicense')}</p>
+        <p>{t('contentLicense')}</p>
         <button
           type="button"
           className="footer-link"
@@ -145,7 +168,7 @@ export function App() {
             setView({ name: 'stats' });
           }}
         >
-          Open numbers
+          {t('openNumbers')}
         </button>
       </footer>
     </div>

@@ -10,6 +10,7 @@ import {
   type Me,
 } from '../api/client';
 import { loadEvents } from '../learn/progress';
+import { useT } from '../i18n';
 
 export interface AccountViewProps {
   onExit: () => void;
@@ -26,6 +27,7 @@ type Session =
  * local review log is pushed unchanged; the server unions by event id.
  */
 export function AccountView({ onExit, onReview }: AccountViewProps) {
+  const t = useT();
   const [session, setSession] = useState<Session>({ name: 'checking' });
   const [mode, setMode] = useState<'signIn' | 'signUp'>('signUp');
   const [email, setEmail] = useState('');
@@ -39,7 +41,7 @@ export function AccountView({ onExit, onReview }: AccountViewProps) {
   const syncAndEnter = async () => {
     const me = await fetchMe();
     if (me === null) {
-      setError('That did not work — check the details and try again.');
+      setError(t('signInIssue'));
       return;
     }
     const result = await pushReviews(loadEvents());
@@ -81,11 +83,7 @@ export function AccountView({ onExit, onReview }: AccountViewProps) {
     if (ok) {
       await syncAndEnter();
     } else {
-      setError(
-        mode === 'signUp'
-          ? 'Could not create the account — the email may be taken, or the password is shorter than 8 characters.'
-          : 'Wrong email or password.',
-      );
+      setError(mode === 'signUp' ? t('signUpFailed') : t('signInFailed'));
     }
     setBusy(false);
   };
@@ -98,7 +96,7 @@ export function AccountView({ onExit, onReview }: AccountViewProps) {
   const download = async () => {
     const bundle = await exportData();
     if (bundle === null) {
-      setError('Export failed — try again in a moment.');
+      setError(t('exportFailed'));
       return;
     }
     const blob = new Blob([JSON.stringify(bundle, null, 2)], {
@@ -123,7 +121,7 @@ export function AccountView({ onExit, onReview }: AccountViewProps) {
       setArmDelete(false);
       setSession({ name: 'anonymous' });
     } else {
-      setError('Deletion failed — try again in a moment.');
+      setError(t('deleteFailed'));
     }
   };
 
@@ -131,32 +129,32 @@ export function AccountView({ onExit, onReview }: AccountViewProps) {
     <div className="lesson">
       <header className="lesson-bar">
         <button type="button" className="quiet" onClick={onExit}>
-          ← Back
+          {t('back')}
         </button>
       </header>
 
-      {session.name === 'checking' && <p className="lesson-note">Loading…</p>}
+      {session.name === 'checking' && (
+        <p className="lesson-note">{t('loading')}</p>
+      )}
 
       {session.name === 'signedIn' && (
         <div className="account">
           <div className="stitch" aria-hidden="true" />
-          <h2 className="account-title">Dobro došli.</h2>
+          <h2 className="account-title">{t('welcome')}</h2>
           <p className="account-email">{session.me.user.email}</p>
           {session.synced !== null && (
             <p className="account-sync">
-              {session.synced} new reviews synced from this device.
+              {t('syncedReviews', { count: session.synced })}
             </p>
           )}
-          <p className="account-note">
-            Your progress now follows you across devices.
-          </p>
+          <p className="account-note">{t('progressFollows')}</p>
           {session.me.user.role === 'admin' && (
             <button type="button" className="continue" onClick={onReview}>
-              Review drafts
+              {t('reviewDrafts')}
             </button>
           )}
           <button type="button" className="quiet" onClick={() => void leave()}>
-            Sign out
+            {t('signOut')}
           </button>
           <div className="rights">
             <button
@@ -164,16 +162,14 @@ export function AccountView({ onExit, onReview }: AccountViewProps) {
               className="footer-link"
               onClick={() => void download()}
             >
-              Download my data
+              {t('downloadData')}
             </button>
             <button
               type="button"
               className="footer-link danger"
               onClick={() => void erase()}
             >
-              {armDelete
-                ? 'Press again to erase everything'
-                : 'Delete my account'}
+              {armDelete ? t('deleteConfirm') : t('deleteAccount')}
             </button>
           </div>
           {error !== null && <p className="account-error">{error}</p>}
@@ -183,22 +179,14 @@ export function AccountView({ onExit, onReview }: AccountViewProps) {
       {session.name === 'anonymous' && (
         <form className="account" onSubmit={(event) => void submit(event)}>
           <div className="stitch" aria-hidden="true" />
-          {erased && (
-            <p className="account-sync">
-              Your account and its data are gone. Local progress on this device
-              is untouched.
-            </p>
-          )}
+          {erased && <p className="account-sync">{t('erasedNotice')}</p>}
           <h2 className="account-title">
-            {mode === 'signUp' ? 'Create an account' : 'Sign in'}
+            {mode === 'signUp' ? t('createTitle') : t('signInTitle')}
           </h2>
-          <p className="account-note">
-            Learning works without one — an account only syncs your progress
-            across devices.
-          </p>
+          <p className="account-note">{t('accountOptional')}</p>
           {mode === 'signUp' && (
             <label className="field">
-              Display name
+              {t('displayName')}
               <input
                 value={displayName}
                 autoComplete="nickname"
@@ -209,7 +197,7 @@ export function AccountView({ onExit, onReview }: AccountViewProps) {
             </label>
           )}
           <label className="field">
-            Email
+            {t('email')}
             <input
               type="email"
               required
@@ -221,7 +209,7 @@ export function AccountView({ onExit, onReview }: AccountViewProps) {
             />
           </label>
           <label className="field">
-            Password
+            {t('password')}
             <input
               type="password"
               required
@@ -237,7 +225,7 @@ export function AccountView({ onExit, onReview }: AccountViewProps) {
           </label>
           {error !== null && <p className="account-error">{error}</p>}
           <button type="submit" className="primary" disabled={busy}>
-            {mode === 'signUp' ? 'Create account' : 'Sign in'}
+            {mode === 'signUp' ? t('createAccount') : t('signInTitle')}
           </button>
           <button
             type="button"
@@ -247,9 +235,7 @@ export function AccountView({ onExit, onReview }: AccountViewProps) {
               setError(null);
             }}
           >
-            {mode === 'signUp'
-              ? 'Already have an account? Sign in'
-              : 'New here? Create an account'}
+            {mode === 'signUp' ? t('haveAccount') : t('newHere')}
           </button>
         </form>
       )}

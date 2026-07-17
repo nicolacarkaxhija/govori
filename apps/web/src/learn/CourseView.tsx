@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { fetchCourse, type Course } from '../api/client';
+import { useT } from '../i18n';
 
 export interface CourseViewProps {
   onOpenLesson: (lessonId: string) => void;
@@ -7,6 +8,7 @@ export interface CourseViewProps {
 }
 
 export function CourseView({ onOpenLesson, onExit }: CourseViewProps) {
+  const t = useT();
   const [course, setCourse] = useState<Course | null | 'loading'>('loading');
 
   useEffect(() => {
@@ -27,18 +29,14 @@ export function CourseView({ onOpenLesson, onExit }: CourseViewProps) {
     <div className="lesson">
       <header className="lesson-bar">
         <button type="button" className="quiet" onClick={onExit}>
-          ← Back
+          {t('back')}
         </button>
       </header>
 
-      {course === 'loading' && <p className="lesson-note">Loading…</p>}
-      {course === null && (
-        <p className="lesson-note">
-          The server is unreachable — try again in a moment.
-        </p>
-      )}
+      {course === 'loading' && <p className="lesson-note">{t('loading')}</p>}
+      {course === null && <p className="lesson-note">{t('unreachable')}</p>}
       {course !== null && course !== 'loading' && course.units.length === 0 && (
-        <p className="lesson-note">No course yet — the seed is on its way.</p>
+        <p className="lesson-note">{t('noCourse')}</p>
       )}
       {course !== null && course !== 'loading' && (
         <div className="course">
@@ -57,7 +55,7 @@ export function CourseView({ onOpenLesson, onExit }: CourseViewProps) {
                   >
                     <span className="lesson-card-title">{lesson.title}</span>
                     <span className="lesson-card-count">
-                      {lesson.itemCount} words
+                      {t('lessonWords', { count: lesson.itemCount })}
                     </span>
                   </button>
                 ))}

@@ -3,6 +3,7 @@ import { transliterate } from '@govori/transliteration';
 import type { Grade } from '@govori/srs';
 import { checkTyped, type Cloze } from './exercises';
 import type { Script } from './useScript';
+import { useT } from '../i18n';
 
 export interface ClozeCardProps {
   cloze: Cloze;
@@ -14,6 +15,7 @@ type Outcome = 'correct' | 'incorrect';
 
 /** Fill the blank in a real sentence; typing is script-tolerant. */
 export function ClozeCard({ cloze, script, onGrade }: ClozeCardProps) {
+  const t = useT();
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [typed, setTyped] = useState('');
 
@@ -27,10 +29,10 @@ export function ClozeCard({ cloze, script, onGrade }: ClozeCardProps) {
 
   return (
     <section className="card" data-outcome={outcome ?? 'open'}>
-      <p className="card-kind">fill the blank</p>
+      <p className="card-kind">{t('fillBlank')}</p>
       <h2 className="card-prompt" lang="isv">
         {transliterate(cloze.before, { script })}
-        <span className="cloze-gap" aria-label="missing word">
+        <span className="cloze-gap" aria-label={t('missingWordAria')}>
           ____
         </span>
         {transliterate(cloze.after, { script })}
@@ -39,7 +41,7 @@ export function ClozeCard({ cloze, script, onGrade }: ClozeCardProps) {
 
       <form className="card-typed" onSubmit={answer}>
         <label className="typed-label" htmlFor="cloze-answer">
-          Type the missing word — any script, accents optional
+          {t('clozeLabel')}
         </label>
         <input
           id="cloze-answer"
@@ -57,14 +59,14 @@ export function ClozeCard({ cloze, script, onGrade }: ClozeCardProps) {
           type="submit"
           disabled={outcome !== null}
         >
-          Check
+          {t('check')}
         </button>
       </form>
 
       {outcome !== null && (
         <div className="card-feedback">
           <p className="feedback-text">
-            {outcome === 'correct' ? 'Pravilno!' : 'Ne sovsěm.'}{' '}
+            {outcome === 'correct' ? t('correct') : t('incorrect')}{' '}
             <span lang="isv" className="feedback-answer">
               {transliterate(cloze.answer, { script })}
             </span>
@@ -77,7 +79,7 @@ export function ClozeCard({ cloze, script, onGrade }: ClozeCardProps) {
             }}
             autoFocus
           >
-            Continue
+            {t('continueButton')}
           </button>
         </div>
       )}

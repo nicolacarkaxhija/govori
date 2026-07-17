@@ -5,6 +5,7 @@ import {
   fetchPendingReviews,
   type LearnItem,
 } from '../api/client';
+import { useT } from '../i18n';
 import type { Script } from '../learn/useScript';
 
 export interface ReviewViewProps {
@@ -20,6 +21,7 @@ type Phase =
 /** The human gate for AI drafts (ADR 0038): approve publishes, reject
  * keeps a tombstone. Admin-gated server-side; this view just renders. */
 export function ReviewView({ script, onExit }: ReviewViewProps) {
+  const t = useT();
   const [phase, setPhase] = useState<Phase>({ name: 'loading' });
   const [decided, setDecided] = useState(0);
 
@@ -59,24 +61,24 @@ export function ReviewView({ script, onExit }: ReviewViewProps) {
     <div className="lesson">
       <header className="lesson-bar">
         <button type="button" className="quiet" onClick={onExit}>
-          ← Back
+          {t('back')}
         </button>
         <p className="lesson-count" aria-live="polite">
-          {decided} decided
+          {t('reviewDecided', { count: decided })}
         </p>
       </header>
 
-      {phase.name === 'loading' && <p className="lesson-note">Loading…</p>}
+      {phase.name === 'loading' && (
+        <p className="lesson-note">{t('loading')}</p>
+      )}
       {phase.name === 'unavailable' && (
-        <p className="lesson-note">
-          The review queue is unavailable — are you signed in as an admin?
-        </p>
+        <p className="lesson-note">{t('reviewUnavailable')}</p>
       )}
       {phase.name === 'reviewing' && phase.pending.length === 0 && (
         <div className="lesson-done">
           <div className="stitch" aria-hidden="true" />
-          <h2>Vse pregledano.</h2>
-          <p>No drafts are waiting for review.</p>
+          <h2>{t('allReviewed')}</h2>
+          <p>{t('noDrafts')}</p>
         </div>
       )}
       {phase.name === 'reviewing' && phase.pending.length > 0 && (
@@ -96,7 +98,7 @@ export function ReviewView({ script, onExit }: ReviewViewProps) {
                   data-state="correct"
                   onClick={() => void decide(item, 'approve')}
                 >
-                  Approve
+                  {t('approve')}
                 </button>
                 <button
                   type="button"
@@ -104,7 +106,7 @@ export function ReviewView({ script, onExit }: ReviewViewProps) {
                   data-state="incorrect"
                   onClick={() => void decide(item, 'reject')}
                 >
-                  Reject
+                  {t('reject')}
                 </button>
               </div>
             </li>
