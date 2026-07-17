@@ -145,4 +145,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | ci: add lighthouse budgets and a k6 load profile | 2–2.5 | Resource-size and category assertions over the built shell as a blocking CI job (verified green then armed), k6 read-path profile with thresholds — baseline p95 75.8 ms at 20 VUs on the seeded stack |
 
-**Running total: 171.7–217.7 h**
+| 2026-07-17 | feat: approve the unit 1 dialogues after review + draft units 2–5 (forge) | 3–3.5 | Review-driven line revisions, approval flow exercised end to end (rebuild → reimport → scenes live), 16 further scenes generated in two parallel waves, all validated clean and queued for review |
+
+**Running total: 174.7–221.2 h**
