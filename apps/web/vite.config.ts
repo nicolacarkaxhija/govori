@@ -20,6 +20,21 @@ export default defineConfig({
         theme_color: themeColor,
         background_color: backgroundColor,
       },
+      workbox: {
+        // Lessons keep working offline: content reads fall back to the
+        // last good copy when the network is away (ADR 0031).
+        runtimeCaching: [
+          {
+            urlPattern:
+              /\/(meta|stats|course|items|lessons\/[^/]+(\/sentences)?)$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'govori-content',
+              expiration: { maxEntries: 64, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
+          },
+        ],
+      },
     }),
   ],
 });
