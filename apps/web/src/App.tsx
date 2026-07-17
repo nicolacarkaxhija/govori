@@ -5,6 +5,7 @@ import { useTheme } from './hooks/useTheme';
 import { useScript } from './learn/useScript';
 import { LessonView } from './learn/LessonView';
 import { CourseView } from './learn/CourseView';
+import { AccountView } from './account/AccountView';
 import { StatsView } from './stats/StatsView';
 
 export function App() {
@@ -17,6 +18,7 @@ export function App() {
     | { name: 'course' }
     | { name: 'lesson'; lessonId: string }
     | { name: 'stats' }
+    | { name: 'account' }
   >({ name: 'home' });
 
   useEffect(() => {
@@ -47,6 +49,15 @@ export function App() {
           {view.name === 'home' ? '' : shortName}
         </span>
         <div className="topbar-controls">
+          <button
+            type="button"
+            className="quiet"
+            onClick={() => {
+              setView({ name: 'account' });
+            }}
+          >
+            Account
+          </button>
           <button
             type="button"
             className="quiet"
@@ -86,6 +97,12 @@ export function App() {
           onOpenLesson={(lessonId) => {
             setView({ name: 'lesson', lessonId });
           }}
+          onExit={() => {
+            setView({ name: 'home' });
+          }}
+        />
+      ) : view.name === 'account' ? (
+        <AccountView
           onExit={() => {
             setView({ name: 'home' });
           }}

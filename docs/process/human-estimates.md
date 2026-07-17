@@ -81,4 +81,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: teach through the course | 4–5 | Course/lesson clients, CourseView, lesson-scoped play, view machine, e2e over the course path, curriculum generator (forge) |
 
-**Running total: 101.7–129.7 h**
+| 2026-07-17 | feat: add accounts with local-progress sync | 4–5 | Auth/sync clients with credentials, AccountView (signup/signin/signout, error states), push-on-auth of the local log, 6 new tests |
+
+**Running total: 105.7–134.7 h**

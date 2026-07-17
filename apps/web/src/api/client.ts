@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { ReviewEvent } from '@govori/srs';
 
 const metaSchema = z.object({
   brand: z.object({
@@ -118,6 +119,85 @@ export async function fetchLesson(id: string): Promise<Lesson | null> {
     }
     const payload: unknown = await response.json();
     return lessonSchema.parse(payload);
+  } catch {
+    return null;
+  }
+}
+
+const meSchema = z.object({
+  user: z.object({ id: z.string(), email: z.string() }),
+});
+
+export type Me = z.infer<typeof meSchema>;
+
+export async function fetchMe(): Promise<Me | null> {
+  try {
+    const response = await fetch(new URL('/me', apiBaseUrl), {
+      credentials: 'include',
+    });
+    if (!response.ok) {
+      return null;
+    }
+    const payload: unknown = await response.json();
+    return meSchema.parse(payload);
+  } catch {
+    return null;
+  }
+}
+
+async function authPost(path: string, body: unknown): Promise<boolean> {
+  try {
+    const response = await fetch(new URL(path, apiBaseUrl), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(body),
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+export function signUp(
+  email: string,
+  password: string,
+  name: string,
+): Promise<boolean> {
+  return authPost('/api/auth/sign-up/email', { email, password, name });
+}
+
+export function signIn(email: string, password: string): Promise<boolean> {
+  return authPost('/api/auth/sign-in/email', { email, password });
+}
+
+export function signOut(): Promise<boolean> {
+  return authPost('/api/auth/sign-out', {});
+}
+
+const syncResultSchema = z.object({
+  received: z.number(),
+  stored: z.number(),
+});
+
+export type SyncResult = z.infer<typeof syncResultSchema>;
+
+/** Pushes the local review log; the server unions by event id (ADR 0030). */
+export async function pushReviews(
+  events: readonly ReviewEvent[],
+): Promise<SyncResult | null> {
+  try {
+    const response = await fetch(new URL('/sync/reviews', apiBaseUrl), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ events }),
+    });
+    if (!response.ok) {
+      return null;
+    }
+    const payload: unknown = await response.json();
+    return syncResultSchema.parse(payload);
   } catch {
     return null;
   }

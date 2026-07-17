@@ -1,0 +1,76 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { AccountView } from './AccountView';
+
+const client = vi.hoisted(() => ({
+  fetchMe: vi.fn(),
+  signUp: vi.fn(),
+  signIn: vi.fn(),
+  signOut: vi.fn(),
+  pushReviews: vi.fn(),
+}));
+vi.mock('../api/client', () => client);
+
+describe('AccountView', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    for (const mock of Object.values(client)) {
+      mock.mockReset();
+    }
+  });
+
+  it('creates an account and pushes the local log', async () => {
+    client.fetchMe
+      .mockResolvedValueOnce(null)
+      .mockResolvedValue({ user: { id: 'u1', email: 'ovca@example.com' } });
+    client.signUp.mockResolvedValue(true);
+    client.pushReviews.mockResolvedValue({ received: 3, stored: 3 });
+    const user = userEvent.setup();
+    render(<AccountView onExit={vi.fn()} />);
+    await user.type(await screen.findByLabelText('Display name'), 'Ovca');
+    await user.type(screen.getByLabelText('Email'), 'ovca@example.com');
+    await user.type(screen.getByLabelText('Password'), 'vlna-i-konji');
+    await user.click(screen.getByRole('button', { name: 'Create account' }));
+    expect(await screen.findByText('ovca@example.com')).toBeDefined();
+    expect(screen.getByText(/3 new reviews synced/)).toBeDefined();
+    expect(client.pushReviews).toHaveBeenCalled();
+  });
+
+  it('reports when the session cannot be established after signup', async () => {
+    client.fetchMe.mockResolvedValue(null);
+    client.signUp.mockResolvedValue(true);
+    const user = userEvent.setup();
+    render(<AccountView onExit={vi.fn()} />);
+    await user.type(await screen.findByLabelText('Email'), 'o@example.com');
+    await user.type(screen.getByLabelText('Password'), 'vlna-i-konji');
+    await user.click(screen.getByRole('button', { name: 'Create account' }));
+    expect(await screen.findByText(/did not work/)).toBeDefined();
+  });
+
+  it('explains a failed sign-in', async () => {
+    client.fetchMe.mockResolvedValue(null);
+    client.signIn.mockResolvedValue(false);
+    const user = userEvent.setup();
+    render(<AccountView onExit={vi.fn()} />);
+    await user.click(await screen.findByRole('button', { name: /Sign in$/ }));
+    await user.type(screen.getByLabelText('Email'), 'ovca@example.com');
+    await user.type(screen.getByLabelText('Password'), 'wrong-password');
+    await user.click(screen.getByRole('button', { name: 'Sign in' }));
+    expect(await screen.findByText(/Wrong email or password/)).toBeDefined();
+  });
+
+  it('shows the signed-in state and signs out', async () => {
+    client.fetchMe.mockResolvedValue({
+      user: { id: 'u1', email: 'ovca@example.com' },
+    });
+    client.signOut.mockResolvedValue(true);
+    const user = userEvent.setup();
+    render(<AccountView onExit={vi.fn()} />);
+    expect(await screen.findByText('ovca@example.com')).toBeDefined();
+    await user.click(screen.getByRole('button', { name: 'Sign out' }));
+    expect(
+      await screen.findByRole('button', { name: 'Create account' }),
+    ).toBeDefined();
+  });
+});

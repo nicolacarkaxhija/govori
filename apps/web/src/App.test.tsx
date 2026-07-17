@@ -123,3 +123,18 @@ describe('course navigation', () => {
     expect(await screen.findByText('Jedinica 1')).toBeDefined();
   });
 });
+
+describe('account entry', () => {
+  it('opens the account view from the top bar', async () => {
+    const user = userEvent.setup();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response('{}', { status: 401 })),
+    );
+    render(<App />);
+    await user.click(screen.getByRole('button', { name: 'Account' }));
+    expect(
+      await screen.findByRole('button', { name: 'Create account' }),
+    ).toBeDefined();
+  });
+});
