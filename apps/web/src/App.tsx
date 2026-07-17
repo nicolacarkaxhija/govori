@@ -10,6 +10,7 @@ import { StatsView } from './stats/StatsView';
 import { ReviewView } from './review/ReviewView';
 import { UsersView } from './review/UsersView';
 import { LanguageProvider, useLanguage, useT } from './i18n';
+import { streakDays } from './learn/progress';
 
 export function App() {
   const { language, toggle: toggleLanguage } = useLanguage();
@@ -109,6 +110,11 @@ function AppShell({
           <div className="stitch" aria-hidden="true" />
           <h1 className="hero-name">{shortName}</h1>
           <p className="hero-tagline">{t('tagline')}</p>
+          {streakDays() > 0 && (
+            <p className="hero-streak">
+              {t('streak', { count: streakDays() })}
+            </p>
+          )}
           <button
             type="button"
             className="primary"

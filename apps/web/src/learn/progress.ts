@@ -58,3 +58,26 @@ export function mergeEvents(incoming: readonly ReviewEvent[]): number {
   }
   return fresh.length;
 }
+
+/**
+ * Personal, private momentum (ADR 0032): consecutive UTC days with at
+ * least one review, ending today or yesterday — so a streak is never
+ * lost before the day is over.
+ */
+export function streakDays(now = new Date().toISOString()): number {
+  const days = new Set(
+    loadEvents().map((event) => event.reviewedAt.slice(0, 10)),
+  );
+  if (days.size === 0) {
+    return 0;
+  }
+  const dayMs = 24 * 60 * 60 * 1000;
+  const today = new Date(`${now.slice(0, 10)}T00:00:00.000Z`).getTime();
+  let cursor = days.has(now.slice(0, 10)) ? today : today - dayMs;
+  let streak = 0;
+  while (days.has(new Date(cursor).toISOString().slice(0, 10))) {
+    streak += 1;
+    cursor -= dayMs;
+  }
+  return streak;
+}

@@ -64,6 +64,7 @@ describe('LessonView', () => {
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(await screen.findByText(/Vse gotovo/)).toBeDefined();
     expect(screen.getByText('1 answered')).toBeDefined();
+    expect(screen.getByText('1-day streak')).toBeDefined();
   });
 
   it('lets the learner leave through the back control', async () => {

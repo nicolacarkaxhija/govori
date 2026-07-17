@@ -1,5 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { loadEvents, mergeEvents, nextItemId, recordReview } from './progress';
+import {
+  loadEvents,
+  mergeEvents,
+  nextItemId,
+  recordReview,
+  streakDays,
+} from './progress';
 
 // Local-first progress (ADR 0022/0030): an append-only event log in
 // localStorage, scheduling state derived by replay on read.
@@ -71,5 +77,34 @@ describe('mergeEvents', () => {
     ]);
     // FIRST was reviewed on another device; the unseen item comes first.
     expect(nextItemId(ITEMS, '2026-07-16T11:00:00.000Z')).toBe(SECOND);
+  });
+});
+
+describe('streakDays', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('counts consecutive days of review ending today or yesterday', () => {
+    recordReview(FIRST, 'good', '2026-07-15T21:00:00.000Z');
+    recordReview(FIRST, 'good', '2026-07-16T08:00:00.000Z');
+    recordReview(SECOND, 'good', '2026-07-17T09:00:00.000Z');
+    expect(streakDays('2026-07-17T12:00:00.000Z')).toBe(3);
+    // Nothing today yet, but yesterday counts: streak survives the morning.
+    expect(streakDays('2026-07-18T07:00:00.000Z')).toBe(3);
+    // A full missed day breaks it.
+    expect(streakDays('2026-07-19T07:00:00.000Z')).toBe(0);
+  });
+
+  it('is zero with no history and one after a single fresh day', () => {
+    expect(streakDays('2026-07-17T12:00:00.000Z')).toBe(0);
+    recordReview(FIRST, 'good', '2026-07-17T09:00:00.000Z');
+    expect(streakDays('2026-07-17T12:00:00.000Z')).toBe(1);
+  });
+
+  it('counts a day once no matter how many reviews it had', () => {
+    recordReview(FIRST, 'good', '2026-07-17T09:00:00.000Z');
+    recordReview(SECOND, 'again', '2026-07-17T10:00:00.000Z');
+    expect(streakDays('2026-07-17T12:00:00.000Z')).toBe(1);
   });
 });

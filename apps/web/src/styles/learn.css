@@ -521,3 +521,9 @@ button:active {
   display: flex;
   gap: 0.5rem;
 }
+
+.hero-streak {
+  color: var(--color-primary);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}

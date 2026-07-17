@@ -10,7 +10,7 @@ import { ClozeCard } from './ClozeCard';
 import { ExerciseCard } from './ExerciseCard';
 import { MatchingCard } from './MatchingCard';
 import { buildCloze, type Cloze } from './exercises';
-import { nextItemId, recordReview } from './progress';
+import { nextItemId, recordReview, streakDays } from './progress';
 import type { Script } from './useScript';
 
 export interface LessonViewProps {
@@ -152,6 +152,11 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
           <div className="stitch" aria-hidden="true" />
           <h2>{t('allDone')}</h2>
           <p>{t('nothingDue')}</p>
+          {streakDays() > 0 && (
+            <p className="hero-streak">
+              {t('streak', { count: streakDays() })}
+            </p>
+          )}
         </div>
       )}
       {phase.name === 'exercise' && mode === 'matching' && (

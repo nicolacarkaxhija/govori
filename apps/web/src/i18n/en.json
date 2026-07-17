@@ -59,6 +59,7 @@
   "statReviews": "Reviews answered",
   "statTranslations": "Translations",
   "statsNote": "Everything aggregate, nothing personal — the project in public.",
+  "streak": "{count}-day streak",
   "switchScript": "Switch script",
   "syncedDown": "{count} reviews arrived from your other devices.",
   "syncedReviews": "{count} new reviews synced from this device.",
