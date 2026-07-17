@@ -1,0 +1,29 @@
+# Govori
+
+> Govori is a free, open-source (AGPL-3.0) web app for learning Interslavic
+> (medžuslovjansky), a zonal constructed language intelligible to speakers
+> of Slavic languages. Content is community-driven and CC BY-SA 4.0.
+
+## What the app offers
+
+- A frequency-ordered starter course built from the community dictionary
+  (~19,800 items, translations in 26 languages).
+- Four exercise types: multiple choice, tolerant typing (any script,
+  accents optional), pair matching, and cloze over real sentences.
+- Spaced repetition (SM-2) with local-first progress and optional
+  cross-device sync via an account.
+- Latin and Cyrillic display, derived from canonical etymological Latin.
+- English and Interslavic interface languages.
+
+## Content policy
+
+Learning items carry per-item provenance (imported, human, or AI-drafted).
+AI-drafted content is originality-screened and human-reviewed before
+publication. Sources: the Interslavic community dictionary (MIT),
+Tatoeba sentences (CC BY 2.0 FR, attributed per sentence).
+
+## For developers
+
+- App repository: https://github.com/nicolacarkaxhija/govori
+- API: REST with OpenAPI at /openapi.json on any instance.
+- The project can be self-hosted; see deploy/ in the repository.
