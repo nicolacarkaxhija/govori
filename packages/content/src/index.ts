@@ -66,6 +66,26 @@ const CanonicalTextSchema = z
   .string()
   .refine(isCanonical, 'expected canonical etymological Latin (ADR 0003)');
 
+/**
+ * Normalized part-of-speech inventory, folded down from the slovnik's raw
+ * tags (gendered noun tags like `m.anim.`, verb tags like `v.tr. ipf.`).
+ * The raw tag survives verbatim in `posDetail`.
+ */
+export const PartOfSpeechSchema = z.enum([
+  'noun',
+  'verb',
+  'adjective',
+  'adverb',
+  'pronoun',
+  'numeral',
+  'preposition',
+  'conjunction',
+  'interjection',
+  'particle',
+  'phrase',
+  'affix',
+]);
+
 export const ItemSchema = z.object({
   id: z.uuid(),
   kind: z.enum(['word', 'phrase', 'sentence']),
@@ -74,6 +94,10 @@ export const ItemSchema = z.object({
   translations: z.array(TranslationSchema).min(1),
   /** Community frequency score; higher = more common. Drives ordering. */
   frequency: z.number().min(0).optional(),
+  /** Normalized part of speech; morphology drills key off this. */
+  pos: PartOfSpeechSchema.optional(),
+  /** The source's raw part-of-speech tag, e.g. `v.tr. ipf.` or `m.anim.`. */
+  posDetail: z.string().trim().min(1).optional(),
   notes: z.array(ContrastiveNoteSchema).default([]),
   provenance: ProvenanceSchema,
   audit: OriginalityAuditSchema.optional(),
@@ -93,6 +117,7 @@ export const ContentArtifactSchema = z.object({
   items: z.array(ItemSchema).min(1),
 });
 
+export type PartOfSpeech = z.infer<typeof PartOfSpeechSchema>;
 export type Translation = z.infer<typeof TranslationSchema>;
 export type ContrastiveNote = z.infer<typeof ContrastiveNoteSchema>;
 export type Provenance = z.infer<typeof ProvenanceSchema>;

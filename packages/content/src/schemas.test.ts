@@ -3,6 +3,7 @@ import {
   ArtifactError,
   ContentArtifactSchema,
   ItemSchema,
+  PartOfSpeechSchema,
   parseContentArtifact,
   parseCurriculumArtifact,
 } from './index.js';
@@ -88,6 +89,56 @@ describe('ItemSchema', () => {
         },
       }).success,
     ).toBe(false);
+  });
+});
+
+describe('part of speech', () => {
+  it('accepts an item tagged with a normalized part of speech', () => {
+    const tagged = { ...validItem, pos: 'noun', posDetail: 'm.anim.' };
+    const parsed = ItemSchema.safeParse(tagged);
+    expect(parsed.success).toBe(true);
+    expect(parsed.data?.pos).toBe('noun');
+    expect(parsed.data?.posDetail).toBe('m.anim.');
+  });
+
+  it('accepts every value of the part-of-speech inventory', () => {
+    for (const pos of PartOfSpeechSchema.options) {
+      expect(ItemSchema.safeParse({ ...validItem, pos }).success).toBe(true);
+    }
+    expect(PartOfSpeechSchema.options).toEqual([
+      'noun',
+      'verb',
+      'adjective',
+      'adverb',
+      'pronoun',
+      'numeral',
+      'preposition',
+      'conjunction',
+      'interjection',
+      'particle',
+      'phrase',
+      'affix',
+    ]);
+  });
+
+  it('rejects values outside the inventory', () => {
+    expect(ItemSchema.safeParse({ ...validItem, pos: 'gerund' }).success).toBe(
+      false,
+    );
+  });
+
+  it('rejects a blank raw source tag', () => {
+    expect(
+      ItemSchema.safeParse({ ...validItem, pos: 'noun', posDetail: '  ' })
+        .success,
+    ).toBe(false);
+  });
+
+  it('keeps both fields optional for untagged items', () => {
+    const parsed = ItemSchema.safeParse(validItem);
+    expect(parsed.success).toBe(true);
+    expect(parsed.data?.pos).toBeUndefined();
+    expect(parsed.data?.posDetail).toBeUndefined();
   });
 });
 
