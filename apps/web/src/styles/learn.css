@@ -457,3 +457,13 @@ button:active {
   outline: 2px solid var(--color-primary);
   outline-offset: 1px;
 }
+
+.rights {
+  display: flex;
+  gap: var(--space-md);
+  margin-top: var(--space-sm);
+}
+
+.footer-link.danger {
+  color: var(--color-primary);
+}

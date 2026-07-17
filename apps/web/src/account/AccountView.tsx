@@ -1,5 +1,7 @@
 import { useEffect, useState, type SubmitEvent } from 'react';
 import {
+  deleteAccount,
+  exportData,
   fetchMe,
   pushReviews,
   signIn,
@@ -30,6 +32,8 @@ export function AccountView({ onExit }: AccountViewProps) {
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [armDelete, setArmDelete] = useState(false);
+  const [erased, setErased] = useState(false);
 
   const syncAndEnter = async () => {
     const me = await fetchMe();
@@ -90,6 +94,38 @@ export function AccountView({ onExit }: AccountViewProps) {
     setSession({ name: 'anonymous' });
   };
 
+  const download = async () => {
+    const bundle = await exportData();
+    if (bundle === null) {
+      setError('Export failed — try again in a moment.');
+      return;
+    }
+    const blob = new Blob([JSON.stringify(bundle, null, 2)], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'govori-data.json';
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const erase = async () => {
+    if (!armDelete) {
+      setArmDelete(true);
+      return;
+    }
+    const ok = await deleteAccount();
+    if (ok) {
+      setErased(true);
+      setArmDelete(false);
+      setSession({ name: 'anonymous' });
+    } else {
+      setError('Deletion failed — try again in a moment.');
+    }
+  };
+
   return (
     <div className="lesson">
       <header className="lesson-bar">
@@ -116,12 +152,37 @@ export function AccountView({ onExit }: AccountViewProps) {
           <button type="button" className="quiet" onClick={() => void leave()}>
             Sign out
           </button>
+          <div className="rights">
+            <button
+              type="button"
+              className="footer-link"
+              onClick={() => void download()}
+            >
+              Download my data
+            </button>
+            <button
+              type="button"
+              className="footer-link danger"
+              onClick={() => void erase()}
+            >
+              {armDelete
+                ? 'Press again to erase everything'
+                : 'Delete my account'}
+            </button>
+          </div>
+          {error !== null && <p className="account-error">{error}</p>}
         </div>
       )}
 
       {session.name === 'anonymous' && (
         <form className="account" onSubmit={(event) => void submit(event)}>
           <div className="stitch" aria-hidden="true" />
+          {erased && (
+            <p className="account-sync">
+              Your account and its data are gone. Local progress on this device
+              is untouched.
+            </p>
+          )}
           <h2 className="account-title">
             {mode === 'signUp' ? 'Create an account' : 'Sign in'}
           </h2>

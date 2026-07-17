@@ -202,3 +202,29 @@ export async function pushReviews(
     return null;
   }
 }
+
+export async function exportData(): Promise<unknown> {
+  try {
+    const response = await fetch(new URL('/me/export', apiBaseUrl), {
+      credentials: 'include',
+    });
+    if (!response.ok) {
+      return null;
+    }
+    return (await response.json()) as unknown;
+  } catch {
+    return null;
+  }
+}
+
+export async function deleteAccount(): Promise<boolean> {
+  try {
+    const response = await fetch(new URL('/me', apiBaseUrl), {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}

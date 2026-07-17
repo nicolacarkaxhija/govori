@@ -9,6 +9,8 @@ const client = vi.hoisted(() => ({
   signIn: vi.fn(),
   signOut: vi.fn(),
   pushReviews: vi.fn(),
+  exportData: vi.fn(),
+  deleteAccount: vi.fn(),
 }));
 vi.mock('../api/client', () => client);
 
@@ -71,6 +73,48 @@ describe('AccountView', () => {
     await user.click(screen.getByRole('button', { name: 'Sign out' }));
     expect(
       await screen.findByRole('button', { name: 'Create account' }),
+    ).toBeDefined();
+  });
+});
+
+describe('data rights', () => {
+  it('downloads the export bundle', async () => {
+    client.fetchMe.mockResolvedValue({
+      user: { id: 'u1', email: 'ovca@example.com' },
+    });
+    client.exportData.mockResolvedValue({ user: {}, reviews: [] });
+    const createObjectURL = vi.fn(() => 'blob:x');
+    const revokeObjectURL = vi.fn();
+    vi.stubGlobal(
+      'URL',
+      Object.assign(URL, { createObjectURL, revokeObjectURL }),
+    );
+    const user = userEvent.setup();
+    render(<AccountView onExit={vi.fn()} />);
+    await user.click(
+      await screen.findByRole('button', { name: 'Download my data' }),
+    );
+    expect(client.exportData).toHaveBeenCalled();
+    expect(createObjectURL).toHaveBeenCalled();
+  });
+
+  it('erases only after the confirmation press', async () => {
+    client.fetchMe.mockResolvedValue({
+      user: { id: 'u1', email: 'ovca@example.com' },
+    });
+    client.deleteAccount.mockResolvedValue(true);
+    const user = userEvent.setup();
+    render(<AccountView onExit={vi.fn()} />);
+    await user.click(
+      await screen.findByRole('button', { name: 'Delete my account' }),
+    );
+    expect(client.deleteAccount).not.toHaveBeenCalled();
+    await user.click(
+      screen.getByRole('button', { name: 'Press again to erase everything' }),
+    );
+    expect(client.deleteAccount).toHaveBeenCalled();
+    expect(
+      await screen.findByText(/account and its data are gone/),
     ).toBeDefined();
   });
 });
