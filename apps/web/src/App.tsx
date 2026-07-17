@@ -89,7 +89,7 @@ function AppShell({
             onClick={toggleScript}
             aria-label={t('switchScript')}
           >
-            {script === 'latin' ? 'Aa → Аа' : 'Аа → Aa'}
+            {script === 'latin' ? 'Žž → Жж' : 'Жж → Žž'}
           </button>
           <button
             type="button"
