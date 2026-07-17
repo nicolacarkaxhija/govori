@@ -161,4 +161,6 @@ developer working alone. Appended in the same commit it describes.
 | 2026-07-17 | feat: wrap the web app in a native android shell | 2.5–3 | Toolchain bootstrap (JDK 21, SDK command-line tools, platform 35), Capacitor config over the built PWA, generated android project, verified debug APK build |
 | 2026-07-17 | feat: open review decisions to the reviewer tier | 1–1.5 | Role widened through port/schema/route enums, reviewer-or-admin guard on both review routes, promotion and guard tests; user and flag administration kept admin-only |
 
-**Running total: 189.2–239.7 h**
+| 2026-07-17 | feat: let the community vote drafts into the course | 2.5–3 | review_votes table + migration, VoteStore port with Drizzle upsert/tally adapter, findPending on the queue, vote and pending routes with net-3 auto-publish and race guard, route + real-Postgres tests |
+
+**Running total: 191.7–242.7 h**

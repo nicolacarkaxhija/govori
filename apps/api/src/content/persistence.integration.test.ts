@@ -12,6 +12,7 @@ import { importArtifact } from './import-artifact.js';
 import { DrizzleStats } from '../stats/drizzle-stats.js';
 import { DrizzleCourse } from '../course/drizzle-course.js';
 import { DrizzleReviewQueue } from '../review/drizzle-review-queue.js';
+import { DrizzleVoteStore } from '../review/drizzle-vote-store.js';
 import { DrizzleRecordingStore } from '../audio/drizzle-recording-store.js';
 
 let container: StartedPostgreSqlContainer;
@@ -194,6 +195,59 @@ describe('DrizzleReviewQueue', () => {
     );
     const after = await queue.listPending(10);
     expect(after.map((item) => item.id)).not.toContain(draft.id);
+  });
+});
+
+describe('DrizzleVoteStore', () => {
+  it('upserts one vote per voter and tallies with the caller vote', async () => {
+    const queue = new DrizzleReviewQueue(db);
+    const votes = new DrizzleVoteStore(db);
+    const draft: Item = {
+      id: '2c3d4e5f-6a7b-4c8d-9e0f-1a2b3c4d5e6f',
+      kind: 'word',
+      text: 'sněg',
+      translations: [{ lang: 'en', text: 'snow' }],
+      notes: [],
+      provenance: {
+        origin: 'ai-draft',
+        model: 'calibration',
+        generatedAt: '2026-07-17T12:00:00.000Z',
+      },
+      audit: {
+        status: 'clean',
+        maxOverlap: 0,
+        auditedAt: '2026-07-17T13:00:00.000Z',
+      },
+    };
+    await queue.addPending([draft]);
+    expect((await queue.findPending(draft.id))?.text).toBe('sněg');
+
+    expect(await votes.castVote(draft.id, 'voter-a', true)).toEqual({
+      upvotes: 1,
+      downvotes: 0,
+    });
+    expect(await votes.castVote(draft.id, 'voter-b', false)).toEqual({
+      upvotes: 1,
+      downvotes: 1,
+    });
+    // A change of heart replaces the earlier ballot, never doubles it.
+    expect(await votes.castVote(draft.id, 'voter-b', true)).toEqual({
+      upvotes: 2,
+      downvotes: 0,
+    });
+
+    const tallies = await votes.talliesFor([draft.id], 'voter-a');
+    expect(tallies.get(draft.id)).toEqual({
+      upvotes: 2,
+      downvotes: 0,
+      myVote: true,
+    });
+    const stranger = await votes.talliesFor([draft.id], 'voter-zzz');
+    expect(stranger.get(draft.id)?.myVote).toBeNull();
+    expect((await votes.talliesFor([], 'voter-a')).size).toBe(0);
+
+    await queue.decide(draft.id, 'approved', 'community:vote');
+    expect(await queue.findPending(draft.id)).toBeUndefined();
   });
 });
 

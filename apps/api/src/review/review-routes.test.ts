@@ -51,6 +51,7 @@ function testApp({ userRole = 'admin', session = 'u1' }: Setup = {}) {
     reviewQueue: {
       addPending: () => Promise.resolve(0),
       listPending: () => Promise.resolve([...pending.values()]),
+      findPending: (id) => Promise.resolve(pending.get(id)),
       decide: (id, decision, decidedBy) => {
         const item = pending.get(id);
         if (item === undefined) {

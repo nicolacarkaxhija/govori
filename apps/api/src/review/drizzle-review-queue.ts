@@ -30,6 +30,14 @@ export class DrizzleReviewQueue implements ReviewQueue {
     return rows.map((row) => row.item);
   }
 
+  async findPending(id: string): Promise<Item | undefined> {
+    const [row] = await this.db
+      .select({ item: reviewQueue.item })
+      .from(reviewQueue)
+      .where(and(eq(reviewQueue.id, id), eq(reviewQueue.status, 'pending')));
+    return row?.item;
+  }
+
   async decide(
     id: string,
     decision: ReviewDecision,

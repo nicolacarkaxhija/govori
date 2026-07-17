@@ -21,7 +21,11 @@ import type { ReviewEventStore } from './reviews/ports.js';
 import type { StatsQueries } from './stats/ports.js';
 import type { CourseQueries } from './course/ports.js';
 import type { AccountRights } from './account/ports.js';
-import type { ReviewQueue } from './review/ports.js';
+import {
+  COMMUNITY_PUBLISH_NET_VOTES,
+  type ReviewQueue,
+  type VoteStore,
+} from './review/ports.js';
 import type { UserDirectory } from './auth/ports.js';
 import type { RecordingStore } from './audio/ports.js';
 
@@ -36,6 +40,8 @@ export interface AppDependencies {
   course: CourseQueries;
   account: AccountRights;
   reviewQueue: ReviewQueue;
+  /** Community votes over the pending queue (ADR 0040). */
+  votes: VoteStore;
   /** Write side used when a draft is approved (ADR 0038). */
   itemWriter: { upsertMany(items: readonly Item[]): Promise<void> };
   userDirectory: UserDirectory;
@@ -106,6 +112,7 @@ export function buildApp({
   course,
   account,
   reviewQueue,
+  votes,
   itemWriter,
   userDirectory,
   recordings,
@@ -588,6 +595,108 @@ export function buildApp({
           await itemWriter.upsertMany([item]);
         }
         return { decided: decision };
+      },
+    );
+
+    // Community voting (ADR 0040): any signed-in learner may vote a
+    // pending draft up or down; net-3 upvotes publish it like an approval.
+    routes.post(
+      '/review/:id/vote',
+      {
+        schema: {
+          params: z.object({ id: z.uuid() }),
+          body: z.object({ up: z.boolean() }),
+          response: {
+            200: z.object({ upvotes: z.number(), downvotes: z.number() }),
+            401: z.object({ message: z.string() }),
+            404: NotFoundSchema,
+          },
+        },
+      },
+      async (request, reply) => {
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        const pendingItem = await reviewQueue.findPending(request.params.id);
+        if (pendingItem === undefined) {
+          return reply.status(404).send({ message: 'no pending entry' });
+        }
+        const tally = await votes.castVote(
+          request.params.id,
+          sessionResult.user.id,
+          request.body.up,
+        );
+        if (tally.upvotes - tally.downvotes >= COMMUNITY_PUBLISH_NET_VOTES) {
+          // Publishing mirrors a reviewer approval (ADR 0040); a decide
+          // that comes back empty means someone else got there first.
+          const item = await reviewQueue.decide(
+            request.params.id,
+            'approved',
+            'community:vote',
+          );
+          if (item !== undefined) {
+            await itemWriter.upsertMany([item]);
+          }
+        }
+        return tally;
+      },
+    );
+
+    routes.get(
+      '/review/pending',
+      {
+        schema: {
+          querystring: z.object({
+            limit: z.coerce.number().int().min(1).max(100).default(50),
+          }),
+          response: {
+            200: z.object({
+              pending: z.array(
+                z.object({
+                  item: ItemSchema,
+                  upvotes: z.number(),
+                  downvotes: z.number(),
+                  myVote: z.boolean().nullable(),
+                }),
+              ),
+            }),
+            401: z.object({ message: z.string() }),
+          },
+        },
+      },
+      async (request, reply) => {
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        const pendingItems = await reviewQueue.listPending(request.query.limit);
+        const tallies = await votes.talliesFor(
+          pendingItems.map((item) => item.id),
+          sessionResult.user.id,
+        );
+        return {
+          pending: pendingItems.map((item) => ({
+            item,
+            ...(tallies.get(item.id) ?? {
+              upvotes: 0,
+              downvotes: 0,
+              myVote: null,
+            }),
+          })),
+        };
       },
     );
 

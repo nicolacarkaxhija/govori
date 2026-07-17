@@ -47,6 +47,22 @@ export const reviewQueue = pgTable('review_queue', {
     .defaultNow(),
 });
 
+/** One community vote per learner per pending draft (ADR 0040). */
+export const reviewVotes = pgTable(
+  'review_votes',
+  {
+    reviewId: uuid('review_id')
+      .notNull()
+      .references(() => reviewQueue.id, { onDelete: 'cascade' }),
+    voterId: text('voter_id').notNull(),
+    up: boolean('up').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [primaryKey({ columns: [table.reviewId, table.voterId] })],
+);
+
 export const translations = pgTable(
   'translations',
   {

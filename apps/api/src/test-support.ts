@@ -46,7 +46,12 @@ export function makeTestDeps(
     reviewQueue: {
       addPending: () => Promise.resolve(0),
       listPending: () => Promise.resolve([]),
+      findPending: () => Promise.resolve(undefined),
       decide: () => Promise.resolve(undefined),
+    },
+    votes: {
+      castVote: () => Promise.resolve({ upvotes: 0, downvotes: 0 }),
+      talliesFor: () => Promise.resolve(new Map()),
     },
     itemWriter: { upsertMany: () => Promise.resolve() },
     userDirectory: {

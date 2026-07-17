@@ -28,6 +28,7 @@ function testApp(session: string | null = 'u1') {
         return Promise.resolve(items.length);
       },
       listPending: () => Promise.resolve([]),
+      findPending: () => Promise.resolve(undefined),
       decide: () => Promise.resolve(undefined),
     },
   });
