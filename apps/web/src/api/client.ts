@@ -286,3 +286,30 @@ export async function decideReview(
     return false;
   }
 }
+
+const reviewEventsSchema = z.object({
+  events: z.array(
+    z.object({
+      id: z.uuid(),
+      itemId: z.uuid(),
+      reviewedAt: z.iso.datetime(),
+      grade: z.enum(['again', 'hard', 'good', 'easy']),
+    }),
+  ),
+});
+
+/** Pulls the account's review log for set-union into local storage. */
+export async function fetchReviews(): Promise<ReviewEvent[] | null> {
+  try {
+    const response = await fetch(new URL('/sync/reviews', apiBaseUrl), {
+      credentials: 'include',
+    });
+    if (!response.ok) {
+      return null;
+    }
+    const payload: unknown = await response.json();
+    return reviewEventsSchema.parse(payload).events;
+  } catch {
+    return null;
+  }
+}

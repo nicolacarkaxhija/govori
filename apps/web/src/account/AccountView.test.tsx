@@ -5,6 +5,7 @@ import { AccountView } from './AccountView';
 
 const client = vi.hoisted(() => ({
   fetchMe: vi.fn(),
+  fetchReviews: vi.fn(),
   signUp: vi.fn(),
   signIn: vi.fn(),
   signOut: vi.fn(),
@@ -20,6 +21,7 @@ describe('AccountView', () => {
     for (const mock of Object.values(client)) {
       mock.mockReset();
     }
+    client.fetchReviews.mockResolvedValue([]);
   });
 
   it('creates an account and pushes the local log', async () => {
@@ -132,5 +134,28 @@ describe('AccountView admin entry', () => {
       await screen.findByRole('button', { name: 'Review drafts' }),
     );
     expect(onReview).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('AccountView pull-merge', () => {
+  it('merges server events into the local log on sign-in', async () => {
+    client.fetchMe.mockResolvedValue({
+      user: { id: 'u1', email: 'ovca@example.com', role: 'learner' },
+    });
+    client.fetchReviews.mockResolvedValue([
+      {
+        id: 'dddddddd-0000-4000-8000-000000000009',
+        itemId: 'bbbbbbbb-0000-4000-8000-000000000001',
+        reviewedAt: '2026-07-16T10:00:00.000Z',
+        grade: 'good',
+      },
+    ]);
+    render(<AccountView onExit={vi.fn()} onReview={vi.fn()} />);
+    expect(
+      await screen.findByText('1 reviews arrived from your other devices.'),
+    ).toBeDefined();
+    expect(localStorage.getItem('govori.reviews.v1')).toContain(
+      'dddddddd-0000-4000-8000-000000000009',
+    );
   });
 });

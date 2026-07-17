@@ -166,3 +166,31 @@ describe('review clients', () => {
     ).toEqual([]);
   });
 });
+
+describe('fetchReviews', () => {
+  it('parses the server log and fails closed', async () => {
+    const { fetchReviews } = await import('./client');
+    stubFetch({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          events: [
+            {
+              id: 'dddddddd-0000-4000-8000-000000000001',
+              itemId: 'bbbbbbbb-0000-4000-8000-000000000001',
+              reviewedAt: '2026-07-16T10:00:00.000Z',
+              grade: 'good',
+            },
+          ],
+        }),
+    });
+    expect(await fetchReviews()).toHaveLength(1);
+    stubFetch({ ok: false, json: () => Promise.resolve({}) });
+    expect(await fetchReviews()).toBeNull();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.reject(new Error('offline'))),
+    );
+    expect(await fetchReviews()).toBeNull();
+  });
+});

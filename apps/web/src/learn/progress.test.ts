@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { loadEvents, nextItemId, recordReview } from './progress';
+import { loadEvents, mergeEvents, nextItemId, recordReview } from './progress';
 
 // Local-first progress (ADR 0022/0030): an append-only event log in
 // localStorage, scheduling state derived by replay on read.
@@ -37,5 +37,39 @@ describe('local progress', () => {
   it('survives corrupted storage by starting fresh', () => {
     localStorage.setItem('govori.reviews.v1', '{not json');
     expect(loadEvents()).toEqual([]);
+  });
+});
+
+describe('mergeEvents', () => {
+  it('unions by event id and reports how many were new', () => {
+    recordReview(FIRST, 'good', '2026-07-16T10:00:00.000Z');
+    const local = loadEvents();
+    const remote = [
+      ...local,
+      {
+        id: 'dddddddd-0000-4000-8000-000000000001',
+        itemId: SECOND,
+        reviewedAt: '2026-07-15T09:00:00.000Z',
+        grade: 'again' as const,
+      },
+    ];
+    expect(mergeEvents(remote)).toBe(1);
+    expect(loadEvents()).toHaveLength(2);
+    // Merging the same set again adds nothing.
+    expect(mergeEvents(remote)).toBe(0);
+    expect(loadEvents()).toHaveLength(2);
+  });
+
+  it('feeds merged history into scheduling', () => {
+    mergeEvents([
+      {
+        id: 'dddddddd-0000-4000-8000-000000000002',
+        itemId: FIRST,
+        reviewedAt: '2026-07-16T10:00:00.000Z',
+        grade: 'good',
+      },
+    ]);
+    // FIRST was reviewed on another device; the unseen item comes first.
+    expect(nextItemId(ITEMS, '2026-07-16T11:00:00.000Z')).toBe(SECOND);
   });
 });

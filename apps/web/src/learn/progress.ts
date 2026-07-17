@@ -43,3 +43,18 @@ export function nextItemId(
   }
   return pool.find((id) => !state.has(id));
 }
+
+/**
+ * Pull side of sync (ADR 0030): union server events into the local log by
+ * event id — same set-union semantics the server applies on push. Returns
+ * how many events were new to this device.
+ */
+export function mergeEvents(incoming: readonly ReviewEvent[]): number {
+  const events = loadEvents();
+  const known = new Set(events.map((event) => event.id));
+  const fresh = incoming.filter((event) => !known.has(event.id));
+  if (fresh.length > 0) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([...events, ...fresh]));
+  }
+  return fresh.length;
+}

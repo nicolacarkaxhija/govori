@@ -3,13 +3,14 @@ import {
   deleteAccount,
   exportData,
   fetchMe,
+  fetchReviews,
   pushReviews,
   signIn,
   signOut,
   signUp,
   type Me,
 } from '../api/client';
-import { loadEvents } from '../learn/progress';
+import { loadEvents, mergeEvents } from '../learn/progress';
 import { useT } from '../i18n';
 
 export interface AccountViewProps {
@@ -20,7 +21,7 @@ export interface AccountViewProps {
 type Session =
   | { name: 'checking' }
   | { name: 'anonymous' }
-  | { name: 'signedIn'; me: Me; synced: number | null };
+  | { name: 'signedIn'; me: Me; synced: number | null; pulled: number };
 
 /**
  * Anonymous-first (ADR 0022): an account only adds sync. On sign-in the
@@ -45,7 +46,14 @@ export function AccountView({ onExit, onReview }: AccountViewProps) {
       return;
     }
     const result = await pushReviews(loadEvents());
-    setSession({ name: 'signedIn', me, synced: result?.stored ?? null });
+    const remote = await fetchReviews();
+    const pulled = remote === null ? 0 : mergeEvents(remote);
+    setSession({
+      name: 'signedIn',
+      me,
+      synced: result?.stored ?? null,
+      pulled,
+    });
   };
 
   useEffect(() => {
@@ -53,11 +61,13 @@ export function AccountView({ onExit, onReview }: AccountViewProps) {
     const check = async () => {
       const me = await fetchMe();
       if (active) {
-        setSession(
-          me === null
-            ? { name: 'anonymous' }
-            : { name: 'signedIn', me, synced: null },
-        );
+        if (me === null) {
+          setSession({ name: 'anonymous' });
+          return;
+        }
+        const remote = await fetchReviews();
+        const pulled = remote === null ? 0 : mergeEvents(remote);
+        setSession({ name: 'signedIn', me, synced: null, pulled });
       }
     };
     void check();
@@ -145,6 +155,11 @@ export function AccountView({ onExit, onReview }: AccountViewProps) {
           {session.synced !== null && (
             <p className="account-sync">
               {t('syncedReviews', { count: session.synced })}
+            </p>
+          )}
+          {session.pulled > 0 && (
+            <p className="account-sync">
+              {t('syncedDown', { count: session.pulled })}
             </p>
           )}
           <p className="account-note">{t('progressFollows')}</p>
