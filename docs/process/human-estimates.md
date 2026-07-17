@@ -109,4 +109,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: let admins review drafts in the app | 2.5–3 | Review clients, ReviewView (approve/reject, script-aware, unavailable state), admin entry in AccountView, App wiring, styles, tests to all gates; live end-to-end verification (314 queued → approve → served publicly) |
 
-**Running total: 141.7–179.7 h**
+| 2026-07-17 | fix: proxy every api route through the one-origin caddy | 0.3 | Stats/course/lessons/me-export paths were falling through to the SPA in prod; caught by booting the seeded local stack |
+
+**Running total: 142–180 h**
