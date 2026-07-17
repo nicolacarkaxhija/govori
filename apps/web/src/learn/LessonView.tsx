@@ -143,16 +143,14 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
     recordReview(built.itemId, value);
     setAnswered((count) => count + 1);
     setSentenceRounds((count) => count + 1);
-    setMode(audioOn ? 'listening' : 'choices');
-    advance(pool);
+    proceed(nextMode('cloze'));
   };
 
   const gradeAssembly = (built: Assembly) => (value: Grade) => {
     recordReview(built.itemId, value);
     setAnswered((count) => count + 1);
     setSentenceRounds((count) => count + 1);
-    setMode(audioOn ? 'listening' : 'choices');
-    advance(pool);
+    proceed(nextMode('assembly'));
   };
 
   const gradeMany = (results: { itemId: string; grade: Grade }[]) => {
@@ -243,7 +241,10 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
       )}
       {phase.name === 'exercise' &&
         intro === null &&
-        (mode === 'choices' || mode === 'typed') && (
+        (mode === 'choices' ||
+          mode === 'typed' ||
+          mode === 'reverseChoices' ||
+          mode === 'reverseTyped') && (
           <ExerciseCard
             key={phase.item.id + String(answered)}
             item={phase.item}
@@ -251,7 +252,11 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
             script={script}
             mode={mode}
             onGrade={grade(phase.item)}
-            audio={audioOn ? { canListen: true, canRecord: true } : undefined}
+            audio={
+              audioOn && (mode === 'choices' || mode === 'typed')
+                ? { canListen: true, canRecord: true }
+                : undefined
+            }
           />
         )}
     </div>

@@ -5,6 +5,7 @@ import {
   buildChoices,
   buildCloze,
   buildMatching,
+  buildReverseChoices,
   checkTyped,
   planNextMode,
 } from './exercises';
@@ -52,6 +53,37 @@ describe('buildChoices', () => {
     const first = buildChoices(target, items, 3, () => 0.42);
     const second = buildChoices(target, items, 3, () => 0.42);
     expect(first).toEqual(second);
+  });
+});
+
+describe('buildReverseChoices', () => {
+  it('includes the target word plus unique Interslavic distractors', () => {
+    const target = items.find((i) => i.text === 'voda');
+    if (target === undefined) throw new Error('fixture missing');
+    const choices = buildReverseChoices(target, items, 4, () => 0.5);
+    expect(choices).toHaveLength(4);
+    expect(choices).toContain('voda');
+    expect(new Set(choices).size).toBe(4);
+    const texts = items.map((item) => item.text);
+    for (const choice of choices) {
+      expect(texts).toContain(choice);
+    }
+  });
+
+  it('is deterministic for a fixed random source', () => {
+    const target = items.find((i) => i.text === 'hlěb');
+    if (target === undefined) throw new Error('fixture missing');
+    const first = buildReverseChoices(target, items, 3, () => 0.42);
+    const second = buildReverseChoices(target, items, 3, () => 0.42);
+    expect(first).toEqual(second);
+  });
+
+  it('caps at the distractors the pool can offer', () => {
+    const target = items.find((i) => i.text === 'voda');
+    if (target === undefined) throw new Error('fixture missing');
+    expect(buildReverseChoices(target, [target], 4, () => 0.5)).toEqual([
+      'voda',
+    ]);
   });
 });
 
@@ -208,12 +240,28 @@ describe('planNextMode', () => {
     );
   });
 
-  it('falls back to listening, then choices, when sentences run dry', () => {
+  it('turns the direction around after the sentence round', () => {
+    expect(planNextMode('cloze', base)).toBe('reverseChoices');
+    expect(planNextMode('assembly', base)).toBe('reverseChoices');
+    expect(planNextMode('reverseChoices', base)).toBe('reverseTyped');
+    expect(planNextMode('reverseTyped', base)).toBe('choices');
+  });
+
+  it('goes reverse straight away when sentences run dry', () => {
+    const dry = { ...base, hasCloze: false, hasAssembly: false };
+    expect(planNextMode('typed', dry)).toBe('reverseChoices');
+    expect(planNextMode('matching', dry)).toBe('reverseChoices');
+  });
+
+  it('slots listening before the reverse pass when audio is live', () => {
     const dry = { ...base, hasCloze: false, hasAssembly: false };
     expect(planNextMode('typed', { ...dry, audioOn: true })).toBe('listening');
-    expect(planNextMode('typed', dry)).toBe('choices');
-    expect(planNextMode('cloze', { ...dry, audioOn: true })).toBe('listening');
-    expect(planNextMode('assembly', dry)).toBe('choices');
-    expect(planNextMode('listening', dry)).toBe('choices');
+    expect(planNextMode('cloze', { ...base, audioOn: true })).toBe('listening');
+    expect(planNextMode('assembly', { ...base, audioOn: true })).toBe(
+      'listening',
+    );
+    expect(planNextMode('listening', { ...base, audioOn: true })).toBe(
+      'reverseChoices',
+    );
   });
 });

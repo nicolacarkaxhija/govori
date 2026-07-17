@@ -163,11 +163,10 @@ developer working alone. Appended in the same commit it describes.
 | 2026-07-17 | feat: let the community vote drafts into the course | 2.5–3 | review_votes table + migration, VoteStore port with Drizzle upsert/tally adapter, findPending on the queue, vote and pending routes with net-3 auto-publish and race guard, route + real-Postgres tests |
 | 2026-07-17 | docs: charter community voting | 0.5 | ADR 0040 (second publish path, threshold rationale, brigading risk accepted) + registry row |
 | 2026-07-17 | feat(content): add part-of-speech fields to items | 0.5–1 | Normalized twelve-value POS enum distilled from the slovnik's raw tag inventory, optional pos/posDetail on the item contract, branch coverage held at 100% |
-
 | 2026-07-17 | feat(content): add the morphology artifact contract | 1–1.5 | New import-seam schema for inflected-form paradigms keyed to item ids, two-form floor, canonical-text gate on every form, parse function mirroring the existing artifact parsers with joined issue paths |
-
 | 2026-07-18 | feat: import word forms and part of speech | 2–2.5 | item_forms table + pos columns in one verified-clean migration, morphology port with chunked delete-then-insert Drizzle adapter, artifact re-validation seam, CLI mode, pos threading through the item repository, unit + real-Postgres tests |
 | 2026-07-18 | feat: serve item forms | 0.5–1 | Read port wired through the dependency seam and composition root, GET /items/:id/forms with empty-list semantics for unknown items, four-path route test including the OpenAPI surface |
 | 2026-07-18 | feat: publish the open data export | 2.5–3 | Three public CC BY-SA endpoints emitting importer-shaped artifacts, bulk-read adapter with map grouping sized for 250k translations, empty-pool 404 semantics, round-trip tests through the shared parsers at both the route and real-Postgres layers |
+| 2026-07-17 | feat: add reverse-direction exercises to the rotation | 2–2.5 | Shared option-picking core with an Interslavic-answer builder, direction-aware exercise card (script-rendered choices, tolerant typing), planner extended with a reverse pass after the sentence round |
 
 **Running total: 198.7–252.2 h**

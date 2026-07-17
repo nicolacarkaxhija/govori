@@ -3,7 +3,7 @@ import { transliterate } from '@govori/transliteration';
 import type { Grade } from '@govori/srs';
 import type { LearnItem } from '../api/client';
 import { AudioTools } from './AudioTools';
-import { buildChoices, checkTyped } from './exercises';
+import { buildChoices, buildReverseChoices, checkTyped } from './exercises';
 import type { Script } from './useScript';
 import { useT } from '../i18n';
 
@@ -11,7 +11,7 @@ export interface ExerciseCardProps {
   item: LearnItem;
   pool: readonly LearnItem[];
   script: Script;
-  mode: 'choices' | 'typed';
+  mode: 'choices' | 'typed' | 'reverseChoices' | 'reverseTyped';
   onGrade: (grade: Grade) => void;
   /** Community audio rights; omitted while the flag is dark (ADR 0004). */
   audio?: { canListen: boolean; canRecord: boolean } | undefined;
@@ -32,11 +32,21 @@ export function ExerciseCard({
   const [picked, setPicked] = useState<string | null>(null);
   const [typed, setTyped] = useState('');
 
-  const prompt = transliterate(item.text, { script });
-  const correct = item.translations[0]?.text ?? '';
+  // Reverse rounds prompt with the translation and answer in Interslavic.
+  const reverse = mode === 'reverseChoices' || mode === 'reverseTyped';
+  const word = transliterate(item.text, { script });
+  const translation = item.translations[0]?.text ?? '';
+  const prompt = reverse ? translation : word;
+  const correct = reverse ? item.text : translation;
   // The card remounts per item (keyed by the parent), so choices are
   // computed once per exercise and stay stable while it is answered.
-  const choices = useMemo(() => buildChoices(item, pool, 4), [item, pool]);
+  const choices = useMemo(
+    () =>
+      reverse
+        ? buildReverseChoices(item, pool, 4)
+        : buildChoices(item, pool, 4),
+    [item, pool, reverse],
+  );
 
   const answerChoice = (choice: string) => {
     if (outcome !== null) {
@@ -69,7 +79,7 @@ export function ExerciseCard({
               : 'kindSentence',
         )}
       </p>
-      <h2 className="card-prompt" lang="isv">
+      <h2 className="card-prompt" lang={reverse ? undefined : 'isv'}>
         {prompt}
       </h2>
 
@@ -81,17 +91,18 @@ export function ExerciseCard({
         />
       )}
 
-      {mode === 'choices' ? (
+      {mode === 'choices' || mode === 'reverseChoices' ? (
         <div
           className="card-choices"
           role="group"
-          aria-label={t('translationsAria')}
+          aria-label={reverse ? t('interslavicAria') : t('translationsAria')}
         >
           {choices.map((choice) => (
             <button
               key={choice}
               type="button"
               className="choice"
+              lang={reverse ? 'isv' : undefined}
               data-state={
                 outcome === null
                   ? 'open'
@@ -105,7 +116,7 @@ export function ExerciseCard({
                 answerChoice(choice);
               }}
             >
-              {choice}
+              {reverse ? transliterate(choice, { script }) : choice}
             </button>
           ))}
         </div>
@@ -140,9 +151,9 @@ export function ExerciseCard({
           <p className="feedback-text">
             {outcome === 'correct' ? t('correct') : t('incorrect')}{' '}
             <span lang="isv" className="feedback-answer">
-              {prompt}
+              {word}
             </span>{' '}
-            = {correct}
+            = {translation}
           </p>
           <button type="button" className="continue" onClick={finish} autoFocus>
             {t('continueButton')}

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { LearnItem } from '../api/client';
@@ -116,6 +116,98 @@ describe('ExerciseCard', () => {
       />,
     );
     await user.type(screen.getByLabelText(/Type it in Interslavic/), 'hleb');
+    await user.click(screen.getByRole('button', { name: 'Check' }));
+    expect(screen.getByText(/Pravilno/)).toBeDefined();
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(onGrade).toHaveBeenCalledWith('good');
+  });
+});
+
+describe('ExerciseCard reverse direction', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('prompts with the translation and offers Interslavic words', () => {
+    render(
+      <ExerciseCard
+        item={target}
+        pool={pool}
+        script="latin"
+        mode="reverseChoices"
+        onGrade={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole('heading', { name: 'bread' })).toBeDefined();
+    expect(screen.getByRole('group', { name: 'Interslavic' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'hlěb' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'voda' })).toBeDefined();
+  });
+
+  it('renders the word choices in the selected script', () => {
+    render(
+      <ExerciseCard
+        item={target}
+        pool={pool}
+        script="cyrillic"
+        mode="reverseChoices"
+        onGrade={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'хлєб' })).toBeDefined();
+  });
+
+  it('grades picking the right word as good after continue', async () => {
+    const user = userEvent.setup();
+    const onGrade = vi.fn();
+    render(
+      <ExerciseCard
+        item={target}
+        pool={pool}
+        script="latin"
+        mode="reverseChoices"
+        onGrade={onGrade}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: 'hlěb' }));
+    expect(screen.getByText(/Pravilno/)).toBeDefined();
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(onGrade).toHaveBeenCalledWith('good');
+  });
+
+  it('grades picking a distractor as again and reveals the answer', async () => {
+    const user = userEvent.setup();
+    const onGrade = vi.fn();
+    render(
+      <ExerciseCard
+        item={target}
+        pool={pool}
+        script="latin"
+        mode="reverseChoices"
+        onGrade={onGrade}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: 'voda' }));
+    expect(screen.getByText(/Ne sovsěm/)).toBeDefined();
+    expect(screen.getByText('bread')).toBeDefined();
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(onGrade).toHaveBeenCalledWith('again');
+  });
+
+  it('accepts a typed Interslavic answer for the shown translation', async () => {
+    const user = userEvent.setup();
+    const onGrade = vi.fn();
+    render(
+      <ExerciseCard
+        item={target}
+        pool={pool}
+        script="latin"
+        mode="reverseTyped"
+        onGrade={onGrade}
+      />,
+    );
+    expect(screen.getByRole('heading', { name: 'bread' })).toBeDefined();
+    await user.type(screen.getByLabelText(/Type it in Interslavic/), 'хлєб');
     await user.click(screen.getByRole('button', { name: 'Check' }));
     expect(screen.getByText(/Pravilno/)).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'Continue' }));

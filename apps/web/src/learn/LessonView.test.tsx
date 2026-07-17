@@ -280,6 +280,50 @@ describe('LessonView listening rotation', () => {
   });
 });
 
+describe('LessonView reverse rotation', () => {
+  const threeItems: LearnItem[] = [
+    ...items,
+    {
+      id: 'bbbbbbbb-0000-4000-8000-000000000003',
+      kind: 'word',
+      text: 'sněg',
+      translations: [{ lang: 'en', text: 'snow' }],
+    },
+  ];
+
+  beforeEach(() => {
+    localStorage.clear();
+    fetchLessonMock.mockReset().mockResolvedValue({
+      title: 'Lekcija',
+      items: threeItems,
+    });
+    fetchSentencesMock.mockReset().mockResolvedValue([]);
+    fetchFlagsMock.mockReset().mockResolvedValue({});
+    fetchRecordingsMock.mockReset().mockResolvedValue([]);
+  });
+
+  it('turns the direction around after the forward pass', async () => {
+    const user = userEvent.setup();
+    render(
+      <LessonView
+        lessonId="cccccccc-0000-4000-8000-000000000001"
+        script="latin"
+        onExit={vi.fn()}
+      />,
+    );
+    // choices → typed → reverseChoices (no sentences, pool below four).
+    await user.click(await screen.findByRole('button', { name: 'water' }));
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.type(screen.getByLabelText(/Type it in Interslavic/), 'x');
+    await user.click(screen.getByRole('button', { name: 'Check' }));
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+    const group = await screen.findByRole('group', { name: 'Interslavic' });
+    expect(within(group).getByRole('button', { name: 'sněg' })).toBeDefined();
+    expect(screen.getByRole('heading', { name: 'snow' })).toBeDefined();
+  });
+});
+
 describe('LessonView assembly round', () => {
   const threeItems: LearnItem[] = [
     ...items,

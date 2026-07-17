@@ -5,22 +5,16 @@ function primaryTranslation(item: LearnItem): string {
   return item.translations[0]?.text ?? '';
 }
 
-/**
- * Multiple-choice options: the target's translation plus unique distractors
- * drawn from the rest of the pool — algorithmic, zero model cost (ADR 0035).
- */
-export function buildChoices(
-  target: LearnItem,
-  pool: readonly LearnItem[],
+/** Unique distractors around the correct answer, shuffled deterministically. */
+function pickOptions(
+  correct: string,
+  candidates: readonly string[],
   count: number,
-  random: () => number = Math.random,
+  random: () => number,
 ): string[] {
-  const correct = primaryTranslation(target);
-  const distractors = pool
-    .filter((item) => item.id !== target.id)
-    .map(primaryTranslation)
-    .filter((text) => text !== '' && text !== correct);
-  const unique = [...new Set(distractors)];
+  const unique = [
+    ...new Set(candidates.filter((text) => text !== '' && text !== correct)),
+  ];
   const picked: string[] = [];
   while (picked.length < count - 1 && unique.length > 0) {
     const index = Math.floor(random() * unique.length);
@@ -32,6 +26,42 @@ export function buildChoices(
     .map((choice) => ({ choice, key: random() }))
     .sort((a, b) => a.key - b.key || a.choice.localeCompare(b.choice))
     .map((entry) => entry.choice);
+}
+
+/**
+ * Multiple-choice options: the target's translation plus unique distractors
+ * drawn from the rest of the pool — algorithmic, zero model cost (ADR 0035).
+ */
+export function buildChoices(
+  target: LearnItem,
+  pool: readonly LearnItem[],
+  count: number,
+  random: () => number = Math.random,
+): string[] {
+  return pickOptions(
+    primaryTranslation(target),
+    pool.filter((item) => item.id !== target.id).map(primaryTranslation),
+    count,
+    random,
+  );
+}
+
+/**
+ * Reverse direction (production): the target's Interslavic word among
+ * Interslavic distractors, prompted by its translation.
+ */
+export function buildReverseChoices(
+  target: LearnItem,
+  pool: readonly LearnItem[],
+  count: number,
+  random: () => number = Math.random,
+): string[] {
+  return pickOptions(
+    target.text,
+    pool.filter((item) => item.id !== target.id).map((item) => item.text),
+    count,
+    random,
+  );
 }
 
 /** Tolerant typed answers: never punish the keyboard (ADR 0003). */
@@ -170,7 +200,14 @@ export function buildAssembly(
 }
 
 export type ExerciseMode =
-  'choices' | 'typed' | 'matching' | 'cloze' | 'assembly' | 'listening';
+  | 'choices'
+  | 'typed'
+  | 'matching'
+  | 'cloze'
+  | 'assembly'
+  | 'listening'
+  | 'reverseChoices'
+  | 'reverseTyped';
 
 export interface RoundContext {
   poolSize: number;
@@ -183,8 +220,8 @@ export interface RoundContext {
 
 /**
  * One place decides how exercise types rotate (ADR 0005): recognition,
- * production, matching, then a sentence round, with listening joining
- * once community audio is live (ADR 0004).
+ * production, matching, a sentence round, then the reverse direction,
+ * with listening joining once community audio is live (ADR 0004).
  */
 export function planNextMode(
   current: ExerciseMode,
@@ -205,5 +242,14 @@ export function planNextMode(
       return 'cloze';
     }
   }
-  return context.audioOn ? 'listening' : 'choices';
+  if (current === 'reverseChoices') {
+    return 'reverseTyped';
+  }
+  if (current === 'reverseTyped') {
+    return 'choices';
+  }
+  if (current !== 'listening' && context.audioOn) {
+    return 'listening';
+  }
+  return 'reverseChoices';
 }
