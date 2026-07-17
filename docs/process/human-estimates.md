@@ -158,4 +158,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: add sentence assembly and a pure rotation planner | 2–2.5 | Word-bank card with index-tracked duplicates, Fisher-Yates with solved-order guard, rotation logic extracted into an exhaustively tested pure planner alternating cloze and assembly |
 
-**Running total: 185.7–235.2 h**
+| 2026-07-17 | feat: wrap the web app in a native android shell | 2.5–3 | Toolchain bootstrap (JDK 21, SDK command-line tools, platform 35), Capacitor config over the built PWA, generated android project, verified debug APK build |
+
+**Running total: 188.2–238.2 h**
