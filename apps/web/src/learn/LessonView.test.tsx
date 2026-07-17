@@ -279,3 +279,60 @@ describe('LessonView listening rotation', () => {
     expect(await screen.findByRole('group')).toBeDefined();
   });
 });
+
+describe('LessonView assembly round', () => {
+  const threeItems: LearnItem[] = [
+    ...items,
+    {
+      id: 'bbbbbbbb-0000-4000-8000-000000000003',
+      kind: 'word',
+      text: 'sneg',
+      translations: [{ lang: 'en', text: 'snow' }],
+    },
+  ];
+
+  beforeEach(() => {
+    localStorage.clear();
+    fetchLessonMock.mockReset().mockResolvedValue({
+      id: 'cccccccc-0000-4000-8000-000000000001',
+      title: 'Lekcija',
+      items: threeItems,
+    });
+    // No shared word with the pool: cloze impossible, assembly possible.
+    fetchSentencesMock.mockReset().mockResolvedValue([
+      {
+        id: 'cccccccc-0000-4000-8000-000000000042',
+        kind: 'sentence',
+        text: 'Jutro bude lěpje.',
+        translations: [{ lang: 'en', text: 'Tomorrow will be better.' }],
+      },
+    ]);
+    fetchFlagsMock.mockReset().mockResolvedValue({});
+    fetchRecordingsMock.mockReset().mockResolvedValue([]);
+  });
+
+  it('offers sentence assembly when no cloze can be built', async () => {
+    const user = userEvent.setup();
+    render(
+      <LessonView
+        lessonId="cccccccc-0000-4000-8000-000000000001"
+        script="latin"
+        onExit={vi.fn()}
+      />,
+    );
+    const group = await screen.findByRole('group');
+    const [choice] = within(group).getAllByRole('button');
+    if (choice === undefined) {
+      throw new Error('no choices rendered');
+    }
+    await user.click(choice);
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.type(screen.getByLabelText(/Type it in Interslavic/), 'x');
+    await user.click(screen.getByRole('button', { name: 'Check' }));
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(
+      await screen.findByRole('group', { name: 'Word bank' }),
+    ).toBeDefined();
+    expect(screen.getByText('Tomorrow will be better.')).toBeDefined();
+  });
+});

@@ -156,4 +156,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: add listening transcription to the lesson rotation | 1.5–2 | New exercise card that bows out gracefully for clip-less items, rotation slot after cloze and typed rounds gated on the audio flag, driven-through-the-UI rotation tests |
 
-**Running total: 183.7–232.7 h**
+| 2026-07-17 | feat: add sentence assembly and a pure rotation planner | 2–2.5 | Word-bank card with index-tracked duplicates, Fisher-Yates with solved-order guard, rotation logic extracted into an exhaustively tested pure planner alternating cloze and assembly |
+
+**Running total: 185.7–235.2 h**

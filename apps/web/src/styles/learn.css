@@ -570,3 +570,17 @@ button:active {
   font-size: 0.85rem;
   color: var(--color-text-muted);
 }
+
+.assembly-built,
+.assembly-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  justify-content: center;
+}
+
+.assembly-built {
+  min-height: 2.75rem;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--space-sm);
+}

@@ -8,12 +8,20 @@ import {
   type LessonDialogue,
 } from '../api/client';
 import { useT } from '../i18n';
+import { AssemblyCard } from './AssemblyCard';
 import { ClozeCard } from './ClozeCard';
 import { DialogueCard } from './DialogueCard';
 import { ExerciseCard } from './ExerciseCard';
 import { ListeningCard } from './ListeningCard';
 import { MatchingCard } from './MatchingCard';
-import { buildCloze, type Cloze } from './exercises';
+import {
+  buildAssembly,
+  buildCloze,
+  planNextMode,
+  type Assembly,
+  type Cloze,
+  type ExerciseMode,
+} from './exercises';
 import { nextItemId, recordReview, streakDays } from './progress';
 import type { Script } from './useScript';
 
@@ -29,15 +37,13 @@ type Phase =
   | { name: 'done' }
   | { name: 'exercise'; item: LearnItem };
 
-type Mode = 'choices' | 'typed' | 'matching' | 'cloze' | 'listening';
-
 export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
   const t = useT();
   const [pool, setPool] = useState<LearnItem[]>([]);
   const [sentences, setSentences] = useState<LearnItem[]>([]);
   const [intro, setIntro] = useState<LessonDialogue | null>(null);
   const [phase, setPhase] = useState<Phase>({ name: 'loading' });
-  const [mode, setMode] = useState<Mode>('choices');
+  const [mode, setMode] = useState<ExerciseMode>('choices');
   const [answered, setAnswered] = useState(0);
   const [audioOn, setAudioOn] = useState(false);
 
@@ -77,6 +83,8 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
   }
 
   const [cloze, setCloze] = useState<Cloze | null>(null);
+  const [assembly, setAssembly] = useState<Assembly | null>(null);
+  const [sentenceRounds, setSentenceRounds] = useState(0);
 
   // A cloze needs a sentence sharing a word with this pool; try a few.
   const makeCloze = (): Cloze | null => {
@@ -89,34 +97,37 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
     return null;
   };
 
-  const clozeOrChoices = (): Mode => {
-    const built = makeCloze();
-    setCloze(built);
-    return built === null ? 'choices' : 'cloze';
+  // Assembly needs a sentence long enough to reorder (ADR 0005).
+  const makeAssembly = (): Assembly | null => {
+    for (const sentence of sentences) {
+      const built = buildAssembly(sentence);
+      if (built !== null) {
+        return built;
+      }
+    }
+    return null;
   };
 
-  const nextMode = (current: Mode): Mode => {
-    if (current === 'choices') {
-      return 'typed';
-    }
-    if (current === 'typed' && pool.length >= 4) {
-      return 'matching';
-    }
-    if (current === 'typed' || current === 'matching') {
-      const next = clozeOrChoices();
-      // Listening transcription joins the rotation only once community
-      // clips can exist (ADR 0004); the card falls back if this item
-      // has none yet.
-      return next === 'choices' && audioOn ? 'listening' : next;
-    }
-    return 'choices';
+  const nextMode = (current: ExerciseMode): ExerciseMode => {
+    const builtCloze = makeCloze();
+    const builtAssembly = makeAssembly();
+    const next = planNextMode(current, {
+      poolSize: pool.length,
+      hasCloze: builtCloze !== null,
+      hasAssembly: builtAssembly !== null,
+      audioOn,
+      sentenceRounds,
+    });
+    setCloze(next === 'cloze' ? builtCloze : null);
+    setAssembly(next === 'assembly' ? builtAssembly : null);
+    return next;
   };
 
-  // A cloze is sentence-based, not tied to a due item — entering it
-  // defers the due-item advance until the blank has been answered.
-  const proceed = (next: Mode) => {
+  // Sentence rounds (cloze, assembly) are not tied to a due item —
+  // entering one defers the due-item advance until it is answered.
+  const proceed = (next: ExerciseMode) => {
     setMode(next);
-    if (next !== 'cloze') {
+    if (next !== 'cloze' && next !== 'assembly') {
       advance(pool);
     }
   };
@@ -131,6 +142,15 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
   const gradeCloze = (built: Cloze) => (value: Grade) => {
     recordReview(built.itemId, value);
     setAnswered((count) => count + 1);
+    setSentenceRounds((count) => count + 1);
+    setMode(audioOn ? 'listening' : 'choices');
+    advance(pool);
+  };
+
+  const gradeAssembly = (built: Assembly) => (value: Grade) => {
+    recordReview(built.itemId, value);
+    setAnswered((count) => count + 1);
+    setSentenceRounds((count) => count + 1);
     setMode(audioOn ? 'listening' : 'choices');
     advance(pool);
   };
@@ -198,6 +218,17 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
             cloze={cloze}
             script={script}
             onGrade={gradeCloze(cloze)}
+          />
+        )}
+      {phase.name === 'exercise' &&
+        intro === null &&
+        mode === 'assembly' &&
+        assembly !== null && (
+          <AssemblyCard
+            key={'assembly' + String(answered)}
+            assembly={assembly}
+            script={script}
+            onGrade={gradeAssembly(assembly)}
           />
         )}
       {phase.name === 'exercise' && intro === null && mode === 'listening' && (

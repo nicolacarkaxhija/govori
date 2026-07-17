@@ -121,3 +121,89 @@ export function buildCloze(
     translation: sentence.translations[0]?.text ?? '',
   };
 }
+
+export interface Assembly {
+  /** The sentence item credited by the review event. */
+  itemId: string;
+  /** Word tokens in scrambled order, ready for a tap bank. */
+  tokens: string[];
+  /** The same tokens in the sentence's true order. */
+  answer: string[];
+  translation: string;
+}
+
+/**
+ * Sentence assembly (ADR 0005): reorder shuffled words. Null when the
+ * sentence is too short for reordering to mean anything.
+ */
+export function buildAssembly(
+  sentence: LearnItem,
+  random: () => number = Math.random,
+): Assembly | null {
+  const answer = sentence.text.split(/\s+/).filter((token) => token !== '');
+  if (answer.length < 3) {
+    return null;
+  }
+  const tokens = [...answer];
+  // Fisher–Yates; nudge the first pair apart if shuffling lands on the
+  // original order, so the exercise never starts solved.
+  const swap = (a: number, b: number) => {
+    const left = tokens[a];
+    const right = tokens[b];
+    if (left !== undefined && right !== undefined) {
+      tokens[a] = right;
+      tokens[b] = left;
+    }
+  };
+  for (let i = tokens.length - 1; i > 0; i -= 1) {
+    swap(i, Math.floor(random() * (i + 1)));
+  }
+  if (tokens.every((token, index) => token === answer[index])) {
+    swap(0, 1);
+  }
+  return {
+    itemId: sentence.id,
+    tokens,
+    answer,
+    translation: sentence.translations[0]?.text ?? '',
+  };
+}
+
+export type ExerciseMode =
+  'choices' | 'typed' | 'matching' | 'cloze' | 'assembly' | 'listening';
+
+export interface RoundContext {
+  poolSize: number;
+  hasCloze: boolean;
+  hasAssembly: boolean;
+  audioOn: boolean;
+  /** Sentence-based rounds already played; alternates cloze/assembly. */
+  sentenceRounds: number;
+}
+
+/**
+ * One place decides how exercise types rotate (ADR 0005): recognition,
+ * production, matching, then a sentence round, with listening joining
+ * once community audio is live (ADR 0004).
+ */
+export function planNextMode(
+  current: ExerciseMode,
+  context: RoundContext,
+): ExerciseMode {
+  if (current === 'choices') {
+    return 'typed';
+  }
+  if (current === 'typed' && context.poolSize >= 4) {
+    return 'matching';
+  }
+  if (current === 'typed' || current === 'matching') {
+    const preferAssembly = context.sentenceRounds % 2 === 1;
+    if (context.hasAssembly && (preferAssembly || !context.hasCloze)) {
+      return 'assembly';
+    }
+    if (context.hasCloze) {
+      return 'cloze';
+    }
+  }
+  return context.audioOn ? 'listening' : 'choices';
+}

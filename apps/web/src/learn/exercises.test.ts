@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { LearnItem } from '../api/client';
 import {
+  buildAssembly,
   buildChoices,
   buildCloze,
   buildMatching,
   checkTyped,
+  planNextMode,
 } from './exercises';
 
 const items: LearnItem[] = [
@@ -143,5 +145,75 @@ describe('translated kinds render', () => {
     const { translate } = await import('../i18n');
     expect(translate('en', 'kindPhrase')).toBe('phrase');
     expect(translate('isv', 'kindSentence')).toBe('rěčenje');
+  });
+});
+
+describe('buildAssembly', () => {
+  const sentence: LearnItem = {
+    id: 'cccccccc-0000-4000-8000-000000000009',
+    kind: 'sentence',
+    text: 'Voda je čista.',
+    translations: [{ lang: 'en', text: 'The water is clean.' }],
+  };
+
+  it('shuffles the words away from the original order', () => {
+    const built = buildAssembly(sentence, () => 0.9);
+    expect(built).not.toBeNull();
+    expect(built?.tokens.toSorted()).toEqual(
+      ['Voda', 'je', 'čista.'].toSorted(),
+    );
+    expect(built?.tokens).not.toEqual(['Voda', 'je', 'čista.']);
+    expect(built?.answer).toEqual(['Voda', 'je', 'čista.']);
+  });
+
+  it('refuses sentences too short to reorder', () => {
+    expect(
+      buildAssembly({ ...sentence, text: 'Dobry denj.' }, () => 0.5),
+    ).toBeNull();
+  });
+});
+
+describe('planNextMode', () => {
+  const base = {
+    poolSize: 3,
+    hasCloze: true,
+    hasAssembly: true,
+    audioOn: false,
+    sentenceRounds: 0,
+  };
+
+  it('walks recognition into production', () => {
+    expect(planNextMode('choices', base)).toBe('typed');
+  });
+
+  it('adds matching only when the pool can fill a board', () => {
+    expect(planNextMode('typed', { ...base, poolSize: 4 })).toBe('matching');
+    expect(planNextMode('typed', base)).toBe('cloze');
+  });
+
+  it('alternates cloze and assembly across sentence rounds', () => {
+    expect(planNextMode('matching', base)).toBe('cloze');
+    expect(planNextMode('matching', { ...base, sentenceRounds: 1 })).toBe(
+      'assembly',
+    );
+    expect(
+      planNextMode('matching', {
+        ...base,
+        sentenceRounds: 1,
+        hasAssembly: false,
+      }),
+    ).toBe('cloze');
+    expect(planNextMode('matching', { ...base, hasCloze: false })).toBe(
+      'assembly',
+    );
+  });
+
+  it('falls back to listening, then choices, when sentences run dry', () => {
+    const dry = { ...base, hasCloze: false, hasAssembly: false };
+    expect(planNextMode('typed', { ...dry, audioOn: true })).toBe('listening');
+    expect(planNextMode('typed', dry)).toBe('choices');
+    expect(planNextMode('cloze', { ...dry, audioOn: true })).toBe('listening');
+    expect(planNextMode('assembly', dry)).toBe('choices');
+    expect(planNextMode('listening', dry)).toBe('choices');
   });
 });
