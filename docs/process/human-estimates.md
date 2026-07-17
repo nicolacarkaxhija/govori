@@ -113,4 +113,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: externalize ui strings with english and interslavic | 4–5 | i18n core (typed flat catalogs, interpolation, en fallback, persisted language toggle, provider/hook), full Interslavic translation of the UI, string externalization across all nine views, catalog-completeness gate in CI, 12 new tests |
 
-**Running total: 146–185 h**
+| 2026-07-17 | feat: merge server progress into the device on sign-in | 2–2.5 | mergeEvents set-union into the local log, fetchReviews client, pull on session check and sign-in with arrived-count notice, catalog keys, 5 new tests |
+
+**Running total: 148–187.5 h**
