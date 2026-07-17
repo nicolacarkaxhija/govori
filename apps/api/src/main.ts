@@ -27,6 +27,6 @@ const app = buildApp({
 try {
   await app.listen({ port: config.server.port, host: config.server.host });
 } catch (error) {
-  app.log.error(error);
+  console.error(error);
   process.exit(1);
 }

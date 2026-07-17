@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "version": "0.0.0",
-  "description": "Govori — community-driven Interslavic learning app",
+  "description": "Govori \u2014 community-driven Interslavic learning app",
   "license": "AGPL-3.0-only",
   "author": "Nicola Carkaxhija",
   "repository": {
@@ -23,7 +23,8 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "e2e": "playwright test -c e2e/playwright.config.ts"
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs}": [
@@ -39,6 +40,7 @@
     "@commitlint/config-conventional": "^21.2.0",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.61.1",
+    "@testcontainers/postgresql": "^12.0.4",
     "@vitest/coverage-v8": "^4.1.10",
     "eslint": "^10.7.0",
     "globals": "^17.7.0",

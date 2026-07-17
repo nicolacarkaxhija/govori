@@ -26,3 +26,4 @@ test-results/
 # OS / editor noise
 .DS_Store
 Thumbs.db
+e2e/.state.json

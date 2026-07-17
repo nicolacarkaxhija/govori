@@ -64,4 +64,7 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: support the dictionary corpus letters ė and ľ | 1–1.5 | Corpus-driven alphabet completion; 889 dictionary words unblocked |
 
-**Running total: 75.7–97.2 h**
+| 2026-07-17 | feat: fetch the dictionary and build the seed pipeline (forge repo) | 5–6 | TSV source discovery, parser, homonym-safe ids, machine-translation filter, 19k-item scale verification |
+| 2026-07-17 | test: add full-stack end-to-end suite | 4–5 | Testcontainers+api+pwa orchestration, IPv4/excluded-port diagnosis, 4 golden-path specs, CI job |
+
+**Running total: 84.7–108.2 h**

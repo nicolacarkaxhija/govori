@@ -39,3 +39,30 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build api
+        run: pnpm --filter @govori/api build
+
+      - name: Build web against the e2e api origin
+        run: VITE_API_URL=http://127.0.0.1:53150 pnpm --filter @govori/web exec vite build
+
+      - name: Install chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: End-to-end tests
+        run: pnpm e2e
