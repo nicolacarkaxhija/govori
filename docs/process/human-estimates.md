@@ -115,4 +115,10 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: merge server progress into the device on sign-in | 2–2.5 | mergeEvents set-union into the local log, fetchReviews client, pull on session check and sign-in with arrived-count notice, catalog keys, 5 new tests |
 
-**Running total: 148–187.5 h**
+| 2026-07-17 | perf: batch the artifact import into chunked upserts | 1–1.5 | Chunked bulk statements under the Postgres parameter limit; 19k-item seed 3m06s → 38s |
+
+| 2026-07-17 | fix: make the script toggle glyphs visibly distinct | 0.2 | Žž↔Жж replaces the identical-looking Aa↔Аа |
+
+| 2026-07-17 | feat: spellcheck drafts against the community dictionary (forge) | 2.5–3 | Hunspell wellformedness stage over the etymological dictionary, annotation CLI, findings on all 314 sentences (64 flagged), systematic orthography corrections to the grammar facts (jesmȯ, -ajų, råzumějų, grådu), forge CI workflow |
+
+**Running total: 151.7–192.2 h**
