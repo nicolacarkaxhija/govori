@@ -20,12 +20,18 @@ const items: LearnItem[] = [
 ];
 
 const fetchLessonMock = vi.hoisted(() => vi.fn());
-vi.mock('../api/client', () => ({ fetchLesson: fetchLessonMock }));
+const fetchSentencesMock = vi.hoisted(() => vi.fn());
+vi.mock('../api/client', () => ({
+  fetchLesson: fetchLessonMock,
+  fetchLessonSentences: fetchSentencesMock,
+}));
 
 describe('LessonView', () => {
   beforeEach(() => {
     localStorage.clear();
     fetchLessonMock.mockReset();
+    fetchSentencesMock.mockReset();
+    fetchSentencesMock.mockResolvedValue([]);
   });
 
   it('reports an unreachable server', async () => {
@@ -74,5 +80,41 @@ describe('LessonView', () => {
     await screen.findByRole('heading', { name: 'voda' });
     await user.click(screen.getByRole('button', { name: '← Back' }));
     expect(onExit).toHaveBeenCalled();
+  });
+});
+
+describe('LessonView cloze rotation', () => {
+  it('offers a cloze after typed when a sentence matches the pool', async () => {
+    const user = userEvent.setup();
+    fetchLessonMock.mockResolvedValue({ title: 'Lekcija 1', items });
+    fetchSentencesMock.mockResolvedValue([
+      {
+        id: 'bbbbbbbb-0000-4000-8000-000000000009',
+        kind: 'sentence',
+        text: 'Ja pijų vodų.',
+        translations: [{ lang: 'en', text: 'I drink water.' }],
+      },
+    ]);
+    render(
+      <LessonView
+        lessonId="9c8d7e6f-5a4b-4c3d-8e2f-1a0b9c8d7e6f"
+        script="latin"
+        onExit={vi.fn()}
+      />,
+    );
+    // choices → typed → cloze; miss the typed answer to keep items due.
+    await user.click(await screen.findByRole('button', { name: 'water' }));
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.type(screen.getByLabelText(/Type it in Interslavic/), 'zzz');
+    await user.click(screen.getByRole('button', { name: 'Check' }));
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+    expect(await screen.findByText('fill the blank')).toBeDefined();
+    expect(screen.getByText('I drink water.')).toBeDefined();
+    await user.type(screen.getByLabelText(/Type the missing word/), 'vodu');
+    await user.click(screen.getByRole('button', { name: 'Check' }));
+    expect(screen.getByText(/Pravilno/)).toBeDefined();
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    expect(screen.getByText('3 answered')).toBeDefined();
   });
 });

@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { LearnItem } from '../api/client';
-import { buildChoices, buildMatching, checkTyped } from './exercises';
+import {
+  buildChoices,
+  buildCloze,
+  buildMatching,
+  checkTyped,
+} from './exercises';
 
 const items: LearnItem[] = [
   {
@@ -80,5 +85,55 @@ describe('buildMatching', () => {
 
   it('caps at the pool size', () => {
     expect(buildMatching(items.slice(0, 2), 4, () => 0.5)).toHaveLength(2);
+  });
+});
+
+describe('buildCloze', () => {
+  const vodaWord: LearnItem = {
+    id: 'aaaaaaaa-0000-4000-8000-000000000001',
+    kind: 'word',
+    text: 'voda',
+    translations: [{ lang: 'en', text: 'water' }],
+  };
+  const hlebWord: LearnItem = {
+    id: 'aaaaaaaa-0000-4000-8000-000000000002',
+    kind: 'word',
+    text: 'hlěb',
+    translations: [{ lang: 'en', text: 'bread' }],
+  };
+  const sentence: LearnItem = {
+    id: 'aaaaaaaa-0000-4000-8000-000000000009',
+    kind: 'sentence',
+    text: 'Ja pijų vodų every dėnj.',
+    translations: [{ lang: 'en', text: 'I drink water every day.' }],
+  };
+
+  it('blanks a token that matches a pool word, tolerantly', () => {
+    const cloze = buildCloze(sentence, [vodaWord], () => 0);
+    expect(cloze).toEqual({
+      itemId: vodaWord.id,
+      before: 'Ja pijų ',
+      answer: 'vodų',
+      after: ' every dėnj.',
+      translation: 'I drink water every day.',
+    });
+  });
+
+  it('picks deterministically among several matches', () => {
+    const ja: LearnItem = {
+      id: 'aaaaaaaa-0000-4000-8000-000000000008',
+      kind: 'word',
+      text: 'ja',
+      translations: [{ lang: 'en', text: 'I' }],
+    };
+    const first = buildCloze(sentence, [ja, vodaWord], () => 0);
+    const last = buildCloze(sentence, [ja, vodaWord], () => 0.99);
+    expect(first?.answer).toBe('Ja');
+    expect(first?.itemId).toBe(ja.id);
+    expect(last?.answer).toBe('vodų');
+  });
+
+  it('returns null when no pool word appears in the sentence', () => {
+    expect(buildCloze(sentence, [hlebWord], () => 0)).toBeNull();
   });
 });

@@ -479,3 +479,16 @@ button:active {
   flex-direction: column;
   gap: var(--space-sm);
 }
+
+.cloze-gap {
+  display: inline-block;
+  min-width: 3.5ch;
+  border-bottom: 2px solid var(--color-primary);
+  margin-inline: 0.15em;
+}
+
+.cloze-translation {
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin-block: 0.25rem 0.75rem;
+}

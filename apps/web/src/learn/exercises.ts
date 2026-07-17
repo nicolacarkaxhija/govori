@@ -65,3 +65,59 @@ export function buildMatching(
     translation: primaryTranslation(item),
   }));
 }
+
+export interface Cloze {
+  /** The pool word the blank exercises — review events credit it. */
+  itemId: string;
+  before: string;
+  answer: string;
+  after: string;
+  translation: string;
+}
+
+/** Loose stem: enough of a headword to recognize its inflected forms. */
+function stemOf(word: string): string {
+  const folded = normalize(word);
+  return folded.slice(0, Math.max(3, folded.length - 2));
+}
+
+/**
+ * Blanks one pool-word occurrence in a sentence; the learner types it
+ * back. Returns null when the sentence shares no word with the pool.
+ */
+export function buildCloze(
+  sentence: LearnItem,
+  pool: readonly LearnItem[],
+  random: () => number = Math.random,
+): Cloze | null {
+  const stems = pool.map((item) => ({ item, stem: stemOf(item.text) }));
+  const matches: {
+    start: number;
+    end: number;
+    token: string;
+    itemId: string;
+  }[] = [];
+  for (const hit of sentence.text.matchAll(/[\p{L}́]+/gu)) {
+    const folded = normalize(hit[0]);
+    const matched = stems.find(({ stem }) => folded.startsWith(stem));
+    if (matched !== undefined) {
+      matches.push({
+        start: hit.index,
+        end: hit.index + hit[0].length,
+        token: hit[0],
+        itemId: matched.item.id,
+      });
+    }
+  }
+  const picked = matches[Math.floor(random() * matches.length)];
+  if (picked === undefined) {
+    return null;
+  }
+  return {
+    itemId: picked.itemId,
+    before: sentence.text.slice(0, picked.start),
+    answer: picked.token,
+    after: sentence.text.slice(picked.end),
+    translation: sentence.translations[0]?.text ?? '',
+  };
+}

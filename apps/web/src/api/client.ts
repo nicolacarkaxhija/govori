@@ -124,6 +124,24 @@ export async function fetchLesson(id: string): Promise<Lesson | null> {
   }
 }
 
+const sentencesSchema = z.object({ sentences: z.array(learnItemSchema) });
+
+/** Sentences that exercise this lesson's words; empty when none exist. */
+export async function fetchLessonSentences(id: string): Promise<LearnItem[]> {
+  try {
+    const response = await fetch(
+      new URL(`/lessons/${id}/sentences`, apiBaseUrl),
+    );
+    if (!response.ok) {
+      return [];
+    }
+    const payload: unknown = await response.json();
+    return sentencesSchema.parse(payload).sentences;
+  } catch {
+    return [];
+  }
+}
+
 const meSchema = z.object({
   user: z.object({ id: z.string(), email: z.string() }),
 });

@@ -1,8 +1,14 @@
 import { useEffect, useState } from 'react';
 import type { Grade } from '@govori/srs';
-import { fetchLesson, type LearnItem } from '../api/client';
+import {
+  fetchLesson,
+  fetchLessonSentences,
+  type LearnItem,
+} from '../api/client';
+import { ClozeCard } from './ClozeCard';
 import { ExerciseCard } from './ExerciseCard';
 import { MatchingCard } from './MatchingCard';
+import { buildCloze, type Cloze } from './exercises';
 import { nextItemId, recordReview } from './progress';
 import type { Script } from './useScript';
 
@@ -18,16 +24,22 @@ type Phase =
   | { name: 'done' }
   | { name: 'exercise'; item: LearnItem };
 
+type Mode = 'choices' | 'typed' | 'matching' | 'cloze';
+
 export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
   const [pool, setPool] = useState<LearnItem[]>([]);
+  const [sentences, setSentences] = useState<LearnItem[]>([]);
   const [phase, setPhase] = useState<Phase>({ name: 'loading' });
-  const [mode, setMode] = useState<'choices' | 'typed' | 'matching'>('choices');
+  const [mode, setMode] = useState<Mode>('choices');
   const [answered, setAnswered] = useState(0);
 
   useEffect(() => {
     let active = true;
     const load = async () => {
-      const lesson = await fetchLesson(lessonId);
+      const [lesson, lessonSentences] = await Promise.all([
+        fetchLesson(lessonId),
+        fetchLessonSentences(lessonId),
+      ]);
       if (!active) {
         return;
       }
@@ -35,6 +47,7 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
         setPhase({ name: 'unreachable' });
       } else {
         setPool(lesson.items);
+        setSentences(lessonSentences);
         advance(lesson.items);
       }
     };
@@ -52,18 +65,58 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
     );
   }
 
-  const nextMode = (current: 'choices' | 'typed' | 'matching') =>
-    current === 'choices'
-      ? 'typed'
-      : current === 'typed' && pool.length >= 4
-        ? 'matching'
-        : 'choices';
+  const [cloze, setCloze] = useState<Cloze | null>(null);
+
+  // A cloze needs a sentence sharing a word with this pool; try a few.
+  const makeCloze = (): Cloze | null => {
+    for (const sentence of sentences) {
+      const built = buildCloze(sentence, pool);
+      if (built !== null) {
+        return built;
+      }
+    }
+    return null;
+  };
+
+  const clozeOrChoices = (): Mode => {
+    const built = makeCloze();
+    setCloze(built);
+    return built === null ? 'choices' : 'cloze';
+  };
+
+  const nextMode = (current: Mode): Mode => {
+    if (current === 'choices') {
+      return 'typed';
+    }
+    if (current === 'typed' && pool.length >= 4) {
+      return 'matching';
+    }
+    if (current === 'typed' || current === 'matching') {
+      return clozeOrChoices();
+    }
+    return 'choices';
+  };
+
+  // A cloze is sentence-based, not tied to a due item — entering it
+  // defers the due-item advance until the blank has been answered.
+  const proceed = (next: Mode) => {
+    setMode(next);
+    if (next !== 'cloze') {
+      advance(pool);
+    }
+  };
 
   const grade = (item: LearnItem) => (value: Grade) => {
     recordReview(item.id, value);
     setAnswered((count) => count + 1);
-    // Rotate recognition, production, and matching, friction-free.
-    setMode(nextMode);
+    // Rotate recognition, production, matching, and cloze, friction-free.
+    proceed(nextMode(mode));
+  };
+
+  const gradeCloze = (built: Cloze) => (value: Grade) => {
+    recordReview(built.itemId, value);
+    setAnswered((count) => count + 1);
+    setMode('choices');
     advance(pool);
   };
 
@@ -72,8 +125,7 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
       recordReview(result.itemId, result.grade);
     }
     setAnswered((count) => count + results.length);
-    setMode('choices');
-    advance(pool);
+    proceed(nextMode('matching'));
   };
 
   return (
@@ -108,16 +160,25 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
           onComplete={gradeMany}
         />
       )}
-      {phase.name === 'exercise' && mode !== 'matching' && (
-        <ExerciseCard
-          key={phase.item.id + String(answered)}
-          item={phase.item}
-          pool={pool}
+      {phase.name === 'exercise' && mode === 'cloze' && cloze !== null && (
+        <ClozeCard
+          key={'cloze' + String(answered)}
+          cloze={cloze}
           script={script}
-          mode={mode}
-          onGrade={grade(phase.item)}
+          onGrade={gradeCloze(cloze)}
         />
       )}
+      {phase.name === 'exercise' &&
+        (mode === 'choices' || mode === 'typed') && (
+          <ExerciseCard
+            key={phase.item.id + String(answered)}
+            item={phase.item}
+            pool={pool}
+            script={script}
+            mode={mode}
+            onGrade={grade(phase.item)}
+          />
+        )}
     </div>
   );
 }
