@@ -71,6 +71,8 @@ export const ItemSchema = z.object({
   /** Canonical etymological Latin only; scripts are derived (ADR 0003). */
   text: CanonicalTextSchema,
   translations: z.array(TranslationSchema).min(1),
+  /** Community frequency score; higher = more common. Drives ordering. */
+  frequency: z.number().min(0).optional(),
   notes: z.array(ContrastiveNoteSchema).default([]),
   provenance: ProvenanceSchema,
   audit: OriginalityAuditSchema.optional(),

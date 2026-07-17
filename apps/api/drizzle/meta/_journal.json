@@ -29,6 +29,13 @@
       "when": 1784237417954,
       "tag": "0003_review-events",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1784275884121,
+      "tag": "0004_item-frequency",
+      "breakpoints": true
     }
   ]
 }

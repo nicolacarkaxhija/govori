@@ -75,4 +75,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | docs: add decided-vs-done roadmap | 1 | Full sweep of ADRs against implementation |
 
-**Running total: 91.7–117.2 h**
+| 2026-07-17 | feat: order lessons by community frequency | 2–2.5 | Frequency through schema/forge/db/serving; the pool now teaches common words first |
+
+**Running total: 93.7–119.7 h**

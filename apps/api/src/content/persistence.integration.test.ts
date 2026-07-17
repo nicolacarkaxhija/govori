@@ -32,6 +32,7 @@ const artifact = {
       id: '3e2d8f0a-4b1c-4f6e-9a7d-1c2b3a4d5e6f',
       kind: 'word',
       text: 'voda',
+      frequency: 9.9,
       translations: [{ lang: 'en', text: 'water' }],
       notes: [],
       provenance: {
@@ -119,12 +120,14 @@ describe('DrizzleItemRepository reads', () => {
     ).toBeUndefined();
   });
 
-  it('lists deterministically with pagination', async () => {
+  it('lists by frequency first, deterministically paginated', async () => {
     const repository = new DrizzleItemRepository(db);
     const first = await repository.list(2, 0);
     const rest = await repository.list(2, 2);
     expect(first).toHaveLength(2);
     expect(rest).toHaveLength(1);
+    expect(first[0]?.text).toBe('voda');
+    expect(first[0]?.frequency).toBeCloseTo(9.9, 5);
     const all = [...first, ...rest].map((item) => item.id);
     expect(new Set(all).size).toBe(3);
   });

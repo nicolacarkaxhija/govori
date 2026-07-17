@@ -1,4 +1,4 @@
-import { asc, count, eq, inArray } from 'drizzle-orm';
+import { asc, count, eq, inArray, sql } from 'drizzle-orm';
 import type { Item } from '@govori/content';
 import type { Db } from '../db/client.js';
 import { contrastiveNotes, items, translations } from '../db/schema.js';
@@ -23,7 +23,7 @@ export class DrizzleItemRepository implements ItemRepository, ItemQueries {
     const rows = await this.db
       .select()
       .from(items)
-      .orderBy(asc(items.createdAt), asc(items.id))
+      .orderBy(sql`${items.frequency} DESC NULLS LAST`, asc(items.id))
       .limit(limit)
       .offset(offset);
     return this.assemble(rows);
@@ -47,6 +47,7 @@ export class DrizzleItemRepository implements ItemRepository, ItemQueries {
       kind: row.kind,
       text: row.text,
       provenance: row.provenance,
+      ...(row.frequency === null ? {} : { frequency: row.frequency }),
       translations: allTranslations
         .filter((translation) => translation.itemId === row.id)
         .map(({ lang, text }) => ({ lang, text })),
@@ -68,6 +69,7 @@ export class DrizzleItemRepository implements ItemRepository, ItemQueries {
             text: item.text,
             provenance: item.provenance,
             audit: item.audit ?? null,
+            frequency: item.frequency ?? null,
           })
           .onConflictDoUpdate({
             target: items.id,
@@ -76,6 +78,7 @@ export class DrizzleItemRepository implements ItemRepository, ItemQueries {
               text: item.text,
               provenance: item.provenance,
               audit: item.audit ?? null,
+              frequency: item.frequency ?? null,
               updatedAt: new Date(),
             },
           });

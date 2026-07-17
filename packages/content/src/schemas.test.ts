@@ -24,6 +24,12 @@ const validItem = {
 describe('ItemSchema', () => {
   it('accepts a fully specified imported item', () => {
     expect(ItemSchema.safeParse(validItem).success).toBe(true);
+    expect(ItemSchema.safeParse({ ...validItem, frequency: 9.2 }).success).toBe(
+      true,
+    );
+    expect(ItemSchema.safeParse({ ...validItem, frequency: -1 }).success).toBe(
+      false,
+    );
   });
 
   it('rejects non-canonical item text', () => {

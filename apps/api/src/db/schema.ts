@@ -3,6 +3,7 @@ import {
   jsonb,
   pgTable,
   primaryKey,
+  real,
   text,
   timestamp,
   uuid,
@@ -16,6 +17,7 @@ export const items = pgTable('items', {
   text: text('text').notNull(),
   provenance: jsonb('provenance').$type<Provenance>().notNull(),
   audit: jsonb('audit').$type<OriginalityAudit>(),
+  frequency: real('frequency'),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),
