@@ -175,3 +175,77 @@ describe('parseCurriculumArtifact', () => {
     );
   });
 });
+
+describe('lesson dialogues (ADR 0039)', () => {
+  const base = {
+    schemaVersion: 1,
+    createdAt: '2026-07-17T00:00:00Z',
+    producer: { name: 'govori-content-forge', version: '0.2.0' },
+    units: [
+      {
+        title: 'Jedinica 1',
+        lessons: [
+          {
+            title: 'Lekcija 1',
+            itemIds: ['3e2d8f0a-4b1c-4f6e-9a7d-1c2b3a4d5e6f'],
+            dialogue: {
+              turns: [
+                {
+                  speaker: 'Ana',
+                  text: 'Kto jesi ty?',
+                  translation: 'Who are you?',
+                },
+                {
+                  speaker: 'Tomaš',
+                  text: 'Ja jesm Tomaš.',
+                  translation: 'I am Tomaš.',
+                },
+              ],
+              provenance: {
+                origin: 'ai-draft',
+                model: 'calibration',
+                generatedAt: '2026-07-17T12:00:00Z',
+              },
+            },
+          },
+        ],
+      },
+    ],
+  };
+
+  it('accepts a lesson with a dialogue and keeps it optional', () => {
+    const parsed = parseCurriculumArtifact(base);
+    expect(parsed.units[0]?.lessons[0]?.dialogue?.turns).toHaveLength(2);
+    const withoutDialogue = {
+      ...base,
+      units: [
+        {
+          title: 'Jedinica 1',
+          lessons: [
+            {
+              title: 'Lekcija 1',
+              itemIds: ['3e2d8f0a-4b1c-4f6e-9a7d-1c2b3a4d5e6f'],
+            },
+          ],
+        },
+      ],
+    };
+    expect(
+      parseCurriculumArtifact(withoutDialogue).units[0]?.lessons[0]?.dialogue,
+    ).toBeUndefined();
+  });
+
+  it('rejects non-canonical dialogue text, naming the path', () => {
+    const broken = structuredClone(base);
+    broken.units[0].lessons[0].dialogue.turns[0].text = 'Кто jesi ty?';
+    expect(() => parseCurriculumArtifact(broken)).toThrow(
+      /units\.0\.lessons\.0\.dialogue\.turns\.0\.text/,
+    );
+  });
+
+  it('rejects an empty dialogue', () => {
+    const broken = structuredClone(base);
+    broken.units[0].lessons[0].dialogue.turns = [];
+    expect(() => parseCurriculumArtifact(broken)).toThrow(ArtifactError);
+  });
+});

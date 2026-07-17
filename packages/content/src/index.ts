@@ -119,6 +119,22 @@ export const CurriculumArtifactSchema = z.object({
             z.object({
               title: z.string().min(1),
               itemIds: z.array(z.uuid()).min(1),
+              /** Optional intro scene (ADR 0039); rides the lesson so
+               * wholesale curriculum reimports cannot orphan it. */
+              dialogue: z
+                .object({
+                  turns: z
+                    .array(
+                      z.object({
+                        speaker: z.string().min(1),
+                        text: CanonicalTextSchema,
+                        translation: z.string().min(1),
+                      }),
+                    )
+                    .min(1),
+                  provenance: ProvenanceSchema,
+                })
+                .optional(),
             }),
           )
           .min(1),
