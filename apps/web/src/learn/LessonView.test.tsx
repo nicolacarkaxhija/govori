@@ -21,9 +21,15 @@ const items: LearnItem[] = [
 
 const fetchLessonMock = vi.hoisted(() => vi.fn());
 const fetchSentencesMock = vi.hoisted(() => vi.fn());
+const fetchFlagsMock = vi.hoisted(() => vi.fn());
+const fetchRecordingsMock = vi.hoisted(() => vi.fn());
 vi.mock('../api/client', () => ({
   fetchLesson: fetchLessonMock,
   fetchLessonSentences: fetchSentencesMock,
+  fetchFlags: fetchFlagsMock,
+  fetchRecordings: fetchRecordingsMock,
+  uploadRecording: vi.fn(),
+  recordingUrl: (id: string) => `https://api.test/audio/${id}`,
 }));
 
 describe('LessonView', () => {
@@ -32,6 +38,8 @@ describe('LessonView', () => {
     fetchLessonMock.mockReset();
     fetchSentencesMock.mockReset();
     fetchSentencesMock.mockResolvedValue([]);
+    fetchFlagsMock.mockReset().mockResolvedValue({});
+    fetchRecordingsMock.mockReset().mockResolvedValue([]);
   });
 
   it('reports an unreachable server', async () => {
@@ -154,5 +162,46 @@ describe('LessonView dialogue intro', () => {
       screen.getByRole('button', { name: 'Start the exercises' }),
     );
     expect(await screen.findByRole('button', { name: 'water' })).toBeDefined();
+  });
+});
+
+describe('LessonView community audio', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    fetchLessonMock.mockReset();
+    fetchSentencesMock.mockReset().mockResolvedValue([]);
+    fetchFlagsMock.mockReset().mockResolvedValue({});
+    fetchRecordingsMock.mockReset().mockResolvedValue([]);
+    fetchLessonMock.mockResolvedValue({
+      id: 'cccccccc-0000-4000-8000-000000000001',
+      title: 'Lekcija',
+      items,
+    });
+  });
+
+  it('keeps audio tools dark by default (ADR 0004)', async () => {
+    render(
+      <LessonView
+        lessonId="cccccccc-0000-4000-8000-000000000001"
+        script="latin"
+        onExit={vi.fn()}
+      />,
+    );
+    await screen.findByRole('heading', { level: 2 });
+    expect(screen.queryByRole('button', { name: 'Record' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Listen' })).toBeNull();
+  });
+
+  it('offers recording once the audio flag is live', async () => {
+    fetchFlagsMock.mockResolvedValue({ audio: true });
+    render(
+      <LessonView
+        lessonId="cccccccc-0000-4000-8000-000000000001"
+        script="latin"
+        onExit={vi.fn()}
+      />,
+    );
+    await screen.findByRole('heading', { level: 2 });
+    expect(await screen.findByRole('button', { name: 'Record' })).toBeDefined();
   });
 });

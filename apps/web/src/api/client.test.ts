@@ -306,3 +306,79 @@ describe('contribute', () => {
     ).toBe('failed');
   });
 });
+
+describe('audio client', () => {
+  it('fetches flags and falls back to none', async () => {
+    const { fetchFlags } = await import('./client');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve({
+          status: 200,
+          ok: true,
+          json: () => Promise.resolve({ flags: { audio: true } }),
+        }),
+      ),
+    );
+    expect(await fetchFlags()).toEqual({ audio: true });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.reject(new Error('offline'))),
+    );
+    expect(await fetchFlags()).toEqual({});
+  });
+
+  it('lists recordings and falls back to none', async () => {
+    const { fetchRecordings } = await import('./client');
+    const id = '7d9a2f04-6d19-4c1a-9e3a-1f2b3c4d5e6f';
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve({
+          status: 200,
+          ok: true,
+          json: () =>
+            Promise.resolve({ recordings: [{ id, mime: 'audio/webm' }] }),
+        }),
+      ),
+    );
+    expect(await fetchRecordings(id)).toEqual([{ id, mime: 'audio/webm' }]);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.resolve({ status: 404, ok: false })),
+    );
+    expect(await fetchRecordings(id)).toEqual([]);
+  });
+
+  it('addresses a recording stream by id', async () => {
+    const { recordingUrl } = await import('./client');
+    expect(recordingUrl('abc')).toContain('/audio/abc');
+  });
+
+  it('uploads a recording as base64 and reports the outcome', async () => {
+    const { uploadRecording } = await import('./client');
+    const fetchMock = vi.fn(() => Promise.resolve({ status: 201, ok: true }));
+    vi.stubGlobal('fetch', fetchMock);
+    const ok = await uploadRecording(
+      '7d9a2f04-6d19-4c1a-9e3a-1f2b3c4d5e6f',
+      'audio/webm',
+      new Blob(['clip']),
+    );
+    expect(ok).toBe(true);
+    const call = fetchMock.mock.calls[0] as unknown as [URL, { body: string }];
+    const body = JSON.parse(call[1].body) as { mime: string; data: string };
+    expect(body.mime).toBe('audio/webm');
+    expect(atob(body.data)).toBe('clip');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.reject(new Error('offline'))),
+    );
+    expect(
+      await uploadRecording(
+        '7d9a2f04-6d19-4c1a-9e3a-1f2b3c4d5e6f',
+        'audio/webm',
+        new Blob(['clip']),
+      ),
+    ).toBe(false);
+  });
+});

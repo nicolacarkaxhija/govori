@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Grade } from '@govori/srs';
 import {
+  fetchFlags,
   fetchLesson,
   fetchLessonSentences,
   type LearnItem,
@@ -37,13 +38,15 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
   const [phase, setPhase] = useState<Phase>({ name: 'loading' });
   const [mode, setMode] = useState<Mode>('choices');
   const [answered, setAnswered] = useState(0);
+  const [audioOn, setAudioOn] = useState(false);
 
   useEffect(() => {
     let active = true;
     const load = async () => {
-      const [lesson, lessonSentences] = await Promise.all([
+      const [lesson, lessonSentences, flags] = await Promise.all([
         fetchLesson(lessonId),
         fetchLessonSentences(lessonId),
+        fetchFlags(),
       ]);
       if (!active) {
         return;
@@ -54,6 +57,7 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
         setPool(lesson.items);
         setSentences(lessonSentences);
         setIntro(lesson.dialogue ?? null);
+        setAudioOn(flags.audio === true);
         advance(lesson.items);
       }
     };
@@ -201,6 +205,7 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
             script={script}
             mode={mode}
             onGrade={grade(phase.item)}
+            audio={audioOn ? { canListen: true, canRecord: true } : undefined}
           />
         )}
     </div>

@@ -152,4 +152,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: store and serve community recordings behind the audio flag | 2.5–3 | New hexagonal port with Postgres bytea adapter via custom type, three flag-dark routes with session gating and base64 size caps, migration untangled from stale snapshot drift, real-database roundtrip test |
 
-**Running total: 180.2–228.2 h**
+| 2026-07-17 | feat: play and contribute pronunciations in exercises | 2–2.5 | Flag-aware lesson wiring, a playback-and-recorder component over MediaRecorder with mic-denial handling, chunked base64 upload client, both UI languages, coverage held above the gate |
+
+**Running total: 182.2–230.7 h**

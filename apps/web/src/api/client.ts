@@ -411,3 +411,78 @@ export async function contribute(
     return 'failed';
   }
 }
+
+const flagsSchema = z.object({
+  flags: z.record(z.string(), z.boolean()),
+});
+
+/** Effective feature flags; absent flags read as off (ADR 0025). */
+export async function fetchFlags(): Promise<Record<string, boolean>> {
+  try {
+    const response = await fetch(new URL('/flags', apiBaseUrl));
+    if (!response.ok) {
+      return {};
+    }
+    const payload: unknown = await response.json();
+    return flagsSchema.parse(payload).flags;
+  } catch {
+    return {};
+  }
+}
+
+const recordingsSchema = z.object({
+  recordings: z.array(z.object({ id: z.string(), mime: z.string() })),
+});
+
+export type Recording = z.infer<typeof recordingsSchema>['recordings'][number];
+
+/** Community recordings for an item; empty while the audio flag is dark. */
+export async function fetchRecordings(itemId: string): Promise<Recording[]> {
+  try {
+    const response = await fetch(new URL(`/items/${itemId}/audio`, apiBaseUrl));
+    if (!response.ok) {
+      return [];
+    }
+    const payload: unknown = await response.json();
+    return recordingsSchema.parse(payload).recordings;
+  } catch {
+    return [];
+  }
+}
+
+/** Streamable address of one recording, for an Audio element. */
+export function recordingUrl(id: string): string {
+  return new URL(`/audio/${id}`, apiBaseUrl).toString();
+}
+
+function toBase64(bytes: Uint8Array): string {
+  let binary = '';
+  // Chunked to keep the argument list small on megabyte clips.
+  for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+  }
+  return btoa(binary);
+}
+
+/** Publishes a clip against an item; audio skips review (ADR 0008). */
+export async function uploadRecording(
+  itemId: string,
+  mime: string,
+  clip: Blob,
+): Promise<boolean> {
+  try {
+    const data = toBase64(new Uint8Array(await clip.arrayBuffer()));
+    const response = await fetch(
+      new URL(`/items/${itemId}/audio`, apiBaseUrl),
+      {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ mime, data }),
+      },
+    );
+    return response.status === 201;
+  } catch {
+    return false;
+  }
+}

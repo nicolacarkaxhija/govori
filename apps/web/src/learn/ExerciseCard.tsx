@@ -2,6 +2,7 @@ import { useMemo, useState, type SubmitEvent } from 'react';
 import { transliterate } from '@govori/transliteration';
 import type { Grade } from '@govori/srs';
 import type { LearnItem } from '../api/client';
+import { AudioTools } from './AudioTools';
 import { buildChoices, checkTyped } from './exercises';
 import type { Script } from './useScript';
 import { useT } from '../i18n';
@@ -12,6 +13,8 @@ export interface ExerciseCardProps {
   script: Script;
   mode: 'choices' | 'typed';
   onGrade: (grade: Grade) => void;
+  /** Community audio rights; omitted while the flag is dark (ADR 0004). */
+  audio?: { canListen: boolean; canRecord: boolean } | undefined;
 }
 
 type Outcome = 'correct' | 'incorrect';
@@ -22,6 +25,7 @@ export function ExerciseCard({
   script,
   mode,
   onGrade,
+  audio,
 }: ExerciseCardProps) {
   const t = useT();
   const [outcome, setOutcome] = useState<Outcome | null>(null);
@@ -68,6 +72,14 @@ export function ExerciseCard({
       <h2 className="card-prompt" lang="isv">
         {prompt}
       </h2>
+
+      {audio !== undefined && (audio.canListen || audio.canRecord) && (
+        <AudioTools
+          itemId={item.id}
+          canListen={audio.canListen}
+          canRecord={audio.canRecord}
+        />
+      )}
 
       {mode === 'choices' ? (
         <div

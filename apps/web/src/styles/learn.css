@@ -558,3 +558,15 @@ button:active {
   font-style: italic;
   margin-top: 0.5rem;
 }
+
+.audio-tools {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  justify-content: center;
+}
+
+.audio-note {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
