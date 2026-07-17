@@ -55,8 +55,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build api
-        run: pnpm --filter @govori/api build
+      - name: Build all packages
+        run: pnpm build
 
       - name: Build web against the e2e api origin
         run: VITE_API_URL=http://127.0.0.1:53150 pnpm --filter @govori/web exec vite build
