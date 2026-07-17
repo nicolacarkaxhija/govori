@@ -163,4 +163,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: let the community vote drafts into the course | 2.5–3 | review_votes table + migration, VoteStore port with Drizzle upsert/tally adapter, findPending on the queue, vote and pending routes with net-3 auto-publish and race guard, route + real-Postgres tests |
 
-**Running total: 191.7–242.7 h**
+| 2026-07-17 | docs: charter community voting | 0.5 | ADR 0040 (second publish path, threshold rationale, brigading risk accepted) + registry row |
+
+**Running total: 192.2–243.2 h**
