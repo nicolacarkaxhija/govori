@@ -71,7 +71,11 @@ describe('auth end to end', () => {
     });
     expect(me.statusCode).toBe(200);
     expect(me.json()).toEqual({
-      user: { id: expect.any(String) as unknown, email: 'ovca@example.com' },
+      user: {
+        id: expect.any(String) as unknown,
+        email: 'ovca@example.com',
+        role: 'learner',
+      },
     });
 
     const anonymous = await app.inject({ method: 'GET', url: '/me' });

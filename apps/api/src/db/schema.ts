@@ -8,7 +8,7 @@ import {
   timestamp,
   uuid,
 } from 'drizzle-orm/pg-core';
-import type { OriginalityAudit, Provenance } from '@govori/content';
+import type { Item, OriginalityAudit, Provenance } from '@govori/content';
 
 /** The content atom (ADR 0002/0003); text is canonical etymological Latin. */
 export const items = pgTable('items', {
@@ -22,6 +22,21 @@ export const items = pgTable('items', {
     .notNull()
     .defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/** AI drafts awaiting a human decision — never served publicly (ADR 0038). */
+export const reviewQueue = pgTable('review_queue', {
+  /** Matches the item id the draft becomes when approved. */
+  id: uuid('id').primaryKey(),
+  item: jsonb('item').$type<Item>().notNull(),
+  status: text('status', { enum: ['pending', 'approved', 'rejected'] })
+    .notNull()
+    .default('pending'),
+  decidedBy: text('decided_by'),
+  decidedAt: timestamp('decided_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),
 });

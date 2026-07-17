@@ -8,7 +8,7 @@ import {
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
 import { z } from 'zod';
-import { ItemSchema } from '@govori/content';
+import { ItemSchema, type Item } from '@govori/content';
 import { transliterate } from '@govori/transliteration';
 import { resolveFlags } from '@govori/config';
 import type { Auth } from './auth/auth.js';
@@ -21,6 +21,7 @@ import type { ReviewEventStore } from './reviews/ports.js';
 import type { StatsQueries } from './stats/ports.js';
 import type { CourseQueries } from './course/ports.js';
 import type { AccountRights } from './account/ports.js';
+import type { ReviewQueue } from './review/ports.js';
 
 export interface AppDependencies {
   config: ApiConfig;
@@ -32,6 +33,9 @@ export interface AppDependencies {
   stats: StatsQueries;
   course: CourseQueries;
   account: AccountRights;
+  reviewQueue: ReviewQueue;
+  /** Write side used when a draft is approved (ADR 0038). */
+  itemWriter: { upsertMany(items: readonly Item[]): Promise<void> };
 }
 
 /** Bridges Fastify's raw request to the Web Request better-auth consumes. */
@@ -97,6 +101,8 @@ export function buildApp({
   stats,
   course,
   account,
+  reviewQueue,
+  itemWriter,
 }: AppDependencies) {
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
   app.setValidatorCompiler(validatorCompiler);
@@ -172,7 +178,11 @@ export function buildApp({
         schema: {
           response: {
             200: z.object({
-              user: z.object({ id: z.string(), email: z.string() }),
+              user: z.object({
+                id: z.string(),
+                email: z.string(),
+                role: z.enum(['learner', 'admin']),
+              }),
             }),
             401: z.object({ message: z.string() }),
           },
@@ -190,7 +200,13 @@ export function buildApp({
         if (result === null) {
           return reply.status(401).send({ message: 'not signed in' });
         }
-        return { user: { id: result.user.id, email: result.user.email } };
+        return {
+          user: {
+            id: result.user.id,
+            email: result.user.email,
+            role: await userRoles.getRole(result.user.id),
+          },
+        };
       },
     );
 
@@ -327,6 +343,85 @@ export function buildApp({
           `user:${sessionResult.user.id}`,
         );
         return { flags: await effectiveFlags() };
+      },
+    );
+
+    routes.get(
+      '/admin/review',
+      {
+        schema: {
+          querystring: z.object({
+            limit: z.coerce.number().int().min(1).max(100).default(50),
+          }),
+          response: {
+            200: z.object({ pending: z.array(ItemSchema) }),
+            401: z.object({ message: z.string() }),
+            403: z.object({ message: z.string() }),
+          },
+        },
+      },
+      async (request, reply) => {
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        const role = await userRoles.getRole(sessionResult.user.id);
+        if (role !== 'admin') {
+          return reply.status(403).send({ message: 'admin role required' });
+        }
+        return { pending: await reviewQueue.listPending(request.query.limit) };
+      },
+    );
+
+    routes.post(
+      '/admin/review/:id',
+      {
+        schema: {
+          params: z.object({ id: z.uuid() }),
+          body: z.object({ decision: z.enum(['approve', 'reject']) }),
+          response: {
+            200: z.object({ decided: z.enum(['approved', 'rejected']) }),
+            401: z.object({ message: z.string() }),
+            403: z.object({ message: z.string() }),
+            404: NotFoundSchema,
+          },
+        },
+      },
+      async (request, reply) => {
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        const role = await userRoles.getRole(sessionResult.user.id);
+        if (role !== 'admin') {
+          return reply.status(403).send({ message: 'admin role required' });
+        }
+        const decision: 'approved' | 'rejected' =
+          request.body.decision === 'approve' ? 'approved' : 'rejected';
+        const item = await reviewQueue.decide(
+          request.params.id,
+          decision,
+          `user:${sessionResult.user.id}`,
+        );
+        if (item === undefined) {
+          return reply.status(404).send({ message: 'no pending entry' });
+        }
+        if (decision === 'approved') {
+          await itemWriter.upsertMany([item]);
+        }
+        return { decided: decision };
       },
     );
 

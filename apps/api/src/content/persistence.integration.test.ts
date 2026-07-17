@@ -3,6 +3,7 @@ import {
   PostgreSqlContainer,
   type StartedPostgreSqlContainer,
 } from '@testcontainers/postgresql';
+import type { Item } from '@govori/content';
 import { createDb, type Db } from '../db/client.js';
 import { runMigrations } from '../db/migrate.js';
 import { DrizzleItemRepository } from './drizzle-item-repository.js';
@@ -10,6 +11,7 @@ import { DrizzleFlagStore } from '../flags/drizzle-flag-store.js';
 import { importArtifact } from './import-artifact.js';
 import { DrizzleStats } from '../stats/drizzle-stats.js';
 import { DrizzleCourse } from '../course/drizzle-course.js';
+import { DrizzleReviewQueue } from '../review/drizzle-review-queue.js';
 
 let container: StartedPostgreSqlContainer;
 let db: Db;
@@ -157,6 +159,40 @@ describe('DrizzleItemRepository sentence search', () => {
     expect(await repository.findSentencesContaining(['vod'], 20)).toEqual([]);
     expect(await repository.findSentencesContaining(['č.'], 20)).toEqual([]);
     expect(await repository.findSentencesContaining([], 20)).toEqual([]);
+  });
+});
+
+describe('DrizzleReviewQueue', () => {
+  it('queues once, lists pending, and decides exactly once', async () => {
+    const queue = new DrizzleReviewQueue(db);
+    const draft: Item = {
+      id: '1a2b3c4d-5e6f-4a8b-9c0d-1e2f3a4b5c6d',
+      kind: 'sentence',
+      text: 'Hlěb jest dobry.',
+      translations: [{ lang: 'en', text: 'The bread is good.' }],
+      notes: [],
+      provenance: {
+        origin: 'ai-draft',
+        model: 'calibration',
+        generatedAt: '2026-07-17T12:00:00.000Z',
+      },
+      audit: {
+        status: 'clean',
+        maxOverlap: 0,
+        auditedAt: '2026-07-17T13:00:00.000Z',
+      },
+    };
+    expect(await queue.addPending([draft])).toBe(1);
+    expect(await queue.addPending([draft])).toBe(0);
+    const pending = await queue.listPending(10);
+    expect(pending.map((item) => item.id)).toContain(draft.id);
+    const decided = await queue.decide(draft.id, 'approved', 'user:test');
+    expect(decided?.text).toBe('Hlěb jest dobry.');
+    expect(await queue.decide(draft.id, 'approved', 'user:test')).toBe(
+      undefined,
+    );
+    const after = await queue.listPending(10);
+    expect(after.map((item) => item.id)).not.toContain(draft.id);
   });
 });
 

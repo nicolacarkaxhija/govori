@@ -1,19 +1,24 @@
 import { readFile } from 'node:fs/promises';
-import { parseCurriculumArtifact } from '@govori/content';
+import { parseContentArtifact, parseCurriculumArtifact } from '@govori/content';
 import { loadConfig } from './config.js';
 import { createDb } from './db/client.js';
 import { runMigrations } from './db/migrate.js';
 import { DrizzleItemRepository } from './content/drizzle-item-repository.js';
 import { DrizzleCourse } from './course/drizzle-course.js';
+import { DrizzleReviewQueue } from './review/drizzle-review-queue.js';
 import { importArtifact } from './content/import-artifact.js';
 
 // Composition-root script (ADR 0037):
 //   import <artifact.json>                 items
 //   import --curriculum <curriculum.json>  course structure
-const isCurriculum = process.argv[2] === '--curriculum';
-const path = isCurriculum ? process.argv[3] : process.argv[2];
+//   import --drafts <drafts.json>          review queue (ADR 0038)
+const mode =
+  process.argv[2] === '--curriculum' || process.argv[2] === '--drafts'
+    ? process.argv[2]
+    : 'items';
+const path = mode === 'items' ? process.argv[2] : process.argv[3];
 if (path === undefined) {
-  console.error('usage: import [--curriculum] <artifact.json>');
+  console.error('usage: import [--curriculum|--drafts] <artifact.json>');
   process.exit(1);
 }
 
@@ -23,7 +28,13 @@ await runMigrations(db);
 
 const raw: unknown = JSON.parse(await readFile(path, 'utf-8'));
 const itemRepository = new DrizzleItemRepository(db);
-if (isCurriculum) {
+if (mode === '--drafts') {
+  const artifact = parseContentArtifact(raw);
+  const queued = await new DrizzleReviewQueue(db).addPending(artifact.items);
+  console.log(
+    `queued ${String(queued)} of ${String(artifact.items.length)} drafts for review`,
+  );
+} else if (mode === '--curriculum') {
   const curriculum = parseCurriculumArtifact(raw);
   await new DrizzleCourse(db, itemRepository).replaceCurriculum(curriculum);
   const lessons = curriculum.units.reduce(

@@ -43,6 +43,12 @@ export function makeTestDeps(
       exportData: () => Promise.resolve(undefined),
       deleteAccount: () => Promise.resolve(),
     },
+    reviewQueue: {
+      addPending: () => Promise.resolve(0),
+      listPending: () => Promise.resolve([]),
+      decide: () => Promise.resolve(undefined),
+    },
+    itemWriter: { upsertMany: () => Promise.resolve() },
     ...overrides,
   };
 }
