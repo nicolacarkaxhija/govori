@@ -1,4 +1,5 @@
 import Fastify from 'fastify';
+import cors from '@fastify/cors';
 import swagger from '@fastify/swagger';
 import {
   jsonSchemaTransform,
@@ -91,6 +92,11 @@ export function buildApp({
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
+
+  void app.register(cors, {
+    origin: config.server.corsOrigins,
+    credentials: true,
+  });
 
   void app.register(swagger, {
     openapi: {

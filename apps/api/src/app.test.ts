@@ -113,3 +113,27 @@ describe('toWebRequest', () => {
     expect(get.body).toBeNull();
   });
 });
+
+describe('cors', () => {
+  it('allows configured web origins to call the api', async () => {
+    const app = buildApp({
+      config: loadConfig({
+        GOVORI_SERVER__CORS_ORIGINS: 'http://localhost:53200',
+      }),
+      items: noItems,
+      flagStates: noFlags,
+      auth: noAuth,
+      userRoles: learnerRoles,
+      reviews: noReviews,
+    });
+    const response = await app.inject({
+      method: 'GET',
+      url: '/items',
+      headers: { origin: 'http://localhost:53200' },
+    });
+    expect(response.headers['access-control-allow-origin']).toBe(
+      'http://localhost:53200',
+    );
+    await app.close();
+  });
+});

@@ -7,6 +7,12 @@ const configSchema = z.object({
     port: z.coerce.number().int().min(1).max(65535),
     host: z.string().min(1),
     baseUrl: z.url(),
+    corsOrigins: z.string().transform((value) =>
+      value
+        .split(',')
+        .map((origin) => origin.trim())
+        .filter((origin) => origin.length > 0),
+    ),
   }),
   brand: z.object({
     shortName: z.string().min(1),
@@ -27,6 +33,7 @@ const defaults = {
     port: 3000,
     host: '0.0.0.0',
     baseUrl: 'http://localhost:3000',
+    corsOrigins: 'http://localhost:5173,http://localhost:53200',
   },
   brand: {
     shortName: 'Govori',

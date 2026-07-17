@@ -60,4 +60,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-16 | feat: add lesson slice with local srs and script toggle | 8–10 | Exercise cards (choice + tolerant typed), browser-side transliteration + SM-2 replay over localStorage log, Literata/stitch design pass, 14 new tests |
 
-**Running total: 73.7–94.7 h**
+| 2026-07-17 | fix: allow configured web origins through cors | 1 | Real-browser capture surfaced the gap; config-driven origin list, credentialed |
+
+**Running total: 74.7–95.7 h**
