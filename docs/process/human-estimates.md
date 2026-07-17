@@ -121,4 +121,8 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: spellcheck drafts against the community dictionary (forge) | 2.5–3 | Hunspell wellformedness stage over the etymological dictionary, annotation CLI, findings on all 314 sentences (64 flagged), systematic orthography corrections to the grammar facts (jesmȯ, -ajų, råzumějų, grådu), forge CI workflow |
 
-**Running total: 151.7–192.2 h**
+| 2026-07-17 | feat: manage user roles through the admin api | 2–2.5 | UserDirectory port + adapter, admin list/role routes with self-demotion guard, route + integration tests |
+
+| 2026-07-17 | feat: promote reviewers from the admin directory | 2–2.5 | Directory clients, UsersView with role flip and refusal handling, admin entry point, catalog keys, client fail-path coverage sweep |
+
+**Running total: 155.7–197.2 h**
