@@ -66,3 +66,26 @@ jobs:
 
       - name: End-to-end tests
         run: pnpm e2e
+
+  lighthouse:
+    runs-on: ubuntu-latest
+    # Reporting-only until observed green on the runner; then flip blocking.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build web
+        run: pnpm build
+
+      - name: Lighthouse budgets
+        run: npx --yes @lhci/cli@0.14.x autorun --config=perf/lighthouserc.json
