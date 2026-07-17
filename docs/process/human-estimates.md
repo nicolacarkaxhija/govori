@@ -111,4 +111,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | fix: proxy every api route through the one-origin caddy | 0.3 | Stats/course/lessons/me-export paths were falling through to the SPA in prod; caught by booting the seeded local stack |
 
-**Running total: 142–180 h**
+| 2026-07-17 | feat: externalize ui strings with english and interslavic | 4–5 | i18n core (typed flat catalogs, interpolation, en fallback, persisted language toggle, provider/hook), full Interslavic translation of the UI, string externalization across all nine views, catalog-completeness gate in CI, 12 new tests |
+
+**Running total: 146–185 h**
