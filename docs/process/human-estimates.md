@@ -143,4 +143,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: generate lesson dialogues through the pipeline (forge) | 2.5–3 | Dialogue prompt template, emitter mode, unit-1 scenes generated and reviewed (4×6 turns, 0 errors), combined canonical/spelling/originality checker, approved-only curriculum attachment |
 
-**Running total: 169.7–215.2 h**
+| 2026-07-17 | ci: add lighthouse budgets and a k6 load profile | 2–2.5 | Resource-size and category assertions over the built shell as a blocking CI job (verified green then armed), k6 read-path profile with thresholds — baseline p95 75.8 ms at 20 VUs on the seeded stack |
+
+**Running total: 171.7–217.7 h**

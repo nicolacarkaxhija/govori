@@ -69,8 +69,6 @@ jobs:
 
   lighthouse:
     runs-on: ubuntu-latest
-    # Reporting-only until observed green on the runner; then flip blocking.
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
