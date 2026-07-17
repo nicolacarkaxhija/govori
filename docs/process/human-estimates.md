@@ -95,4 +95,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | docs: record the lesson draft generation estimate | 3–4 | Forge batch (5 commits): cumulative lesson-pack loader (multi-unit facts/forms, prefix filtering), unit-2 grammar facts, 7 lesson drafts generated and human-reviewed (128 sentences total incl. lesson 1; 0 validation errors, every off-list token flagged) |
 
-**Running total: 125.2–159.2 h**
+| 2026-07-17 | docs: record the course draft completion estimate | 4–5 | Forge batch (5 commits): unit 3–5 grammar facts (past tense, agreement, instrumental, double negation, locative), 12 lessons generated in parallel and reviewed (188 sentences), containment-matcher fix for hyphenated and short agreement forms, one lesson regenerated for suppletive byti |
+
+**Running total: 129.2–164.2 h**
