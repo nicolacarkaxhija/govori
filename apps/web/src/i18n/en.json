@@ -40,6 +40,8 @@
   "languageSwitch": "Switch language",
   "lessonWords": "{count} words",
   "listen": "Listen",
+  "listeningKind": "Listening",
+  "listeningPrompt": "Type what you hear",
   "loading": "Loading…",
   "makeAdmin": "Make admin",
   "makeLearner": "Make learner",

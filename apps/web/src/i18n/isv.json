@@ -40,6 +40,8 @@
   "languageSwitch": "Prěključi jezyk",
   "lessonWords": "{count} slov",
   "listen": "Slušaj",
+  "listeningKind": "Slušanje",
+  "listeningPrompt": "Napiši, čto slyšiš",
   "loading": "Zagružaje se…",
   "makeAdmin": "Učini administratorom",
   "makeLearner": "Učini učenikom",

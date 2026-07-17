@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { LearnItem } from '../api/client';
 import { LessonView } from './LessonView';
@@ -203,5 +203,79 @@ describe('LessonView community audio', () => {
     );
     await screen.findByRole('heading', { level: 2 });
     expect(await screen.findByRole('button', { name: 'Record' })).toBeDefined();
+  });
+});
+
+describe('LessonView listening rotation', () => {
+  const threeItems: LearnItem[] = [
+    ...items,
+    {
+      id: 'bbbbbbbb-0000-4000-8000-000000000003',
+      kind: 'word',
+      text: 'sněg',
+      translations: [{ lang: 'en', text: 'snow' }],
+    },
+  ];
+
+  beforeEach(() => {
+    localStorage.clear();
+    fetchLessonMock.mockReset().mockResolvedValue({
+      id: 'cccccccc-0000-4000-8000-000000000001',
+      title: 'Lekcija',
+      items: threeItems,
+    });
+    fetchSentencesMock.mockReset().mockResolvedValue([]);
+    fetchFlagsMock.mockReset().mockResolvedValue({ audio: true });
+    fetchRecordingsMock
+      .mockReset()
+      .mockResolvedValue([{ id: 'rec-1', mime: 'audio/webm' }]);
+    vi.stubGlobal(
+      'Audio',
+      class {
+        play() {
+          return Promise.resolve();
+        }
+      },
+    );
+  });
+
+  async function answerTwo(user: ReturnType<typeof userEvent.setup>) {
+    const group = await screen.findByRole('group');
+    const [choice] = within(group).getAllByRole('button');
+    if (choice === undefined) {
+      throw new Error('no choices rendered');
+    }
+    await user.click(choice);
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.type(screen.getByLabelText(/Type it in Interslavic/), 'x');
+    await user.click(screen.getByRole('button', { name: 'Check' }));
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+  }
+
+  it('reaches listening transcription after the typed round', async () => {
+    const user = userEvent.setup();
+    render(
+      <LessonView
+        lessonId="cccccccc-0000-4000-8000-000000000001"
+        script="latin"
+        onExit={vi.fn()}
+      />,
+    );
+    await answerTwo(user);
+    expect(await screen.findByLabelText('Type what you hear')).toBeDefined();
+  });
+
+  it('falls back to choices when the item has no clips', async () => {
+    fetchRecordingsMock.mockResolvedValue([]);
+    const user = userEvent.setup();
+    render(
+      <LessonView
+        lessonId="cccccccc-0000-4000-8000-000000000001"
+        script="latin"
+        onExit={vi.fn()}
+      />,
+    );
+    await answerTwo(user);
+    expect(await screen.findByRole('group')).toBeDefined();
   });
 });

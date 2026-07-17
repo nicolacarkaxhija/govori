@@ -11,6 +11,7 @@ import { useT } from '../i18n';
 import { ClozeCard } from './ClozeCard';
 import { DialogueCard } from './DialogueCard';
 import { ExerciseCard } from './ExerciseCard';
+import { ListeningCard } from './ListeningCard';
 import { MatchingCard } from './MatchingCard';
 import { buildCloze, type Cloze } from './exercises';
 import { nextItemId, recordReview, streakDays } from './progress';
@@ -28,7 +29,7 @@ type Phase =
   | { name: 'done' }
   | { name: 'exercise'; item: LearnItem };
 
-type Mode = 'choices' | 'typed' | 'matching' | 'cloze';
+type Mode = 'choices' | 'typed' | 'matching' | 'cloze' | 'listening';
 
 export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
   const t = useT();
@@ -102,7 +103,11 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
       return 'matching';
     }
     if (current === 'typed' || current === 'matching') {
-      return clozeOrChoices();
+      const next = clozeOrChoices();
+      // Listening transcription joins the rotation only once community
+      // clips can exist (ADR 0004); the card falls back if this item
+      // has none yet.
+      return next === 'choices' && audioOn ? 'listening' : next;
     }
     return 'choices';
   };
@@ -126,7 +131,7 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
   const gradeCloze = (built: Cloze) => (value: Grade) => {
     recordReview(built.itemId, value);
     setAnswered((count) => count + 1);
-    setMode('choices');
+    setMode(audioOn ? 'listening' : 'choices');
     advance(pool);
   };
 
@@ -195,6 +200,16 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
             onGrade={gradeCloze(cloze)}
           />
         )}
+      {phase.name === 'exercise' && intro === null && mode === 'listening' && (
+        <ListeningCard
+          key={'listening' + phase.item.id + String(answered)}
+          item={phase.item}
+          onGrade={grade(phase.item)}
+          onUnavailable={() => {
+            setMode('choices');
+          }}
+        />
+      )}
       {phase.name === 'exercise' &&
         intro === null &&
         (mode === 'choices' || mode === 'typed') && (

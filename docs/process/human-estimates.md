@@ -154,4 +154,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: play and contribute pronunciations in exercises | 2–2.5 | Flag-aware lesson wiring, a playback-and-recorder component over MediaRecorder with mic-denial handling, chunked base64 upload client, both UI languages, coverage held above the gate |
 
-**Running total: 182.2–230.7 h**
+| 2026-07-17 | feat: add listening transcription to the lesson rotation | 1.5–2 | New exercise card that bows out gracefully for clip-less items, rotation slot after cloze and typed rounds gated on the audio flag, driven-through-the-UI rotation tests |
+
+**Running total: 183.7–232.7 h**
