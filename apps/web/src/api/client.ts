@@ -53,3 +53,25 @@ export async function fetchItems(limit = 50): Promise<LearnItem[] | null> {
     return null;
   }
 }
+
+const statsSchema = z.object({
+  items: z.number(),
+  translations: z.number(),
+  reviews: z.number(),
+  learners: z.number(),
+});
+
+export type Stats = z.infer<typeof statsSchema>;
+
+export async function fetchStats(): Promise<Stats | null> {
+  try {
+    const response = await fetch(new URL('/stats', apiBaseUrl));
+    if (!response.ok) {
+      return null;
+    }
+    const payload: unknown = await response.json();
+    return statsSchema.parse(payload);
+  } catch {
+    return null;
+  }
+}

@@ -71,4 +71,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: serve public aggregate stats | 1.5–2 | Stats port + branch-free adapter, /stats route, shared test-deps helper ending fixture churn |
 
-**Running total: 89.2–114.2 h**
+| 2026-07-17 | feat: show open numbers in the app | 1.5–2 | Stats client, tile view with unreachable state, third app view, footer link |
+
+**Running total: 90.7–116.2 h**

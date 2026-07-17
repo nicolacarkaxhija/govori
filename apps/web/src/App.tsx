@@ -4,13 +4,14 @@ import { fetchMeta } from './api/client';
 import { useTheme } from './hooks/useTheme';
 import { useScript } from './learn/useScript';
 import { LessonView } from './learn/LessonView';
+import { StatsView } from './stats/StatsView';
 
 export function App() {
   const { theme, toggle } = useTheme();
   const { script, toggle: toggleScript } = useScript();
   const [shortName, setShortName] = useState<string>(brand.shortName);
   const [fullName, setFullName] = useState<string>(brand.fullName);
-  const [view, setView] = useState<'home' | 'lesson'>('home');
+  const [view, setView] = useState<'home' | 'lesson' | 'stats'>('home');
 
   useEffect(() => {
     let active = true;
@@ -74,9 +75,15 @@ export function App() {
             Start learning
           </button>
         </main>
-      ) : (
+      ) : view === 'lesson' ? (
         <LessonView
           script={script}
+          onExit={() => {
+            setView('home');
+          }}
+        />
+      ) : (
+        <StatsView
           onExit={() => {
             setView('home');
           }}
@@ -86,6 +93,15 @@ export function App() {
       <footer className="footer">
         <p>Code: AGPL-3.0-only</p>
         <p>Content: CC BY-SA 4.0</p>
+        <button
+          type="button"
+          className="footer-link"
+          onClick={() => {
+            setView('stats');
+          }}
+        >
+          Open numbers
+        </button>
       </footer>
     </div>
   );
