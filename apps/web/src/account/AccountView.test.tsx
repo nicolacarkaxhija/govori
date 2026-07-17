@@ -23,11 +23,9 @@ describe('AccountView', () => {
   });
 
   it('creates an account and pushes the local log', async () => {
-    client.fetchMe
-      .mockResolvedValueOnce(null)
-      .mockResolvedValue({
-        user: { id: 'u1', email: 'ovca@example.com', role: 'learner' },
-      });
+    client.fetchMe.mockResolvedValueOnce(null).mockResolvedValue({
+      user: { id: 'u1', email: 'ovca@example.com', role: 'learner' },
+    });
     client.signUp.mockResolvedValue(true);
     client.pushReviews.mockResolvedValue({ received: 3, stored: 3 });
     const user = userEvent.setup();
