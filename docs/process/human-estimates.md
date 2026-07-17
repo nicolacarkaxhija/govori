@@ -62,4 +62,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | fix: allow configured web origins through cors | 1 | Real-browser capture surfaced the gap; config-driven origin list, credentialed |
 
-**Running total: 74.7–95.7 h**
+| 2026-07-17 | feat: support the dictionary corpus letters ė and ľ | 1–1.5 | Corpus-driven alphabet completion; 889 dictionary words unblocked |
+
+**Running total: 75.7–97.2 h**

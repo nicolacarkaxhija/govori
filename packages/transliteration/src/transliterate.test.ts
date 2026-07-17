@@ -29,8 +29,8 @@ describe('complete correspondence tables', () => {
   });
 
   it('folds every etymological letter to its standard form', () => {
-    expect(transliterate('åȯęųćđĺńŕśźťď', { script: 'latin' })).toBe(
-      'aoeučdžlnrsztd',
+    expect(transliterate('åȯęųćđĺľńŕśźťďė', { script: 'latin' })).toBe(
+      'aoeučdžllnrsztde',
     );
   });
 
@@ -55,6 +55,8 @@ describe('digraph boundaries', () => {
 
 describe('etymological orthography folds to standard', () => {
   it('folds etymological letters when targeting standard Latin', () => {
+    expect(transliterate('Afrikanėc', { script: 'latin' })).toBe('Afrikanec');
+    expect(transliterate('admiraľsky', { script: 'latin' })).toBe('admiralsky');
     expect(transliterate('męso', { script: 'latin' })).toBe('meso');
     expect(transliterate('sųd', { script: 'latin' })).toBe('sud');
     expect(transliterate('råzum', { script: 'latin' })).toBe('razum');

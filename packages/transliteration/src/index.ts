@@ -12,11 +12,13 @@ const COMBINING_ACUTE = '́';
 const ETYMOLOGICAL_TO_STANDARD: ReadonlyMap<string, string> = new Map([
   ['å', 'a'],
   ['ȯ', 'o'],
+  ['ė', 'e'],
   ['ę', 'e'],
   ['ų', 'u'],
   ['ć', 'č'],
   ['đ', 'dž'],
   ['ĺ', 'l'],
+  ['ľ', 'l'],
   ['ń', 'n'],
   ['ŕ', 'r'],
   ['ś', 's'],
@@ -140,7 +142,7 @@ function restoreCase(source: string, mapped: string): string {
   return first === first.toLowerCase() ? mapped : mapped.toUpperCase();
 }
 
-const CANONICAL_LETTERS = 'abcčdeěfghijklmnoprsštuvyzžåȯęųćđĺńŕśźťď';
+const CANONICAL_LETTERS = 'abcčdeěfghijklmnoprsštuvyzžåȯęųćđĺľńŕśźťďė';
 
 // The combining acute is only canonical after d/t (forms with no precomposed
 // glyph); everything else must be a plain alphabet letter, digit, space, or
