@@ -313,3 +313,54 @@ export async function fetchReviews(): Promise<ReviewEvent[] | null> {
     return null;
   }
 }
+
+const usersSchema = z.object({
+  users: z.array(
+    z.object({
+      id: z.string(),
+      email: z.string(),
+      name: z.string(),
+      role: z.enum(['learner', 'admin']),
+      createdAt: z.string(),
+    }),
+  ),
+});
+
+export type UserRow = z.infer<typeof usersSchema>['users'][number];
+
+/** Admin-only: the user directory; null when not allowed/unreachable. */
+export async function fetchUsers(): Promise<UserRow[] | null> {
+  try {
+    const response = await fetch(new URL('/admin/users', apiBaseUrl), {
+      credentials: 'include',
+    });
+    if (!response.ok) {
+      return null;
+    }
+    const payload: unknown = await response.json();
+    return usersSchema.parse(payload).users;
+  } catch {
+    return null;
+  }
+}
+
+/** Admin-only: promotes or demotes; true when the change landed. */
+export async function setUserRole(
+  id: string,
+  role: 'learner' | 'admin',
+): Promise<boolean> {
+  try {
+    const response = await fetch(
+      new URL(`/admin/users/${id}/role`, apiBaseUrl),
+      {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ role }),
+      },
+    );
+    return response.ok;
+  } catch {
+    return false;
+  }
+}

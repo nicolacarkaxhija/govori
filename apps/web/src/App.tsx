@@ -8,6 +8,7 @@ import { CourseView } from './learn/CourseView';
 import { AccountView } from './account/AccountView';
 import { StatsView } from './stats/StatsView';
 import { ReviewView } from './review/ReviewView';
+import { UsersView } from './review/UsersView';
 import { LanguageProvider, useLanguage, useT } from './i18n';
 
 export function App() {
@@ -38,6 +39,7 @@ function AppShell({
     | { name: 'stats' }
     | { name: 'account' }
     | { name: 'review' }
+    | { name: 'users' }
   >({ name: 'home' });
 
   useEffect(() => {
@@ -133,6 +135,15 @@ function AppShell({
           }}
           onReview={() => {
             setView({ name: 'review' });
+          }}
+          onUsers={() => {
+            setView({ name: 'users' });
+          }}
+        />
+      ) : view.name === 'users' ? (
+        <UsersView
+          onExit={() => {
+            setView({ name: 'account' });
           }}
         />
       ) : view.name === 'review' ? (

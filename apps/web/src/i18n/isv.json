@@ -32,6 +32,9 @@
   "languageSwitch": "Prěključi jezyk",
   "lessonWords": "{count} slov",
   "loading": "Zagružaje se…",
+  "makeAdmin": "Učini administratorom",
+  "makeLearner": "Učini učenikom",
+  "manageUsers": "Upravjaj uživateljami",
   "matchPairs": "sjedini pary",
   "missingWordAria": "nedostajuče slovo",
   "newHere": "Novy tut? Sozdaj konto",
@@ -65,5 +68,6 @@
   "typedLabel": "Napiši medžuslovjansky — ljuboje pismo, akcenty neobvezny",
   "unreachable": "Server jest nedostupny — probuj znova za moment.",
   "unreachableNow": "Server sejčas jest nedostupny.",
+  "usersUnavailable": "Spis uživateljev jest nedostupny — jesi li vpisany kako administrator?",
   "welcome": "Dobro došli."
 }

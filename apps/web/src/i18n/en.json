@@ -32,6 +32,9 @@
   "languageSwitch": "Switch language",
   "lessonWords": "{count} words",
   "loading": "Loading…",
+  "makeAdmin": "Make admin",
+  "makeLearner": "Make learner",
+  "manageUsers": "Manage users",
   "matchPairs": "match the pairs",
   "missingWordAria": "missing word",
   "newHere": "New here? Create an account",
@@ -65,5 +68,6 @@
   "typedLabel": "Type it in Interslavic — any script, accents optional",
   "unreachable": "The server is unreachable — try again in a moment.",
   "unreachableNow": "The server is unreachable right now.",
+  "usersUnavailable": "The user list is unavailable — are you signed in as an admin?",
   "welcome": "Dobro došli."
 }

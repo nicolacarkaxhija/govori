@@ -194,3 +194,81 @@ describe('fetchReviews', () => {
     expect(await fetchReviews()).toBeNull();
   });
 });
+
+describe('user directory clients', () => {
+  it('fetchUsers parses and fails closed', async () => {
+    const { fetchUsers } = await import('./client');
+    stubFetch({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          users: [
+            {
+              id: 'u2',
+              email: 'ovca@example.com',
+              name: 'Ovca',
+              role: 'learner',
+              createdAt: '2026-07-17T10:00:00.000Z',
+            },
+          ],
+        }),
+    });
+    expect(await fetchUsers()).toHaveLength(1);
+    stubFetch({ ok: false, json: () => Promise.resolve({}) });
+    expect(await fetchUsers()).toBeNull();
+  });
+
+  it('setUserRole reports whether the change landed', async () => {
+    const { setUserRole } = await import('./client');
+    stubFetch({ ok: true, json: () => Promise.resolve({}) });
+    expect(await setUserRole('u2', 'admin')).toBe(true);
+    stubFetch({ ok: false, json: () => Promise.resolve({}) });
+    expect(await setUserRole('u2', 'learner')).toBe(false);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.reject(new Error('offline'))),
+    );
+    expect(await setUserRole('u2', 'admin')).toBe(false);
+  });
+});
+
+describe('account clients fail closed', () => {
+  it('covers stats, me, auth posts, sync, export, and delete paths', async () => {
+    const {
+      fetchStats,
+      fetchMe,
+      signUp,
+      signIn,
+      signOut,
+      pushReviews,
+      exportData,
+      deleteAccount,
+    } = await import('./client');
+    stubFetch({
+      ok: true,
+      json: () =>
+        Promise.resolve({ items: 1, translations: 2, reviews: 3, learners: 4 }),
+    });
+    expect(await fetchStats()).toEqual({
+      items: 1,
+      translations: 2,
+      reviews: 3,
+      learners: 4,
+    });
+    stubFetch({ ok: false, json: () => Promise.resolve({}) });
+    expect(await fetchStats()).toBeNull();
+    expect(await fetchMe()).toBeNull();
+    expect(await signUp('a@b.c', 'password-123', 'A')).toBe(false);
+    expect(await signIn('a@b.c', 'password-123')).toBe(false);
+    expect(await signOut()).toBe(false);
+    expect(await pushReviews([])).toBeNull();
+    expect(await exportData()).toBeNull();
+    expect(await deleteAccount()).toBe(false);
+    stubFetch({
+      ok: true,
+      json: () => Promise.resolve({ received: 0, stored: 0 }),
+    });
+    expect(await pushReviews([])).toEqual({ received: 0, stored: 0 });
+    expect(await deleteAccount()).toBe(true);
+  });
+});

@@ -16,6 +16,7 @@ import { useT } from '../i18n';
 export interface AccountViewProps {
   onExit: () => void;
   onReview: () => void;
+  onUsers: () => void;
 }
 
 type Session =
@@ -27,7 +28,7 @@ type Session =
  * Anonymous-first (ADR 0022): an account only adds sync. On sign-in the
  * local review log is pushed unchanged; the server unions by event id.
  */
-export function AccountView({ onExit, onReview }: AccountViewProps) {
+export function AccountView({ onExit, onReview, onUsers }: AccountViewProps) {
   const t = useT();
   const [session, setSession] = useState<Session>({ name: 'checking' });
   const [mode, setMode] = useState<'signIn' | 'signUp'>('signUp');
@@ -164,9 +165,14 @@ export function AccountView({ onExit, onReview }: AccountViewProps) {
           )}
           <p className="account-note">{t('progressFollows')}</p>
           {session.me.user.role === 'admin' && (
-            <button type="button" className="continue" onClick={onReview}>
-              {t('reviewDrafts')}
-            </button>
+            <div className="review-actions">
+              <button type="button" className="continue" onClick={onReview}>
+                {t('reviewDrafts')}
+              </button>
+              <button type="button" className="continue" onClick={onUsers}>
+                {t('manageUsers')}
+              </button>
+            </div>
           )}
           <button type="button" className="quiet" onClick={() => void leave()}>
             {t('signOut')}
