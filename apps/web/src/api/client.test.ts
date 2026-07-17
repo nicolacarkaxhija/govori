@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fetchItems, fetchMeta } from './client';
+import { fetchCourse, fetchItems, fetchLesson, fetchMeta } from './client';
 
 const validMeta = {
   brand: {
@@ -72,5 +72,50 @@ describe('fetchItems', () => {
     expect(await fetchItems()).toBeNull();
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
     expect(await fetchItems()).toBeNull();
+  });
+});
+
+describe('fetchCourse and fetchLesson', () => {
+  it('parse valid payloads and fail closed otherwise', async () => {
+    const course = { units: [] };
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify(course), { status: 200 }),
+        ),
+    );
+    expect(await fetchCourse()).toEqual(course);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response('x', { status: 500 })),
+    );
+    expect(await fetchCourse()).toBeNull();
+    expect(
+      await fetchLesson('9c8d7e6f-5a4b-4c3d-8e2f-1a0b9c8d7e6f'),
+    ).toBeNull();
+    const lesson = {
+      title: 'Lekcija 1',
+      items: [
+        {
+          id: 'aaaaaaaa-0000-4000-8000-000000000001',
+          kind: 'word',
+          text: 'voda',
+          translations: [{ lang: 'en', text: 'water' }],
+        },
+      ],
+    };
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify(lesson), { status: 200 }),
+        ),
+    );
+    expect(await fetchLesson('9c8d7e6f-5a4b-4c3d-8e2f-1a0b9c8d7e6f')).toEqual(
+      lesson,
+    );
   });
 });

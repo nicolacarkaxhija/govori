@@ -62,3 +62,64 @@ describe('App', () => {
     expect(screen.getByText(/CC BY-SA/)).toBeTruthy();
   });
 });
+
+describe('course navigation', () => {
+  it('walks home to course to lesson', async () => {
+    const user = userEvent.setup();
+    const course = {
+      units: [
+        {
+          id: '8b7c6d5e-4f3a-4b2c-9d1e-0f9a8b7c6d5e',
+          title: 'Jedinica 1',
+          lessons: [
+            {
+              id: '9c8d7e6f-5a4b-4c3d-8e2f-1a0b9c8d7e6f',
+              title: 'Lekcija 1',
+              itemCount: 1,
+            },
+          ],
+        },
+      ],
+    };
+    const lesson = {
+      title: 'Lekcija 1',
+      items: [
+        {
+          id: 'aaaaaaaa-0000-4000-8000-000000000001',
+          kind: 'word',
+          text: 'voda',
+          translations: [{ lang: 'en', text: 'water' }],
+        },
+      ],
+    };
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: URL | RequestInfo) => {
+        const url = input instanceof Request ? input.url : String(input);
+        const body = url.includes('/course')
+          ? course
+          : url.includes('/lessons/')
+            ? lesson
+            : url.includes('/meta')
+              ? {
+                  brand: {
+                    shortName: 'Govori',
+                    fullName: 'Govori — Interslavic Learning App',
+                  },
+                }
+              : null;
+        return Promise.resolve(
+          new Response(JSON.stringify(body), { status: body ? 200 : 404 }),
+        );
+      }),
+    );
+    render(<App />);
+    await user.click(
+      await screen.findByRole('button', { name: 'Start learning' }),
+    );
+    await user.click(await screen.findByRole('button', { name: /Lekcija 1/ }));
+    expect(await screen.findByRole('heading', { name: 'voda' })).toBeDefined();
+    await user.click(screen.getByRole('button', { name: '← Back' }));
+    expect(await screen.findByText('Jedinica 1')).toBeDefined();
+  });
+});

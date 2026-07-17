@@ -4,6 +4,7 @@ import { fetchMeta } from './api/client';
 import { useTheme } from './hooks/useTheme';
 import { useScript } from './learn/useScript';
 import { LessonView } from './learn/LessonView';
+import { CourseView } from './learn/CourseView';
 import { StatsView } from './stats/StatsView';
 
 export function App() {
@@ -11,7 +12,12 @@ export function App() {
   const { script, toggle: toggleScript } = useScript();
   const [shortName, setShortName] = useState<string>(brand.shortName);
   const [fullName, setFullName] = useState<string>(brand.fullName);
-  const [view, setView] = useState<'home' | 'lesson' | 'stats'>('home');
+  const [view, setView] = useState<
+    | { name: 'home' }
+    | { name: 'course' }
+    | { name: 'lesson'; lessonId: string }
+    | { name: 'stats' }
+  >({ name: 'home' });
 
   useEffect(() => {
     let active = true;
@@ -37,8 +43,8 @@ export function App() {
   return (
     <div className="shell">
       <header className="topbar">
-        <span className="wordmark" aria-hidden={view === 'home'}>
-          {view === 'home' ? '' : shortName}
+        <span className="wordmark" aria-hidden={view.name === 'home'}>
+          {view.name === 'home' ? '' : shortName}
         </span>
         <div className="topbar-controls">
           <button
@@ -60,7 +66,7 @@ export function App() {
         </div>
       </header>
 
-      {view === 'home' ? (
+      {view.name === 'home' ? (
         <main className="hero">
           <div className="stitch" aria-hidden="true" />
           <h1 className="hero-name">{shortName}</h1>
@@ -69,23 +75,33 @@ export function App() {
             type="button"
             className="primary"
             onClick={() => {
-              setView('lesson');
+              setView({ name: 'course' });
             }}
           >
             Start learning
           </button>
         </main>
-      ) : view === 'lesson' ? (
+      ) : view.name === 'course' ? (
+        <CourseView
+          onOpenLesson={(lessonId) => {
+            setView({ name: 'lesson', lessonId });
+          }}
+          onExit={() => {
+            setView({ name: 'home' });
+          }}
+        />
+      ) : view.name === 'lesson' ? (
         <LessonView
+          lessonId={view.lessonId}
           script={script}
           onExit={() => {
-            setView('home');
+            setView({ name: 'course' });
           }}
         />
       ) : (
         <StatsView
           onExit={() => {
-            setView('home');
+            setView({ name: 'home' });
           }}
         />
       )}
@@ -97,7 +113,7 @@ export function App() {
           type="button"
           className="footer-link"
           onClick={() => {
-            setView('stats');
+            setView({ name: 'stats' });
           }}
         >
           Open numbers

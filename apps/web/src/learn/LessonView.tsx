@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import type { Grade } from '@govori/srs';
-import { fetchItems, type LearnItem } from '../api/client';
+import { fetchLesson, type LearnItem } from '../api/client';
 import { ExerciseCard } from './ExerciseCard';
 import { nextItemId, recordReview } from './progress';
 import type { Script } from './useScript';
 
 export interface LessonViewProps {
+  lessonId: string;
   script: Script;
   onExit: () => void;
 }
@@ -13,11 +14,10 @@ export interface LessonViewProps {
 type Phase =
   | { name: 'loading' }
   | { name: 'unreachable' }
-  | { name: 'empty' }
   | { name: 'done' }
   | { name: 'exercise'; item: LearnItem };
 
-export function LessonView({ script, onExit }: LessonViewProps) {
+export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
   const [pool, setPool] = useState<LearnItem[]>([]);
   const [phase, setPhase] = useState<Phase>({ name: 'loading' });
   const [mode, setMode] = useState<'choices' | 'typed'>('choices');
@@ -26,24 +26,22 @@ export function LessonView({ script, onExit }: LessonViewProps) {
   useEffect(() => {
     let active = true;
     const load = async () => {
-      const items = await fetchItems();
+      const lesson = await fetchLesson(lessonId);
       if (!active) {
         return;
       }
-      if (items === null) {
+      if (lesson === null) {
         setPhase({ name: 'unreachable' });
-      } else if (items.length === 0) {
-        setPhase({ name: 'empty' });
       } else {
-        setPool(items);
-        advance(items);
+        setPool(lesson.items);
+        advance(lesson.items);
       }
     };
     void load();
     return () => {
       active = false;
     };
-  }, []);
+  }, [lessonId]);
 
   function advance(items: readonly LearnItem[]) {
     const id = nextItemId(items.map((item) => item.id));
@@ -77,9 +75,6 @@ export function LessonView({ script, onExit }: LessonViewProps) {
         <p className="lesson-note">
           The server is unreachable — try again in a moment.
         </p>
-      )}
-      {phase.name === 'empty' && (
-        <p className="lesson-note">No content yet — the seed is on its way.</p>
       )}
       {phase.name === 'done' && (
         <div className="lesson-done">

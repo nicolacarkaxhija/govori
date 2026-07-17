@@ -17,6 +17,7 @@ test('a learner answers a card and the local log advances', async ({
   page,
 }) => {
   await page.click('text=Start learning');
+  await page.click('text=Lekcija 1');
   const prompt = page.locator('.card-prompt');
   await expect(prompt).toBeVisible();
   const word = (await prompt.innerText()).trim();
@@ -29,6 +30,7 @@ test('a learner answers a card and the local log advances', async ({
 
 test('the script toggle rewrites the prompt in Cyrillic', async ({ page }) => {
   await page.click('text=Start learning');
+  await page.click('text=Lekcija 1');
   const prompt = page.locator('.card-prompt');
   await expect(prompt).toBeVisible();
   const latin = (await prompt.innerText()).trim();
@@ -40,6 +42,7 @@ test('the script toggle rewrites the prompt in Cyrillic', async ({ page }) => {
 
 test('typed answers are checked tolerantly', async ({ page }) => {
   await page.click('text=Start learning');
+  await page.click('text=Lekcija 1');
   await page.click('.choice >> nth=0');
   await page.click('text=Continue');
   const input = page.locator('.typed-input');

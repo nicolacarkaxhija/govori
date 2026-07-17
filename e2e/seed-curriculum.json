@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-07-17T00:00:00Z",
+  "producer": {
+    "name": "e2e-seed",
+    "version": "0.0.1"
+  },
+  "units": [
+    {
+      "title": "Jedinica 1",
+      "lessons": [
+        {
+          "title": "Lekcija 1",
+          "itemIds": [
+            "e2e11111-1111-4111-8111-111111111111",
+            "e2e22222-2222-4222-8222-222222222222"
+          ]
+        }
+      ]
+    }
+  ]
+}

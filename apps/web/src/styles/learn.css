@@ -351,3 +351,47 @@ button:active {
 .footer-link:hover {
   color: var(--color-text);
 }
+
+.course {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.unit-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: var(--color-text);
+  margin-bottom: var(--space-sm);
+}
+
+.unit-lessons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: var(--space-sm);
+}
+
+.lesson-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  text-align: left;
+}
+
+.lesson-card:hover {
+  border-color: var(--color-primary);
+}
+
+.lesson-card-title {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.lesson-card-count {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}

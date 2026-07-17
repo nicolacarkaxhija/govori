@@ -32,6 +32,15 @@ export default async function globalSetup() {
     [join(api, 'dist', 'import-cli.js'), join(root, 'e2e', 'seed.json')],
     { env: { ...process.env, GOVORI_DB__URL: dbUrl }, stdio: 'inherit' },
   );
+  execFileSync(
+    process.execPath,
+    [
+      join(api, 'dist', 'import-cli.js'),
+      '--curriculum',
+      join(root, 'e2e', 'seed-curriculum.json'),
+    ],
+    { env: { ...process.env, GOVORI_DB__URL: dbUrl }, stdio: 'inherit' },
+  );
 
   const apiProcess = spawn(process.execPath, [join(api, 'dist', 'main.js')], {
     env: {

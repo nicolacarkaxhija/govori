@@ -75,3 +75,50 @@ export async function fetchStats(): Promise<Stats | null> {
     return null;
   }
 }
+
+const courseSchema = z.object({
+  units: z.array(
+    z.object({
+      id: z.uuid(),
+      title: z.string(),
+      lessons: z.array(
+        z.object({ id: z.uuid(), title: z.string(), itemCount: z.number() }),
+      ),
+    }),
+  ),
+});
+
+export type Course = z.infer<typeof courseSchema>;
+
+export async function fetchCourse(): Promise<Course | null> {
+  try {
+    const response = await fetch(new URL('/course', apiBaseUrl));
+    if (!response.ok) {
+      return null;
+    }
+    const payload: unknown = await response.json();
+    return courseSchema.parse(payload);
+  } catch {
+    return null;
+  }
+}
+
+const lessonSchema = z.object({
+  title: z.string(),
+  items: z.array(learnItemSchema).min(1),
+});
+
+export type Lesson = z.infer<typeof lessonSchema>;
+
+export async function fetchLesson(id: string): Promise<Lesson | null> {
+  try {
+    const response = await fetch(new URL(`/lessons/${id}`, apiBaseUrl));
+    if (!response.ok) {
+      return null;
+    }
+    const payload: unknown = await response.json();
+    return lessonSchema.parse(payload);
+  } catch {
+    return null;
+  }
+}

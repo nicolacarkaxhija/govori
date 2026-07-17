@@ -19,25 +19,40 @@ const items: LearnItem[] = [
   },
 ];
 
-const fetchItemsMock = vi.hoisted(() => vi.fn());
-vi.mock('../api/client', () => ({ fetchItems: fetchItemsMock }));
+const fetchLessonMock = vi.hoisted(() => vi.fn());
+vi.mock('../api/client', () => ({ fetchLesson: fetchLessonMock }));
 
 describe('LessonView', () => {
   beforeEach(() => {
     localStorage.clear();
-    fetchItemsMock.mockReset();
+    fetchLessonMock.mockReset();
   });
 
   it('reports an unreachable server', async () => {
-    fetchItemsMock.mockResolvedValue(null);
-    render(<LessonView script="latin" onExit={vi.fn()} />);
+    fetchLessonMock.mockResolvedValue(null);
+    render(
+      <LessonView
+        lessonId="9c8d7e6f-5a4b-4c3d-8e2f-1a0b9c8d7e6f"
+        script="latin"
+        onExit={vi.fn()}
+      />,
+    );
     expect(await screen.findByText(/unreachable/)).toBeDefined();
   });
 
   it('walks due items to completion', async () => {
     const user = userEvent.setup();
-    fetchItemsMock.mockResolvedValue([items[0]]);
-    render(<LessonView script="latin" onExit={vi.fn()} />);
+    fetchLessonMock.mockResolvedValue({
+      title: 'Lekcija 1',
+      items: [items[0]],
+    });
+    render(
+      <LessonView
+        lessonId="9c8d7e6f-5a4b-4c3d-8e2f-1a0b9c8d7e6f"
+        script="latin"
+        onExit={vi.fn()}
+      />,
+    );
     expect(await screen.findByRole('heading', { name: 'voda' })).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'water' }));
     await user.click(screen.getByRole('button', { name: 'Continue' }));
@@ -45,17 +60,17 @@ describe('LessonView', () => {
     expect(screen.getByText('1 answered')).toBeDefined();
   });
 
-  it('reports an empty content pool', async () => {
-    fetchItemsMock.mockResolvedValue([]);
-    render(<LessonView script="latin" onExit={vi.fn()} />);
-    expect(await screen.findByText(/No content yet/)).toBeDefined();
-  });
-
   it('lets the learner leave through the back control', async () => {
     const user = userEvent.setup();
     const onExit = vi.fn();
-    fetchItemsMock.mockResolvedValue(items);
-    render(<LessonView script="latin" onExit={onExit} />);
+    fetchLessonMock.mockResolvedValue({ title: 'Lekcija 1', items });
+    render(
+      <LessonView
+        lessonId="9c8d7e6f-5a4b-4c3d-8e2f-1a0b9c8d7e6f"
+        script="latin"
+        onExit={onExit}
+      />,
+    );
     await screen.findByRole('heading', { name: 'voda' });
     await user.click(screen.getByRole('button', { name: '← Back' }));
     expect(onExit).toHaveBeenCalled();

@@ -79,4 +79,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: add the gated course model | 4–5 | Units/lessons tables+migration, course ports+adapter, curriculum artifact contract, importer mode, routes, suites migrated to makeTestDeps |
 
-**Running total: 97.7–124.7 h**
+| 2026-07-17 | feat: teach through the course | 4–5 | Course/lesson clients, CourseView, lesson-scoped play, view machine, e2e over the course path, curriculum generator (forge) |
+
+**Running total: 101.7–129.7 h**
