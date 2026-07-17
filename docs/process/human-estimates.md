@@ -73,4 +73,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: show open numbers in the app | 1.5–2 | Stats client, tile view with unreachable state, third app view, footer link |
 
-**Running total: 90.7–116.2 h**
+| 2026-07-17 | docs: add decided-vs-done roadmap | 1 | Full sweep of ADRs against implementation |
+
+**Running total: 91.7–117.2 h**
