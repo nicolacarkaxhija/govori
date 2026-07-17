@@ -4,7 +4,7 @@
 {$SITE_ADDRESS::80} {
 	encode zstd gzip
 
-	@api path /health /meta /flags /items /items/* /openapi.json /me /sync/* /admin/* /api/*
+	@api path /health /meta /flags /items /items/* /openapi.json /me /me/* /stats /course /lessons/* /sync/* /admin/* /api/*
 	handle @api {
 		reverse_proxy api:3000
 	}
