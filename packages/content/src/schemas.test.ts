@@ -235,17 +235,47 @@ describe('lesson dialogues (ADR 0039)', () => {
     ).toBeUndefined();
   });
 
+  const withDialogue = (dialogue: unknown) => ({
+    ...base,
+    units: [
+      {
+        title: 'Jedinica 1',
+        lessons: [
+          {
+            title: 'Lekcija 1',
+            itemIds: ['3e2d8f0a-4b1c-4f6e-9a7d-1c2b3a4d5e6f'],
+            dialogue,
+          },
+        ],
+      },
+    ],
+  });
+
   it('rejects non-canonical dialogue text, naming the path', () => {
-    const broken = structuredClone(base);
-    broken.units[0].lessons[0].dialogue.turns[0].text = 'Кто jesi ty?';
+    const broken = withDialogue({
+      turns: [
+        { speaker: 'Ana', text: 'Кто jesi ty?', translation: 'Who are you?' },
+      ],
+      provenance: {
+        origin: 'ai-draft',
+        model: 'calibration',
+        generatedAt: '2026-07-17T12:00:00Z',
+      },
+    });
     expect(() => parseCurriculumArtifact(broken)).toThrow(
       /units\.0\.lessons\.0\.dialogue\.turns\.0\.text/,
     );
   });
 
   it('rejects an empty dialogue', () => {
-    const broken = structuredClone(base);
-    broken.units[0].lessons[0].dialogue.turns = [];
+    const broken = withDialogue({
+      turns: [],
+      provenance: {
+        origin: 'ai-draft',
+        model: 'calibration',
+        generatedAt: '2026-07-17T12:00:00Z',
+      },
+    });
     expect(() => parseCurriculumArtifact(broken)).toThrow(ArtifactError);
   });
 });
