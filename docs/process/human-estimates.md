@@ -89,4 +89,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: add the matching exercise | 3–3.5 | Matching board logic + card, per-item first-try grading, mode rotation with pool guard |
 
-**Running total: 114.2–145.2 h**
+| 2026-07-17 | docs: record the seeding expansion estimate | 4–5 | Forge batch (4 commits): additional-languages sheet merge (16+10 langs), Tatoeba corpus fetcher (resumable API paging), sentence converter with license gating + attribution, artifact assembly; verified 19,790 items / 250,887 translations / 26 langs via importer |
+
+**Running total: 118.2–150.2 h**
