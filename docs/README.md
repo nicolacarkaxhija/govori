@@ -11,3 +11,4 @@ registry first; open only the files you need.
 | [tech/](tech/README.md)           | Technical specifications — one subsystem per file                         |
 | [process/](process/README.md)     | Working agreements: contribution, licensing, estimates, governance        |
 | [marketing/](marketing/README.md) | Staged outreach and growth plan                                           |
+| [legal/](legal/README.md)         | Privacy policy and terms drafts for the hosted instance                   |
