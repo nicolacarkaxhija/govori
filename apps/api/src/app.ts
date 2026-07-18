@@ -8,7 +8,14 @@ import {
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
 import { z } from 'zod';
-import { ItemSchema, ProvenanceSchema, type Item } from '@govori/content';
+import {
+  ContentArtifactSchema,
+  CurriculumArtifactSchema,
+  ItemSchema,
+  MorphologyArtifactSchema,
+  ProvenanceSchema,
+  type Item,
+} from '@govori/content';
 import { transliterate } from '@govori/transliteration';
 import { resolveFlags } from '@govori/config';
 import type { Auth } from './auth/auth.js';
@@ -29,6 +36,7 @@ import {
 import type { UserDirectory } from './auth/ports.js';
 import type { RecordingStore } from './audio/ports.js';
 import type { MorphologyQueries } from './morphology/ports.js';
+import type { ExportQueries } from './export/ports.js';
 
 export interface AppDependencies {
   config: ApiConfig;
@@ -49,6 +57,8 @@ export interface AppDependencies {
   recordings: RecordingStore;
   /** Inflected forms per item for morphology drills (ADR 0037). */
   morphology: MorphologyQueries;
+  /** Bulk reads behind the public open-data export (ADR 0007/0010). */
+  openData: ExportQueries;
 }
 
 /** Bridges Fastify's raw request to the Web Request better-auth consumes. */
@@ -120,6 +130,7 @@ export function buildApp({
   userDirectory,
   recordings,
   morphology,
+  openData,
 }: AppDependencies) {
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
   app.setValidatorCompiler(validatorCompiler);
@@ -997,6 +1008,98 @@ export function buildApp({
       async (request) => ({
         forms: await morphology.formsFor(request.params.id),
       }),
+    );
+
+    // Open data export (ADR 0007/0010): the learning content is public
+    // and CC BY-SA 4.0 licensed; anyone may take the whole pool, shaped
+    // exactly like our own import artifacts. Empty pools 404 rather than
+    // emit an artifact the shared schemas would reject.
+    const exportEnvelope = {
+      license: 'CC-BY-SA-4.0' as const,
+      attribution: config.brand.fullName,
+    };
+    const artifactStamp = () => ({
+      schemaVersion: 1 as const,
+      createdAt: new Date().toISOString(),
+      producer: { name: 'govori-api', version: '1' },
+    });
+    const exportResponse = <T extends z.ZodType>(artifact: T) =>
+      z.object({
+        license: z.literal('CC-BY-SA-4.0'),
+        attribution: z.string(),
+        artifact,
+      });
+
+    routes.get(
+      '/export/content',
+      {
+        schema: {
+          response: {
+            200: exportResponse(ContentArtifactSchema),
+            404: NotFoundSchema,
+          },
+        },
+      },
+      async (_request, reply) => {
+        const exported = await openData.allItems();
+        if (exported.length === 0) {
+          return reply
+            .status(404)
+            .send({ message: 'no content to export yet' });
+        }
+        return {
+          ...exportEnvelope,
+          artifact: { ...artifactStamp(), items: exported },
+        };
+      },
+    );
+
+    routes.get(
+      '/export/curriculum',
+      {
+        schema: {
+          response: {
+            200: exportResponse(CurriculumArtifactSchema),
+            404: NotFoundSchema,
+          },
+        },
+      },
+      async (_request, reply) => {
+        const exported = await openData.curriculumUnits();
+        if (exported.length === 0) {
+          return reply
+            .status(404)
+            .send({ message: 'no curriculum to export yet' });
+        }
+        return {
+          ...exportEnvelope,
+          artifact: { ...artifactStamp(), units: exported },
+        };
+      },
+    );
+
+    routes.get(
+      '/export/morphology',
+      {
+        schema: {
+          response: {
+            200: exportResponse(MorphologyArtifactSchema),
+            404: NotFoundSchema,
+          },
+        },
+      },
+      async (_request, reply) => {
+        const exported = await openData.morphologyEntries();
+        if (exported.length === 0) {
+          return reply
+            .status(404)
+            .send({ message: 'no morphology to export yet' });
+        }
+        return {
+          ...exportEnvelope,
+          artifact: { ...artifactStamp(), entries: exported },
+        };
+      },
     );
   });
 

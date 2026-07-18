@@ -3,7 +3,12 @@ import {
   PostgreSqlContainer,
   type StartedPostgreSqlContainer,
 } from '@testcontainers/postgresql';
-import type { Item } from '@govori/content';
+import {
+  parseContentArtifact,
+  parseCurriculumArtifact,
+  parseMorphologyArtifact,
+  type Item,
+} from '@govori/content';
 import { createDb, type Db } from '../db/client.js';
 import { runMigrations } from '../db/migrate.js';
 import { DrizzleItemRepository } from './drizzle-item-repository.js';
@@ -16,6 +21,7 @@ import { DrizzleVoteStore } from '../review/drizzle-vote-store.js';
 import { DrizzleRecordingStore } from '../audio/drizzle-recording-store.js';
 import { DrizzleMorphologyRepository } from '../morphology/drizzle-morphology-repository.js';
 import { importMorphologyArtifact } from '../morphology/import-morphology.js';
+import { DrizzleExport } from '../export/drizzle-export.js';
 
 let container: StartedPostgreSqlContainer;
 let db: Db;
@@ -57,6 +63,7 @@ const artifact = {
       id: '5a4b3c2d-1e0f-4a9b-8c7d-6e5f4a3b2c1d',
       kind: 'phrase',
       text: 'dobry denj',
+      pos: 'phrase',
       translations: [{ lang: 'en', text: 'good day' }],
       notes: [],
       provenance: {
@@ -424,5 +431,126 @@ describe('DrizzleMorphologyRepository through importMorphologyArtifact', () => {
       await repository.formsFor('00000000-0000-4000-8000-00000000dead'),
     ).toEqual([]);
     await repository.replaceForItems([]);
+  });
+});
+
+describe('DrizzleExport', () => {
+  const vodaId = '3e2d8f0a-4b1c-4f6e-9a7d-1c2b3a4d5e6f';
+  const phraseId = '5a4b3c2d-1e0f-4a9b-8c7d-6e5f4a3b2c1d';
+  const sentenceId = '9b8a7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d';
+
+  it('exports every item so our own importer accepts it back', async () => {
+    const exporter = new DrizzleExport(db);
+    const exported = await exporter.allItems();
+    expect(exported.map((item) => item.text)).toEqual([
+      'voda',
+      'dobry denj',
+      'Voda je čista.',
+    ]);
+    expect(exported[0]?.pos).toBe('noun');
+    expect(exported[0]?.posDetail).toBe('f.');
+    expect(exported[2]?.translations).toHaveLength(2);
+    expect(exported[2]?.notes).toEqual([
+      { sourceLang: 'pl', text: 'čista ≈ czysta' },
+    ]);
+    const roundTrip = parseContentArtifact({
+      schemaVersion: 1,
+      createdAt: '2026-07-18T00:00:00Z',
+      producer: { name: 'govori-api', version: '1' },
+      items: exported,
+    });
+    expect(roundTrip.items).toHaveLength(3);
+  });
+
+  it('exports the live course as a curriculum artifact, dialogue included', async () => {
+    const repository = new DrizzleItemRepository(db);
+    const course = new DrizzleCourse(db, repository);
+    await course.replaceCurriculum({
+      schemaVersion: 1,
+      createdAt: '2026-07-18T00:00:00Z',
+      producer: { name: 'test', version: '0.0.1' },
+      units: [
+        {
+          title: 'Jedinica 1',
+          lessons: [
+            {
+              title: 'Lekcija 1',
+              itemIds: [sentenceId, vodaId],
+              dialogue: {
+                turns: [
+                  {
+                    speaker: 'Mila',
+                    text: 'Dobry denj!',
+                    translation: 'Good day!',
+                  },
+                ],
+                provenance: {
+                  origin: 'human',
+                  contributorId: 'u-author',
+                },
+              },
+            },
+            { title: 'Lekcija 2', itemIds: [phraseId] },
+          ],
+        },
+      ],
+    });
+    const exporter = new DrizzleExport(db);
+    const units = await exporter.curriculumUnits();
+    const roundTrip = parseCurriculumArtifact({
+      schemaVersion: 1,
+      createdAt: '2026-07-18T00:00:00Z',
+      producer: { name: 'govori-api', version: '1' },
+      units,
+    });
+    expect(roundTrip.units).toHaveLength(1);
+    expect(roundTrip.units[0]?.lessons.map((lesson) => lesson.title)).toEqual([
+      'Lekcija 1',
+      'Lekcija 2',
+    ]);
+    expect(roundTrip.units[0]?.lessons[0]?.itemIds).toEqual([
+      sentenceId,
+      vodaId,
+    ]);
+    expect(roundTrip.units[0]?.lessons[0]?.dialogue?.turns[0]?.speaker).toBe(
+      'Mila',
+    );
+    expect(roundTrip.units[0]?.lessons[1]?.dialogue).toBeUndefined();
+  });
+
+  it('exports only drillable paradigms as a morphology artifact', async () => {
+    const morphologyRepository = new DrizzleMorphologyRepository(db);
+    // A formful item without a part of speech and a one-form paradigm
+    // cannot appear in a valid artifact; the exporter must skip both.
+    await morphologyRepository.replaceForItems([
+      {
+        itemId: phraseId,
+        pos: 'phrase',
+        forms: [{ tag: 'only', text: 'dobry denj' }],
+      },
+      {
+        itemId: sentenceId,
+        pos: 'phrase',
+        forms: [
+          { tag: 'a', text: 'Voda je čista.' },
+          { tag: 'b', text: 'Vody sųt čisty.' },
+        ],
+      },
+    ]);
+    const exporter = new DrizzleExport(db);
+    const entries = await exporter.morphologyEntries();
+    const roundTrip = parseMorphologyArtifact({
+      schemaVersion: 1,
+      createdAt: '2026-07-18T00:00:00Z',
+      producer: { name: 'govori-api', version: '1' },
+      entries,
+    });
+    // Only voda both carries a pos and keeps a two-form paradigm.
+    expect(roundTrip.entries.map((entry) => entry.itemId)).toEqual([vodaId]);
+    expect(roundTrip.entries[0]?.pos).toBe('noun');
+    expect(roundTrip.entries[0]?.forms).toEqual([
+      { tag: 'sg.dat', text: 'vodě' },
+      { tag: 'sg.nom', text: 'voda' },
+    ]);
   });
 });

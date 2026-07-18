@@ -14,6 +14,7 @@ import { DrizzleReviewQueue } from './review/drizzle-review-queue.js';
 import { DrizzleVoteStore } from './review/drizzle-vote-store.js';
 import { DrizzleRecordingStore } from './audio/drizzle-recording-store.js';
 import { DrizzleMorphologyRepository } from './morphology/drizzle-morphology-repository.js';
+import { DrizzleExport } from './export/drizzle-export.js';
 
 // Composition root: the only place that touches process state (ADR 0024).
 const config = loadConfig(process.env);
@@ -39,6 +40,7 @@ const app = buildApp({
   itemWriter: itemRepository,
   recordings: new DrizzleRecordingStore(db),
   morphology: new DrizzleMorphologyRepository(db),
+  openData: new DrizzleExport(db),
 });
 
 try {

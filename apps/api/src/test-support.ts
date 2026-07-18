@@ -66,6 +66,11 @@ export function makeTestDeps(
     morphology: {
       formsFor: () => Promise.resolve([]),
     },
+    openData: {
+      allItems: () => Promise.resolve([]),
+      curriculumUnits: () => Promise.resolve([]),
+      morphologyEntries: () => Promise.resolve([]),
+    },
     ...overrides,
   };
 }
