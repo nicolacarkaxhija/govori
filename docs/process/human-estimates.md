@@ -227,4 +227,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | fix: hand the web preview its instance during e2e | 0.25 | vite preview loads vite.config, which fails fast without VITE_INSTANCE; the e2e bootstrap now sets it explicitly — full 4-spec suite green over the instance seam |
 
+| 2026-07-18 | feat: add the standard albanian language pack | 2–2.5 | @glotty/pack-sq: canonical validator mirroring the proven forge orthography (36-letter alphabet as a 27-character class), NFD-fold normalize, min-3 stem, single identity Latin script with hasScriptChoice false; four suites incl. fast-check invariants, 100% branch, 97.1 mutation |
+
 **Running total: 221.2–281.7 h**
