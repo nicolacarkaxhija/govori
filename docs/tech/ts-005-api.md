@@ -12,7 +12,7 @@ App: `apps/api` (`@glotty/api`). Fastify 5 over the domain packages.
 
 - `buildApp(deps)` — the HTTP adapter, pure of process state: config and
   ports arrive by injection; tests inject requests without binding a port.
-- `main.ts` — the only composition root: loads config from env (`GOVORI_`
+- `main.ts` — the only composition root: loads config from env (`GLOTTY_`
   prefix), creates the Drizzle client, runs migrations, wires adapters.
 - `import-cli.ts` — the seeding entry (ADR 0037): re-validates a content
   artifact and imports it idempotently. Verified end to end against live

@@ -12,15 +12,15 @@ describe('loadConfig', () => {
 
   it('lets environment variables override defaults through the prefix', () => {
     const config = loadConfig({
-      GOVORI_SERVER__PORT: '8080',
-      GOVORI_BRAND__SHORT_NAME: 'Hajde',
+      GLOTTY_SERVER__PORT: '8080',
+      GLOTTY_BRAND__SHORT_NAME: 'Hajde',
     });
     expect(config.server.port).toBe(8080);
     expect(config.brand.shortName).toBe('Hajde');
   });
 
   it('fails at boot on invalid values', () => {
-    expect(() => loadConfig({ GOVORI_SERVER__PORT: 'not-a-port' })).toThrow(
+    expect(() => loadConfig({ GLOTTY_SERVER__PORT: 'not-a-port' })).toThrow(
       ConfigError,
     );
   });

@@ -70,7 +70,7 @@ function camelize(segment: string): string {
 
 /**
  * Reads prefixed environment variables into a nested partial config source:
- * `GOVORI_SERVER__PORT=8080` → `{ server: { port: '8080' } }`; single
+ * `GLOTTY_SERVER__PORT=8080` → `{ server: { port: '8080' } }`; single
  * underscores camelize (`BRAND__SHORT_NAME` → `brand.shortName`). Values
  * stay strings; the schema's coercion is the single place types are decided.
  */

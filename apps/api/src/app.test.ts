@@ -48,7 +48,7 @@ describe('buildApp', () => {
 
   it('exposes the instance brand for the client shell', async () => {
     const app = buildApp(
-      makeTestDeps({}, { GOVORI_BRAND__SHORT_NAME: 'Hajde' }),
+      makeTestDeps({}, { GLOTTY_BRAND__SHORT_NAME: 'Hajde' }),
     );
     const response = await app.inject({ method: 'GET', url: '/meta' });
     expect(response.statusCode).toBe(200);
@@ -67,7 +67,7 @@ describe('cors', () => {
     const app = buildApp(
       makeTestDeps(
         {},
-        { GOVORI_SERVER__CORS_ORIGINS: 'http://localhost:53200' },
+        { GLOTTY_SERVER__CORS_ORIGINS: 'http://localhost:53200' },
       ),
     );
     const response = await app.inject({

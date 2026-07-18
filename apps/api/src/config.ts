@@ -49,9 +49,9 @@ const defaults = {
 };
 
 /**
- * Composition-root helper: defaults overridden by `GOVORI_`-prefixed
+ * Composition-root helper: defaults overridden by `GLOTTY_`-prefixed
  * environment variables. Fails fast on anything invalid.
  */
 export function loadConfig(env: Readonly<Record<string, string | undefined>>) {
-  return buildConfig(configSchema, [defaults, envSource(env, 'GOVORI_')]);
+  return buildConfig(configSchema, [defaults, envSource(env, 'GLOTTY_')]);
 }

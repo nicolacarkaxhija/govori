@@ -6,11 +6,11 @@ describe('envSource', () => {
     expect(
       envSource(
         {
-          GOVORI_SERVER__PORT: '8080',
-          GOVORI_BRAND__SHORT_NAME: 'Govori',
+          GLOTTY_SERVER__PORT: '8080',
+          GLOTTY_BRAND__SHORT_NAME: 'Govori',
           UNRELATED: 'ignored',
         },
-        'GOVORI_',
+        'GLOTTY_',
       ),
     ).toEqual({
       server: { port: '8080' },
@@ -21,18 +21,18 @@ describe('envSource', () => {
   it('merges sibling variables under one section', () => {
     expect(
       envSource(
-        { GOVORI_DB__HOST: 'localhost', GOVORI_DB__PORT: '5432' },
-        'GOVORI_',
+        { GLOTTY_DB__HOST: 'localhost', GLOTTY_DB__PORT: '5432' },
+        'GLOTTY_',
       ),
     ).toEqual({ db: { host: 'localhost', port: '5432' } });
   });
 
   it('returns an empty object when nothing matches the prefix', () => {
-    expect(envSource({ PATH: '/usr/bin' }, 'GOVORI_')).toEqual({});
+    expect(envSource({ PATH: '/usr/bin' }, 'GLOTTY_')).toEqual({});
   });
 
   it('ignores variables with undefined values', () => {
-    expect(envSource({ GOVORI_SERVER__PORT: undefined }, 'GOVORI_')).toEqual(
+    expect(envSource({ GLOTTY_SERVER__PORT: undefined }, 'GLOTTY_')).toEqual(
       {},
     );
   });

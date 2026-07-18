@@ -16,7 +16,7 @@ on zod.
   deeply frozen typed object. Invalid config throws `ConfigError` with the
   offending path — the process fails at boot, never at request time.
 - `envSource(env, prefix)` — reads prefixed environment variables into a
-  nested partial (`GOVORI_SERVER__PORT` → `{ server: { port: '8080' } }`).
+  nested partial (`GLOTTY_SERVER__PORT` → `{ server: { port: '8080' } }`).
   Values stay strings; schema coercion is the single place types are decided.
 - `defineFlags(definitions)` — validates the flag dependency graph at
   definition time: unknown requirements and cycles are boot failures.

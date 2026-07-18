@@ -30,7 +30,7 @@ export default async function globalSetup() {
   execFileSync(
     process.execPath,
     [join(api, 'dist', 'import-cli.js'), join(root, 'e2e', 'seed.json')],
-    { env: { ...process.env, GOVORI_DB__URL: dbUrl }, stdio: 'inherit' },
+    { env: { ...process.env, GLOTTY_DB__URL: dbUrl }, stdio: 'inherit' },
   );
   execFileSync(
     process.execPath,
@@ -39,15 +39,15 @@ export default async function globalSetup() {
       '--curriculum',
       join(root, 'e2e', 'seed-curriculum.json'),
     ],
-    { env: { ...process.env, GOVORI_DB__URL: dbUrl }, stdio: 'inherit' },
+    { env: { ...process.env, GLOTTY_DB__URL: dbUrl }, stdio: 'inherit' },
   );
 
   const apiProcess = spawn(process.execPath, [join(api, 'dist', 'main.js')], {
     env: {
       ...process.env,
-      GOVORI_DB__URL: dbUrl,
-      GOVORI_SERVER__PORT: '53150',
-      GOVORI_SERVER__CORS_ORIGINS: 'http://127.0.0.1:53250',
+      GLOTTY_DB__URL: dbUrl,
+      GLOTTY_SERVER__PORT: '53150',
+      GLOTTY_SERVER__CORS_ORIGINS: 'http://127.0.0.1:53250',
     },
     stdio: 'inherit',
     detached: false,

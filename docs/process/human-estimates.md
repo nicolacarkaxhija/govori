@@ -215,4 +215,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | feat: hide the script choice when the pack has none | 1–1.5 | scriptCount on RoundContext with a planner guard and an all-modes never-script test, toggle rendered only under hasScriptChoice, single-script instance test via a mocked entry point |
 
+| 2026-07-18 | refactor: rename the config env prefix to glotty | 0.5 | GOVORI_→GLOTTY_ across the api config seam, compose, e2e bootstrap, config-package samples, and the tech specs |
+
 **Running total: 221.2–281.7 h**

@@ -17,7 +17,7 @@ origin, Postgres alongside.
 - `apps/web/Dockerfile` — Vite build handed to `caddy:2-alpine` with
   `deploy/Caddyfile`.
 - `deploy/compose.prod.yml` — `db` (healthcheck-gated volume-backed
-  Postgres), `api` (env-wired: `GOVORI_DB__URL`, `GOVORI_AUTH__SECRET`
+  Postgres), `api` (env-wired: `GLOTTY_DB__URL`, `GLOTTY_AUTH__SECRET`
   required, public URL for base/CORS), `web` (Caddy, ports 8080/8443).
 
 ## One origin (ADR 0027)
