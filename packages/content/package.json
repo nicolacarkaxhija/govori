@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "zod": "catalog:",
-    "@glotty/transliteration-isv": "workspace:*"
+    "@glotty/pack-isv": "workspace:*"
   },
   "devDependencies": {
     "@stryker-mutator/core": "catalog:",

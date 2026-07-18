@@ -206,9 +206,9 @@ importers:
 
   packages/content:
     dependencies:
-      '@glotty/transliteration-isv':
+      '@glotty/pack-isv':
         specifier: workspace:*
-        version: link:../../packs/transliteration-isv
+        version: link:../../packs/isv
       zod:
         specifier: 'catalog:'
         version: 4.4.3

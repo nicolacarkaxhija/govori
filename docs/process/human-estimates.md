@@ -201,4 +201,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | feat: ship the interslavic language pack | 1–1.5 | @glotty/pack-isv implementing the contract over the transliteration engine, loose stem promoted from the web app, script-variant factory to keep mutants observable, 100% mutation |
 
+| 2026-07-18 | refactor: decouple content schemas from interslavic orthography | 2.5–3 | makeContentSchemas factory binding parsers to an injected canonical validator, shared parserFor with unchanged ArtifactError semantics, deprecated ISV-bound forge wrappers in their own module to break the import cycle, mutation suite hardened 76→98 |
+
 **Running total: 221.2–281.7 h**
