@@ -179,4 +179,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: add a script drill to the lesson rotation | 2–2.5 | Latin↔Cyrillic transcription card with normalize-tolerant checking, one-per-lesson planner slot after the first sentence round, catalog keys, planner and UI rotation tests |
 
+| 2026-07-17 | refactor: extract the exercise session from the lesson view | 1–1.5 | Session component owning rotation, grading, and cards over a ready pool; lesson view reduced to loading, dialogue, and handoff — groundwork for the practice hub |
+
 **Running total: 198.7–252.2 h**
