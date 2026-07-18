@@ -170,4 +170,4 @@ developer working alone. Appended in the same commit it describes.
 | 2026-07-18 | feat: serve item forms | 0.5–1 | Read port wired through the dependency seam and composition root, GET /items/:id/forms with empty-list semantics for unknown items, four-path route test including the OpenAPI surface |
 | 2026-07-18 | feat: publish the open data export | 2.5–3 | Three public CC BY-SA endpoints emitting importer-shaped artifacts, bulk-read adapter with map grouping sized for 250k translations, empty-pool 404 semantics, round-trip tests through the shared parsers at both the route and real-Postgres layers |
 
-**Running total: 193.7–245.7 h**
+**Running total: 198.7–252.2 h**
