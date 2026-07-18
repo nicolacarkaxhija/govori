@@ -178,6 +178,33 @@ export interface Assembly {
 }
 
 /**
+ * A scrambled ordering of 0..length-1: Fisher–Yates with the first pair
+ * nudged apart if shuffling lands on the sorted order, so reordering
+ * exercises never start solved. Sizes below two return the identity.
+ */
+export function scrambleOrder(
+  length: number,
+  random: () => number = Math.random,
+): number[] {
+  const order = Array.from({ length }, (unused, index) => index);
+  const swap = (a: number, b: number) => {
+    const left = order[a];
+    const right = order[b];
+    if (left !== undefined && right !== undefined) {
+      order[a] = right;
+      order[b] = left;
+    }
+  };
+  for (let i = length - 1; i > 0; i -= 1) {
+    swap(i, Math.floor(random() * (i + 1)));
+  }
+  if (length >= 2 && order.every((value, index) => value === index)) {
+    swap(0, 1);
+  }
+  return order;
+}
+
+/**
  * Sentence assembly (ADR 0005): reorder shuffled words. Null when the
  * sentence is too short for reordering to mean anything.
  */
@@ -190,23 +217,10 @@ export function buildAssembly(
   if (answer.length < 3) {
     return null;
   }
-  const tokens = [...answer];
-  // Fisher–Yates; nudge the first pair apart if shuffling lands on the
-  // original order, so the exercise never starts solved.
-  const swap = (a: number, b: number) => {
-    const left = tokens[a];
-    const right = tokens[b];
-    if (left !== undefined && right !== undefined) {
-      tokens[a] = right;
-      tokens[b] = left;
-    }
-  };
-  for (let i = tokens.length - 1; i > 0; i -= 1) {
-    swap(i, Math.floor(random() * (i + 1)));
-  }
-  if (tokens.every((token, index) => token === answer[index])) {
-    swap(0, 1);
-  }
+  const tokens = scrambleOrder(answer.length, random).flatMap((index) => {
+    const token = answer[index];
+    return token === undefined ? [] : [token];
+  });
   return {
     itemId: sentence.id,
     tokens,

@@ -165,6 +165,60 @@ describe('LessonView dialogue intro', () => {
   });
 });
 
+describe('LessonView dialogue reordering', () => {
+  const lessonId = '9c8d7e6f-5a4b-4c3d-8e2f-1a0b9c8d7e6f';
+  const dialogue = {
+    turns: [
+      { speaker: 'Ana', text: 'Dobry denj!', translation: 'Good day!' },
+      { speaker: 'Boris', text: 'Kako se maješ?', translation: 'How?' },
+    ],
+    provenance: { origin: 'ai-draft' },
+  };
+
+  beforeEach(() => {
+    localStorage.clear();
+    fetchLessonMock.mockReset().mockResolvedValue({
+      title: 'Lekcija 1',
+      items,
+      dialogue,
+    });
+    fetchSentencesMock.mockReset().mockResolvedValue([]);
+    fetchFlagsMock.mockReset().mockResolvedValue({});
+    fetchRecordingsMock.mockReset().mockResolvedValue([]);
+  });
+
+  it('marks the dialogue seen when the scene is dismissed', async () => {
+    const user = userEvent.setup();
+    render(<LessonView lessonId={lessonId} script="latin" onExit={vi.fn()} />);
+    await user.click(
+      await screen.findByRole('button', { name: 'Start the exercises' }),
+    );
+    const { hasSeenDialogue } = await import('./dialogueSeen');
+    expect(hasSeenDialogue(lessonId)).toBe(true);
+  });
+
+  it('offers reordering on a return visit and credits the first item', async () => {
+    const { markDialogueSeen } = await import('./dialogueSeen');
+    markDialogueSeen(lessonId);
+    const user = userEvent.setup();
+    render(<LessonView lessonId={lessonId} script="latin" onExit={vi.fn()} />);
+    expect(await screen.findByText('Rebuild the dialogue')).toBeDefined();
+    await user.click(screen.getByRole('button', { name: /Dobry denj/ }));
+    await user.click(screen.getByRole('button', { name: /Kako se maješ/ }));
+    await user.click(screen.getByRole('button', { name: 'Check' }));
+    expect(screen.getByText(/Pravilno/)).toBeDefined();
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    // The credited first item is scheduled away; the session moves on.
+    expect(await screen.findByRole('heading', { name: 'hlěb' })).toBeDefined();
+    const { loadEvents } = await import('./progress');
+    expect(
+      loadEvents().some(
+        (event) => event.itemId === items[0]?.id && event.grade === 'good',
+      ),
+    ).toBe(true);
+  });
+});
+
 describe('LessonView community audio', () => {
   beforeEach(() => {
     localStorage.clear();

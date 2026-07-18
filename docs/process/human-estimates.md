@@ -185,4 +185,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: add a timed speed review over matching boards | 2.5–3 | 30-second countdown with reduced-motion-aware bar, boards-cleared score over normally recorded grades, fake-timer suite incl. diagnosing the testing-library jest-global timer bridge |
 
+| 2026-07-17 | feat: reorder seen dialogues instead of replaying them | 2.5–3 | scrambleOrder extracted and reused by assembly, per-lesson seen flags, tap-to-order dialogue card with pragmatic first-item credit, first-visit/return-visit lesson flow tests |
+
 **Running total: 198.7–252.2 h**

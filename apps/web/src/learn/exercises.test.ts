@@ -8,6 +8,7 @@ import {
   buildReverseChoices,
   checkTyped,
   planNextMode,
+  scrambleOrder,
   translationFor,
 } from './exercises';
 
@@ -313,6 +314,25 @@ describe('buildAssembly', () => {
     expect(
       buildAssembly({ ...sentence, text: 'Dobry denj.' }, 'en', () => 0.5),
     ).toBeNull();
+  });
+});
+
+describe('scrambleOrder', () => {
+  it('permutes every index and never starts solved', () => {
+    for (const seed of [0.1, 0.35, 0.5, 0.75, 0.9]) {
+      const order = scrambleOrder(4, () => seed);
+      expect(order.toSorted((a, b) => a - b)).toEqual([0, 1, 2, 3]);
+      expect(order).not.toEqual([0, 1, 2, 3]);
+    }
+  });
+
+  it('is deterministic for a fixed random source', () => {
+    expect(scrambleOrder(5, () => 0.42)).toEqual(scrambleOrder(5, () => 0.42));
+  });
+
+  it('handles the degenerate sizes', () => {
+    expect(scrambleOrder(0, () => 0.5)).toEqual([]);
+    expect(scrambleOrder(1, () => 0.5)).toEqual([0]);
   });
 });
 

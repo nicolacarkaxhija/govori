@@ -8,7 +8,10 @@ import {
 } from '../api/client';
 import { useT } from '../i18n';
 import { DialogueCard } from './DialogueCard';
+import { DialogueReorderCard } from './DialogueReorderCard';
 import { Session } from './Session';
+import { hasSeenDialogue, markDialogueSeen } from './dialogueSeen';
+import { recordReview } from './progress';
 import type { Script } from './useScript';
 
 export interface LessonViewProps {
@@ -95,15 +98,32 @@ export function LessonView({
       {state.name === 'unreachable' && (
         <p className="lesson-note">{t('unreachable')}</p>
       )}
-      {state.name === 'ready' && intro !== null && (
-        <DialogueCard
-          dialogue={intro}
-          script={script}
-          onContinue={() => {
-            setIntro(null);
-          }}
-        />
-      )}
+      {state.name === 'ready' &&
+        intro !== null &&
+        (hasSeenDialogue(lessonId) && intro.turns.length >= 2 ? (
+          <DialogueReorderCard
+            dialogue={intro}
+            script={script}
+            onDone={(correct) => {
+              // Pragmatic credit (ADR 0005): a rebuilt scene reviews the
+              // lesson's opening item.
+              const first = state.pool[0];
+              if (correct && first !== undefined) {
+                recordReview(first.id, 'good');
+              }
+              setIntro(null);
+            }}
+          />
+        ) : (
+          <DialogueCard
+            dialogue={intro}
+            script={script}
+            onContinue={() => {
+              markDialogueSeen(lessonId);
+              setIntro(null);
+            }}
+          />
+        ))}
     </div>
   );
 }
