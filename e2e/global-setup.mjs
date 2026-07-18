@@ -72,7 +72,13 @@ export default async function globalSetup() {
       '--host',
       '127.0.0.1',
     ],
-    { cwd: web, stdio: 'inherit', shell: process.platform === 'win32' },
+    {
+      cwd: web,
+      // vite.config resolves the instance even in preview (ADR 0029).
+      env: { ...process.env, VITE_INSTANCE: 'govori' },
+      stdio: 'inherit',
+      shell: process.platform === 'win32',
+    },
   );
 
   await waitFor('http://127.0.0.1:53150/health');

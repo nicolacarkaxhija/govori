@@ -225,4 +225,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | refactor: purge language-named identifiers from engine strings | 0.5–1 | interslavicAria/isvLabel catalog keys renamed to target-language terms, engine comments reworded, catalogs re-sorted with the parity gate |
 
+| 2026-07-18 | fix: hand the web preview its instance during e2e | 0.25 | vite preview loads vite.config, which fails fast without VITE_INSTANCE; the e2e bootstrap now sets it explicitly — full 4-spec suite green over the instance seam |
+
 **Running total: 221.2–281.7 h**
