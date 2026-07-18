@@ -9,14 +9,17 @@ import { ExerciseCard } from './ExerciseCard';
 import { ListeningCard } from './ListeningCard';
 import { MatchingCard } from './MatchingCard';
 import { MorphologyCard } from './MorphologyCard';
+import { ProductionCard } from './ProductionCard';
 import { ScriptCard } from './ScriptCard';
 import {
   buildAssembly,
   buildCloze,
+  buildProduction,
   planNextMode,
   type Assembly,
   type Cloze,
   type ExerciseMode,
+  type Production,
 } from './exercises';
 import { nextItemId, recordReview, streakDays } from './progress';
 import type { Script } from './useScript';
@@ -58,9 +61,11 @@ export function Session({
   const [answered, setAnswered] = useState(0);
   const [cloze, setCloze] = useState<Cloze | null>(null);
   const [assembly, setAssembly] = useState<Assembly | null>(null);
+  const [production, setProduction] = useState<Production | null>(null);
   const [sentenceRounds, setSentenceRounds] = useState(0);
   const [scriptRounds, setScriptRounds] = useState(0);
   const [morphologyRounds, setMorphologyRounds] = useState(0);
+  const [productionRounds, setProductionRounds] = useState(0);
 
   const advance = () => {
     setPhase(phaseFor(pool));
@@ -101,6 +106,11 @@ export function Session({
   const nextMode = (current: ExerciseMode): ExerciseMode => {
     const builtCloze = makeCloze();
     const builtAssembly = makeAssembly();
+    const builtProduction = buildProduction(
+      pool,
+      learnLang,
+      instance.fallbackTranslationLang,
+    );
     const next = planNextMode(current, {
       poolSize: pool.length,
       hasCloze: builtCloze !== null,
@@ -110,9 +120,12 @@ export function Session({
       scriptRounds,
       scriptCount: pack.scripts.length,
       morphologyRounds,
+      productionRounds,
+      hasProduction: builtProduction !== null,
     });
     setCloze(next === 'cloze' ? builtCloze : null);
     setAssembly(next === 'assembly' ? builtAssembly : null);
+    setProduction(next === 'production' ? builtProduction : null);
     return next;
   };
 
@@ -120,7 +133,7 @@ export function Session({
   // entering one defers the due-item advance until it is answered.
   const proceed = (next: ExerciseMode) => {
     setMode(next);
-    if (next !== 'cloze' && next !== 'assembly') {
+    if (next !== 'cloze' && next !== 'assembly' && next !== 'production') {
       advance();
     }
   };
@@ -151,6 +164,15 @@ export function Session({
     setAnswered((count) => count + 1);
     setMorphologyRounds((count) => count + 1);
     proceed(nextMode('morphology'));
+  };
+
+  const gradeProduction = (built: Production) => (value: Grade) => {
+    for (const word of built.words) {
+      recordReview(word.itemId, value);
+    }
+    setAnswered((count) => count + 1);
+    setProductionRounds((count) => count + 1);
+    proceed(nextMode('production'));
   };
 
   const gradeScript = (item: LearnItem) => (value: Grade) => {
@@ -216,6 +238,17 @@ export function Session({
             assembly={assembly}
             script={script}
             onGrade={gradeAssembly(assembly)}
+          />
+        )}
+      {phase.name === 'exercise' &&
+        mode === 'production' &&
+        production !== null && (
+          <ProductionCard
+            key={'production' + String(answered)}
+            production={production}
+            script={script}
+            lang={learnLang}
+            onGrade={gradeProduction(production)}
           />
         )}
       {phase.name === 'exercise' && mode === 'script' && (

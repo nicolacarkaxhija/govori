@@ -236,13 +236,10 @@ developer working alone. Appended in the same commit it describes.
 | 2026-07-18 | docs: charter the fol instance | 0.5–1 | ADR 0044 recording Fol's chartered decisions — diaspora-first audience, Standard canon with Gheg contrastive notes, kaikki/Tatoeba CC sources with GPL-as-tool, audio dark with a pre-committed flip, Fol/Alba/Alo naming poll, freemium reserved to Fol's own charter — plus registry row |
 
 | 2026-07-18 | feat: resolve feature flags from the viewer's role | 1.5–2 | resolveFlags in @glotty/config became viewer-aware — flags carry a target ring (all/reviewer/admin), effectiveness now also demands the viewer's ring reach the flag's and rings propagate through requirements; rank-based ring check keeps the branch count flat; suite reworked to the {enabled,targetRole}+viewerRole shape at 100% branch |
-
 | 2026-07-18 | feat: target feature flags by viewer role | 2.5–3 | flag_states/flag_audit gained a target_role ring (drizzle migration 0011, generated clean); the flag store reads/writes it and preserves the ring across a plain on/off flip while auditing the resulting ring; GET /flags now resolves per session role (anonymous without one); PUT /admin/flags/:key takes an optional targetRole; every flag-store stub and the integration suite moved to the {enabled,targetRole} shape; api 98.3/92.4 |
-
 | 2026-07-18 | feat: make the community publish threshold instance config | 1–1.5 | InstanceConfig gained communityPublishNetVotes (govori 3, fol 5); the vote route reads it off the resolved instance handed to buildApp instead of a shared ports constant, which was removed; both thresholds covered via a makeTestDeps instance override; ADR 0040 records thresholds as instance config; language stays 100% branch, api 98.3/92.4 |
-
 | 2026-07-18 | fix: steady the lighthouse gate with a three-run median | 0.2 | Single-run performance scores swing on shared runners; median-of-three removes the flake without loosening the bar |
-
 | 2026-07-18 | docs: draft the launch outreach letters | 0.5–1 | Committee letter, founding-reviewer and bilingual founding-voter invites, sending checklist — stage-1 of the marketing ladder |
+| 2026-07-18 | feat: add a free-production exercise round | 2–3 | ProductionCard where the learner writes an original sentence using 2–3 due pool words; pure buildProduction picker and checkProduction (canonical + stem-containment of every word) tested against the isv pack; planNextMode gains one production round per session after morphology, wired through the Session with per-word grading; optional signed-in submit-to-review via contribute; six catalog keys across both instances' seven catalogs |
 
 **Running total: 257.1–329.7 h**

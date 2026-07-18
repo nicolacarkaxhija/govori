@@ -6,7 +6,9 @@ import {
   buildChoices,
   buildCloze,
   buildMatching,
+  buildProduction,
   buildReverseChoices,
+  checkProduction,
   checkTyped,
   planNextMode,
   scrambleOrder,
@@ -370,6 +372,8 @@ describe('planNextMode', () => {
     scriptRounds: 1,
     scriptCount: 2,
     morphologyRounds: 0,
+    productionRounds: 1,
+    hasProduction: false,
   };
 
   it('never deals a script round when the pack has a single script', () => {
@@ -471,6 +475,8 @@ describe('planNextMode morphology round', () => {
     scriptRounds: 1,
     scriptCount: 2,
     morphologyRounds: 0,
+    productionRounds: 1,
+    hasProduction: false,
   };
 
   it('slots one morphology round after the reverse pass', () => {
@@ -479,5 +485,86 @@ describe('planNextMode morphology round', () => {
       'choices',
     );
     expect(planNextMode('morphology', base)).toBe('choices');
+  });
+});
+
+describe('planNextMode production round', () => {
+  const base = {
+    poolSize: 3,
+    hasCloze: false,
+    hasAssembly: false,
+    audioOn: false,
+    sentenceRounds: 0,
+    scriptRounds: 1,
+    scriptCount: 2,
+    morphologyRounds: 1,
+    productionRounds: 0,
+    hasProduction: true,
+  };
+
+  it('slots one production round after morphology when the pool allows', () => {
+    expect(planNextMode('morphology', base)).toBe('production');
+    expect(planNextMode('morphology', { ...base, hasProduction: false })).toBe(
+      'choices',
+    );
+    expect(planNextMode('morphology', { ...base, productionRounds: 1 })).toBe(
+      'choices',
+    );
+  });
+
+  it('reaches production straight from the reverse pass once morphology is spent', () => {
+    expect(planNextMode('reverseTyped', base)).toBe('production');
+    expect(planNextMode('reverseTyped', { ...base, morphologyRounds: 0 })).toBe(
+      'morphology',
+    );
+  });
+
+  it('returns to recognition after the production round', () => {
+    expect(planNextMode('production', base)).toBe('choices');
+  });
+});
+
+describe('buildProduction', () => {
+  it('picks three due words when the pool is rich enough', () => {
+    const built = buildProduction(items, 'en', 'en', () => 0);
+    expect(built).not.toBeNull();
+    expect(built?.words).toHaveLength(3);
+    expect(built?.words[0]?.translation.length).toBeGreaterThan(0);
+  });
+
+  it('picks two words from a two-word pool', () => {
+    const built = buildProduction(items.slice(0, 2), 'en', 'en', () => 0);
+    expect(built?.words).toHaveLength(2);
+  });
+
+  it('returns null when the pool cannot spare two words', () => {
+    expect(buildProduction(items.slice(0, 1), 'en', 'en')).toBeNull();
+  });
+});
+
+describe('checkProduction', () => {
+  const words = [
+    { itemId: '1', text: 'voda', translation: 'water' },
+    { itemId: '2', text: 'hlěb', translation: 'bread' },
+  ];
+
+  it('passes canonical text that uses every prompted word', () => {
+    expect(checkProduction(pack, 'voda i hlěb', words)).toBe(true);
+  });
+
+  it('matches inflected forms by stem', () => {
+    expect(checkProduction(pack, 'vodou s hlěbom', words)).toBe(true);
+  });
+
+  it('fails when a prompted word is missing', () => {
+    expect(checkProduction(pack, 'voda', words)).toBe(false);
+  });
+
+  it('fails non-canonical text before checking words', () => {
+    expect(checkProduction(pack, 'вода и хлеб', words)).toBe(false);
+  });
+
+  it('fails empty input', () => {
+    expect(checkProduction(pack, '   ', words)).toBe(false);
   });
 });

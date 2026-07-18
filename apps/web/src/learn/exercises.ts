@@ -2,7 +2,10 @@ import type { LanguagePack } from '@glotty/language';
 import type { LearnItem } from '../api/client';
 
 /** The language judgment calls exercises delegate to the pack. */
-export type ExercisePack = Pick<LanguagePack, 'normalize' | 'stem'>;
+export type ExercisePack = Pick<
+  LanguagePack,
+  'normalize' | 'stem' | 'validateCanonical'
+>;
 
 /**
  * The translation an item shows a learner whose language is `lang`
@@ -246,6 +249,72 @@ export function buildAssembly(
   };
 }
 
+/** One pool word a production round asks the learner to use. */
+export interface ProductionWord {
+  itemId: string;
+  /** The word's canonical text, for stem matching and display. */
+  text: string;
+  translation: string;
+}
+
+export interface Production {
+  /** The 2–3 due pool words the learner must weave into a sentence. */
+  words: ProductionWord[];
+}
+
+/**
+ * A free-production round (ADR 0045): pick 2–3 due pool words the learner
+ * must use in a sentence of their own. Deterministic under `random`; null
+ * when the pool cannot spare at least two usable words.
+ */
+export function buildProduction(
+  pool: readonly LearnItem[],
+  lang: string,
+  fallbackLang: string,
+  random: () => number = Math.random,
+): Production | null {
+  const usable = pool.filter((item) => item.text !== '');
+  if (usable.length < 2) {
+    return null;
+  }
+  const target = usable.length >= 3 ? 3 : 2;
+  const remaining = [...usable];
+  const picked: LearnItem[] = [];
+  while (picked.length < target && remaining.length > 0) {
+    const index = Math.floor(random() * remaining.length);
+    picked.push(...remaining.splice(index, 1));
+  }
+  return {
+    words: picked.map((item) => ({
+      itemId: item.id,
+      text: item.text,
+      translation: translationFor(item, lang, fallbackLang),
+    })),
+  };
+}
+
+/**
+ * A production answer passes when the whole sentence is canonical and
+ * every prompted word appears, matched by the same loose stem/containment
+ * the cloze round uses (ADR 0045). Empty input never passes.
+ */
+export function checkProduction(
+  pack: ExercisePack,
+  text: string,
+  words: readonly ProductionWord[],
+): boolean {
+  if (!pack.validateCanonical(text.trim())) {
+    return false;
+  }
+  const tokens = [...text.matchAll(/[\p{L}́]+/gu)].map((hit) =>
+    pack.normalize(hit[0]),
+  );
+  return words.every((word) => {
+    const stem = pack.stem(word.text);
+    return tokens.some((token) => token.startsWith(stem));
+  });
+}
+
 export type ExerciseMode =
   | 'choices'
   | 'typed'
@@ -256,7 +325,8 @@ export type ExerciseMode =
   | 'reverseChoices'
   | 'reverseTyped'
   | 'script'
-  | 'morphology';
+  | 'morphology'
+  | 'production';
 
 export interface RoundContext {
   poolSize: number;
@@ -271,6 +341,10 @@ export interface RoundContext {
   scriptCount: number;
   /** Morphology drills already played; one per session. */
   morphologyRounds: number;
+  /** Free-production rounds already played; one per session (ADR 0045). */
+  productionRounds: number;
+  /** Whether the pool can seed a production round (2+ usable words). */
+  hasProduction: boolean;
 }
 
 /**
@@ -302,9 +376,19 @@ export function planNextMode(
     return 'reverseTyped';
   }
   if (current === 'reverseTyped') {
-    return context.morphologyRounds === 0 ? 'morphology' : 'choices';
+    if (context.morphologyRounds === 0) {
+      return 'morphology';
+    }
+    return context.productionRounds === 0 && context.hasProduction
+      ? 'production'
+      : 'choices';
   }
   if (current === 'morphology') {
+    return context.productionRounds === 0 && context.hasProduction
+      ? 'production'
+      : 'choices';
+  }
+  if (current === 'production') {
     return 'choices';
   }
   if (
