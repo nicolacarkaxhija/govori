@@ -1,15 +1,15 @@
 import { useMemo, useState } from 'react';
-import { transliterate } from '@glotty/transliteration-isv';
 import type { Grade } from '@glotty/srs';
 import type { LearnItem } from '../api/client';
 import { buildMatching } from './exercises';
 import type { Script } from './useScript';
 import { useT } from '../i18n';
+import { instance, pack, renderText } from '../instance';
 
 export interface MatchingCardProps {
   pool: readonly LearnItem[];
   script: Script;
-  /** Learner language (L1) for translations; English by default. */
+  /** Learner language (L1); the instance's fallback by default. */
   lang?: string;
   onComplete: (results: { itemId: string; grade: Grade }[]) => void;
 }
@@ -30,15 +30,18 @@ function shuffled<T>(values: readonly T[], random: () => number): T[] {
 export function MatchingCard({
   pool,
   script,
-  lang = 'en',
+  lang = instance.fallbackTranslationLang,
   onComplete,
 }: MatchingCardProps) {
   const t = useT();
-  const pairs = useMemo(() => buildMatching(pool, 4, lang), [pool, lang]);
+  const pairs = useMemo(
+    () => buildMatching(pool, 4, lang, instance.fallbackTranslationLang),
+    [pool, lang],
+  );
   const [left, right] = useMemo(
     () => [
       shuffled(
-        pairs.map((pair) => ({ itemId: pair.itemId, label: pair.isv })),
+        pairs.map((pair) => ({ itemId: pair.itemId, label: pair.target })),
         Math.random,
       ),
       shuffled(
@@ -96,7 +99,7 @@ export function MatchingCard({
               key={side.itemId}
               type="button"
               className="choice"
-              lang="isv"
+              lang={pack.bcp47}
               data-state={
                 matched.has(side.itemId)
                   ? 'correct'
@@ -109,7 +112,7 @@ export function MatchingCard({
                 setPickedLeft(side.itemId);
               }}
             >
-              {transliterate(side.label, { script })}
+              {renderText(side.label, script)}
             </button>
           ))}
         </div>

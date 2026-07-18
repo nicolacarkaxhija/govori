@@ -6,6 +6,7 @@ import {
   type LearnItem,
   type LessonDialogue,
 } from '../api/client';
+import { instance } from '../instance';
 import { useT } from '../i18n';
 import { DialogueCard } from './DialogueCard';
 import { DialogueReorderCard } from './DialogueReorderCard';
@@ -17,7 +18,7 @@ import type { Script } from './useScript';
 export interface LessonViewProps {
   lessonId: string;
   script: Script;
-  /** Learner language (L1) for translations; English by default. */
+  /** Learner language (L1); the instance's fallback by default. */
   learnLang?: string;
   onExit: () => void;
 }
@@ -35,7 +36,7 @@ type State =
 export function LessonView({
   lessonId,
   script,
-  learnLang = 'en',
+  learnLang = instance.fallbackTranslationLang,
   onExit,
 }: LessonViewProps) {
   const t = useT();

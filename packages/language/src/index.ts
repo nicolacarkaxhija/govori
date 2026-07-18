@@ -5,7 +5,7 @@
 export interface ScriptVariant {
   readonly id: string;
   readonly label: string;
-  render(text: string): string;
+  readonly render: (text: string) => string;
 }
 
 /**
@@ -26,14 +26,14 @@ export interface LanguagePack {
    */
   readonly orthographyName: string;
   /** True when `text` is valid canonical orthography for this language. */
-  validateCanonical(text: string): boolean;
+  readonly validateCanonical: (text: string) => boolean;
   /**
    * Folds any accepted way of writing an answer into one comparable
    * form — typed-answer checking never punishes the keyboard.
    */
-  normalize(text: string): string;
+  readonly normalize: (text: string) => string;
   /** Loose stem: enough of a headword to recognize its inflected forms. */
-  stem(word: string): string;
+  readonly stem: (word: string) => string;
   /** Writing systems, in display order; the first one is the default. */
   readonly scripts: readonly ScriptVariant[];
 }

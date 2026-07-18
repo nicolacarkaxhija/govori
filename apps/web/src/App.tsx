@@ -35,7 +35,7 @@ function AppShell({
 }) {
   const t = useT();
   const { theme, toggle } = useTheme();
-  const { script, toggle: toggleScript } = useScript();
+  const { script, toggle: toggleScript, currentLabel, nextLabel } = useScript();
   const { learnLang, setLearnLang } = useLearnLanguage();
   const [shortName, setShortName] = useState<string>(instance.brand.shortName);
   const [fullName, setFullName] = useState<string>(instance.brand.fullName);
@@ -103,7 +103,7 @@ function AppShell({
             onClick={toggleScript}
             aria-label={t('switchScript')}
           >
-            {script === 'latin' ? 'Žž → Жж' : 'Жж → Žž'}
+            {`${currentLabel ?? ''} → ${nextLabel ?? ''}`}
           </button>
           <button
             type="button"

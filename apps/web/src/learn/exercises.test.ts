@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { LearnItem } from '../api/client';
+import { pack } from '../instance';
 import {
   buildAssembly,
   buildChoices,
@@ -51,24 +52,26 @@ describe('translationFor', () => {
   };
 
   it('prefers the exact language match', () => {
-    expect(translationFor(czysta, 'pl')).toBe('czysta');
-    expect(translationFor(czysta, 'en')).toBe('clean');
+    expect(translationFor(czysta, 'pl', 'en')).toBe('czysta');
+    expect(translationFor(czysta, 'en', 'en')).toBe('clean');
   });
 
-  it('falls back to English when the language is missing', () => {
-    expect(translationFor(czysta, 'ru')).toBe('clean');
+  it('falls back to the given fallback language when missing', () => {
+    expect(translationFor(czysta, 'ru', 'en')).toBe('clean');
   });
 
-  it('falls back to the first translation when English is missing too', () => {
+  it('falls back to the first translation when the fallback misses too', () => {
     const noEnglish: LearnItem = {
       ...czysta,
       translations: [{ lang: 'pl', text: 'czysta' }],
     };
-    expect(translationFor(noEnglish, 'ru')).toBe('czysta');
+    expect(translationFor(noEnglish, 'ru', 'en')).toBe('czysta');
   });
 
   it('is empty for an item with no translations at all', () => {
-    expect(translationFor({ ...czysta, translations: [] }, 'pl')).toBe('');
+    expect(translationFor({ ...czysta, translations: [] }, 'pl', 'en')).toBe(
+      '',
+    );
   });
 });
 
@@ -103,7 +106,7 @@ describe('builders speak the learner language', () => {
   it('buildChoices offers translations in the chosen language', () => {
     const target = polishItems[0];
     if (target === undefined) throw new Error('fixture missing');
-    const choices = buildChoices(target, polishItems, 3, 'pl', () => 0.5);
+    const choices = buildChoices(target, polishItems, 3, 'pl', 'en', () => 0.5);
     expect(choices).toContain('woda');
     expect(choices).toContain('chleb');
     // Language gaps fall back to English rather than vanishing.
@@ -111,7 +114,7 @@ describe('builders speak the learner language', () => {
   });
 
   it('buildMatching pairs words with the chosen language', () => {
-    const pairs = buildMatching(polishItems, 3, 'pl', () => 0.1);
+    const pairs = buildMatching(polishItems, 3, 'pl', 'en', () => 0.1);
     const translations = pairs.map((pair) => pair.translation);
     expect(translations).toContain('woda');
     expect(translations).toContain('chleb');
@@ -128,7 +131,7 @@ describe('builders speak the learner language', () => {
         { lang: 'pl', text: 'Piję wodę.' },
       ],
     };
-    const cloze = buildCloze(sentence, polishItems, 'pl', () => 0);
+    const cloze = buildCloze(pack, sentence, polishItems, 'pl', 'en', () => 0);
     expect(cloze?.translation).toBe('Piję wodę.');
   });
 
@@ -142,7 +145,7 @@ describe('builders speak the learner language', () => {
         { lang: 'pl', text: 'Woda jest czysta.' },
       ],
     };
-    const built = buildAssembly(sentence, 'pl', () => 0.9);
+    const built = buildAssembly(sentence, 'pl', 'en', () => 0.9);
     expect(built?.translation).toBe('Woda jest czysta.');
   });
 });
@@ -151,7 +154,7 @@ describe('buildChoices', () => {
   it('includes the correct translation plus unique distractors', () => {
     const target = items.find((i) => i.text === 'voda') ?? items[0];
     if (target === undefined) throw new Error('fixture missing');
-    const choices = buildChoices(target, items, 4, 'en', () => 0.5);
+    const choices = buildChoices(target, items, 4, 'en', 'en', () => 0.5);
     expect(choices).toHaveLength(4);
     expect(choices).toContain('water');
     expect(new Set(choices).size).toBe(4);
@@ -160,8 +163,8 @@ describe('buildChoices', () => {
   it('is deterministic for a fixed random source', () => {
     const target = items.find((i) => i.text === 'hlěb');
     if (target === undefined) throw new Error('fixture missing');
-    const first = buildChoices(target, items, 3, 'en', () => 0.42);
-    const second = buildChoices(target, items, 3, 'en', () => 0.42);
+    const first = buildChoices(target, items, 3, 'en', 'en', () => 0.42);
+    const second = buildChoices(target, items, 3, 'en', 'en', () => 0.42);
     expect(first).toEqual(second);
   });
 });
@@ -199,21 +202,21 @@ describe('buildReverseChoices', () => {
 
 describe('checkTyped', () => {
   it('accepts tolerant spellings across scripts and diacritics', () => {
-    expect(checkTyped('hlěb', 'hleb')).toBe(true);
-    expect(checkTyped('hlěb', 'хлєб')).toBe(true);
-    expect(checkTyped('hlěb', '  HLEB ')).toBe(true);
-    expect(checkTyped('sųd', 'sud')).toBe(true);
+    expect(checkTyped(pack.normalize, 'hlěb', 'hleb')).toBe(true);
+    expect(checkTyped(pack.normalize, 'hlěb', 'хлєб')).toBe(true);
+    expect(checkTyped(pack.normalize, 'hlěb', '  HLEB ')).toBe(true);
+    expect(checkTyped(pack.normalize, 'sųd', 'sud')).toBe(true);
   });
 
   it('rejects genuinely wrong answers', () => {
-    expect(checkTyped('hlěb', 'voda')).toBe(false);
-    expect(checkTyped('hlěb', '')).toBe(false);
+    expect(checkTyped(pack.normalize, 'hlěb', 'voda')).toBe(false);
+    expect(checkTyped(pack.normalize, 'hlěb', '')).toBe(false);
   });
 });
 
 describe('buildMatching', () => {
   it('picks distinct items with their translations', () => {
-    const pairs = buildMatching(items, 3, 'en', () => 0.1);
+    const pairs = buildMatching(items, 3, 'en', 'en', () => 0.1);
     expect(pairs).toHaveLength(3);
     expect(new Set(pairs.map((pair) => pair.itemId)).size).toBe(3);
     for (const pair of pairs) {
@@ -222,15 +225,15 @@ describe('buildMatching', () => {
   });
 
   it('is deterministic for a fixed random source', () => {
-    expect(buildMatching(items, 4, 'en', () => 0.42)).toEqual(
-      buildMatching(items, 4, 'en', () => 0.42),
+    expect(buildMatching(items, 4, 'en', 'en', () => 0.42)).toEqual(
+      buildMatching(items, 4, 'en', 'en', () => 0.42),
     );
   });
 
   it('caps at the pool size', () => {
-    expect(buildMatching(items.slice(0, 2), 4, 'en', () => 0.5)).toHaveLength(
-      2,
-    );
+    expect(
+      buildMatching(items.slice(0, 2), 4, 'en', 'en', () => 0.5),
+    ).toHaveLength(2);
   });
 });
 
@@ -255,7 +258,7 @@ describe('buildCloze', () => {
   };
 
   it('blanks a token that matches a pool word, tolerantly', () => {
-    const cloze = buildCloze(sentence, [vodaWord], 'en', () => 0);
+    const cloze = buildCloze(pack, sentence, [vodaWord], 'en', 'en', () => 0);
     expect(cloze).toEqual({
       itemId: vodaWord.id,
       before: 'Ja pijų ',
@@ -272,15 +275,31 @@ describe('buildCloze', () => {
       text: 'ja',
       translations: [{ lang: 'en', text: 'I' }],
     };
-    const first = buildCloze(sentence, [ja, vodaWord], 'en', () => 0);
-    const last = buildCloze(sentence, [ja, vodaWord], 'en', () => 0.99);
+    const first = buildCloze(
+      pack,
+      sentence,
+      [ja, vodaWord],
+      'en',
+      'en',
+      () => 0,
+    );
+    const last = buildCloze(
+      pack,
+      sentence,
+      [ja, vodaWord],
+      'en',
+      'en',
+      () => 0.99,
+    );
     expect(first?.answer).toBe('Ja');
     expect(first?.itemId).toBe(ja.id);
     expect(last?.answer).toBe('vodų');
   });
 
   it('returns null when no pool word appears in the sentence', () => {
-    expect(buildCloze(sentence, [hlebWord], 'en', () => 0)).toBeNull();
+    expect(
+      buildCloze(pack, sentence, [hlebWord], 'en', 'en', () => 0),
+    ).toBeNull();
   });
 });
 
@@ -301,7 +320,7 @@ describe('buildAssembly', () => {
   };
 
   it('shuffles the words away from the original order', () => {
-    const built = buildAssembly(sentence, 'en', () => 0.9);
+    const built = buildAssembly(sentence, 'en', 'en', () => 0.9);
     expect(built).not.toBeNull();
     expect(built?.tokens.toSorted()).toEqual(
       ['Voda', 'je', 'čista.'].toSorted(),
@@ -312,7 +331,12 @@ describe('buildAssembly', () => {
 
   it('refuses sentences too short to reorder', () => {
     expect(
-      buildAssembly({ ...sentence, text: 'Dobry denj.' }, 'en', () => 0.5),
+      buildAssembly(
+        { ...sentence, text: 'Dobry denj.' },
+        'en',
+        'en',
+        () => 0.5,
+      ),
     ).toBeNull();
   });
 });

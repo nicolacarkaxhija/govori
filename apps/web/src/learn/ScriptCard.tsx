@@ -1,7 +1,8 @@
 import { useState, type SubmitEvent } from 'react';
-import { transliterate } from '@glotty/transliteration-isv';
+import { nextScript } from '@glotty/language';
 import type { Grade } from '@glotty/srs';
 import type { LearnItem } from '../api/client';
+import { pack, renderText } from '../instance';
 import { checkTyped } from './exercises';
 import type { Script } from './useScript';
 import { useT } from '../i18n';
@@ -17,36 +18,40 @@ type Outcome = 'correct' | 'incorrect';
 
 /**
  * Script drill (ADR 0003): read the item in one script, write it in the
- * other. Checking runs through normalize, so either script is accepted —
- * the drill teaches, it never punishes the keyboard.
+ * next of the pack's scripts. Checking runs through the pack's
+ * normalize, so any accepted writing passes — the drill teaches, it
+ * never punishes the keyboard. The planner only schedules this drill
+ * when the pack offers more than one script.
  */
 export function ScriptCard({ item, script, onGrade }: ScriptCardProps) {
   const t = useT();
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [typed, setTyped] = useState('');
 
-  const other: Script = script === 'latin' ? 'cyrillic' : 'latin';
-  const prompt = transliterate(item.text, { script });
-  const target = transliterate(item.text, { script: other });
+  const other = nextScript(pack, script);
+  const prompt = renderText(item.text, script);
+  const target = other === undefined ? item.text : other.render(item.text);
 
   const answer = (event: SubmitEvent) => {
     event.preventDefault();
     if (outcome !== null) {
       return;
     }
-    setOutcome(checkTyped(item.text, typed) ? 'correct' : 'incorrect');
+    setOutcome(
+      checkTyped(pack.normalize, item.text, typed) ? 'correct' : 'incorrect',
+    );
   };
 
   return (
     <section className="card" data-outcome={outcome ?? 'open'}>
       <p className="card-kind">{t('scriptDrillKind')}</p>
-      <h2 className="card-prompt" lang="isv">
+      <h2 className="card-prompt" lang={pack.bcp47}>
         {prompt}
       </h2>
 
       <form className="card-typed" onSubmit={answer}>
         <label className="typed-label" htmlFor="script-answer">
-          {t(other === 'cyrillic' ? 'scriptToCyrillic' : 'scriptToLatin')}
+          {t('scriptTypeIn', { script: other?.label ?? '' })}
         </label>
         <input
           id="script-answer"
@@ -72,11 +77,11 @@ export function ScriptCard({ item, script, onGrade }: ScriptCardProps) {
         <div className="card-feedback">
           <p className="feedback-text">
             {outcome === 'correct' ? t('correct') : t('incorrect')}{' '}
-            <span lang="isv" className="feedback-answer">
+            <span lang={pack.bcp47} className="feedback-answer">
               {prompt}
             </span>{' '}
             ={' '}
-            <span lang="isv" className="feedback-answer">
+            <span lang={pack.bcp47} className="feedback-answer">
               {target}
             </span>
           </p>

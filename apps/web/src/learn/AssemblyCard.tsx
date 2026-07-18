@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { transliterate } from '@glotty/transliteration-isv';
 import type { Grade } from '@glotty/srs';
 import type { Assembly } from './exercises';
 import type { Script } from './useScript';
 import { useT } from '../i18n';
+import { pack, renderText } from '../instance';
 
 export interface AssemblyCardProps {
   assembly: Assembly;
@@ -44,7 +44,7 @@ export function AssemblyCard({ assembly, script, onGrade }: AssemblyCardProps) {
     setOutcome(right ? 'correct' : 'incorrect');
   };
 
-  const show = (token: string) => transliterate(token, { script });
+  const show = (token: string) => renderText(token, script);
 
   return (
     <section className="card" data-outcome={outcome ?? 'open'}>
@@ -61,7 +61,7 @@ export function AssemblyCard({ assembly, script, onGrade }: AssemblyCardProps) {
             key={index}
             type="button"
             className="choice"
-            lang="isv"
+            lang={pack.bcp47}
             onClick={() => {
               takeBack(index);
             }}
@@ -81,7 +81,7 @@ export function AssemblyCard({ assembly, script, onGrade }: AssemblyCardProps) {
             key={index}
             type="button"
             className="choice"
-            lang="isv"
+            lang={pack.bcp47}
             onClick={() => {
               place(index);
             }}
@@ -106,8 +106,8 @@ export function AssemblyCard({ assembly, script, onGrade }: AssemblyCardProps) {
         <div className="card-feedback">
           <p className="feedback-text">
             {outcome === 'correct' ? t('correct') : t('incorrect')}{' '}
-            <span lang="isv" className="feedback-answer">
-              {transliterate(assembly.answer.join(' '), { script })}
+            <span lang={pack.bcp47} className="feedback-answer">
+              {renderText(assembly.answer.join(' '), script)}
             </span>{' '}
             = {assembly.translation}
           </p>

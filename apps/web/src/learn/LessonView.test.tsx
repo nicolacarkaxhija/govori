@@ -469,7 +469,7 @@ describe('LessonView script round', () => {
     await user.click(screen.getByRole('button', { name: 'Continue' }));
 
     expect(await screen.findByText('Script practice')).toBeDefined();
-    await user.type(screen.getByLabelText('Type it in Cyrillic'), 'снєг');
+    await user.type(screen.getByLabelText('Type it in Жж'), 'снєг');
     await user.click(screen.getByRole('button', { name: 'Check' }));
     expect(screen.getByText(/Pravilno/)).toBeDefined();
   });

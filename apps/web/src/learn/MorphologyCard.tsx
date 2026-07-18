@@ -1,10 +1,10 @@
 import { useEffect, useState, type SubmitEvent } from 'react';
-import { transliterate } from '@glotty/transliteration-isv';
 import type { Grade } from '@glotty/srs';
 import { fetchForms, type ItemForm, type LearnItem } from '../api/client';
 import { checkTyped, translationFor } from './exercises';
 import type { Script } from './useScript';
 import { useT, type MessageKey } from '../i18n';
+import { instance, pack, renderText } from '../instance';
 
 export interface MorphologyCardProps {
   item: LearnItem;
@@ -72,14 +72,16 @@ export function MorphologyCard({
     if (outcome !== null) {
       return;
     }
-    setOutcome(checkTyped(form.text, typed) ? 'correct' : 'incorrect');
+    setOutcome(
+      checkTyped(pack.normalize, form.text, typed) ? 'correct' : 'incorrect',
+    );
   };
 
   return (
     <section className="card" data-outcome={outcome ?? 'open'}>
       <p className="card-kind">{t('morphologyKind')}</p>
-      <h2 className="card-prompt" lang="isv">
-        {transliterate(item.text, { script })}
+      <h2 className="card-prompt" lang={pack.bcp47}>
+        {renderText(item.text, script)}
       </h2>
 
       <form className="card-typed" onSubmit={answer}>
@@ -110,10 +112,11 @@ export function MorphologyCard({
         <div className="card-feedback">
           <p className="feedback-text">
             {outcome === 'correct' ? t('correct') : t('incorrect')}{' '}
-            <span lang="isv" className="feedback-answer">
-              {transliterate(form.text, { script })}
+            <span lang={pack.bcp47} className="feedback-answer">
+              {renderText(form.text, script)}
             </span>{' '}
-            = {t(label)} · {translationFor(item, lang)}
+            = {t(label)} ·{' '}
+            {translationFor(item, lang, instance.fallbackTranslationLang)}
           </p>
           <button
             type="button"

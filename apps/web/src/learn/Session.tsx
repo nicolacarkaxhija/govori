@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Grade } from '@glotty/srs';
 import type { LearnItem } from '../api/client';
+import { instance, pack } from '../instance';
 import { useT } from '../i18n';
 import { AssemblyCard } from './AssemblyCard';
 import { ClozeCard } from './ClozeCard';
@@ -68,7 +69,13 @@ export function Session({
   // A cloze needs a sentence sharing a word with this pool; try a few.
   const makeCloze = (): Cloze | null => {
     for (const sentence of sentences) {
-      const built = buildCloze(sentence, pool, learnLang);
+      const built = buildCloze(
+        pack,
+        sentence,
+        pool,
+        learnLang,
+        instance.fallbackTranslationLang,
+      );
       if (built !== null) {
         return built;
       }
@@ -79,7 +86,11 @@ export function Session({
   // Assembly needs a sentence long enough to reorder (ADR 0005).
   const makeAssembly = (): Assembly | null => {
     for (const sentence of sentences) {
-      const built = buildAssembly(sentence, learnLang);
+      const built = buildAssembly(
+        sentence,
+        learnLang,
+        instance.fallbackTranslationLang,
+      );
       if (built !== null) {
         return built;
       }

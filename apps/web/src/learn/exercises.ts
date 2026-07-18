@@ -1,18 +1,28 @@
-import { normalize } from '@glotty/transliteration-isv';
+import type { LanguagePack } from '@glotty/language';
 import type { LearnItem } from '../api/client';
+
+/** The language judgment calls exercises delegate to the pack. */
+export type ExercisePack = Pick<LanguagePack, 'normalize' | 'stem'>;
 
 /**
  * The translation an item shows a learner whose language is `lang`
  * (ADR 0003 spirit: never punish a language gap): exact match wins,
- * then English, then whatever the item leads with.
+ * then the instance's fallback language, then whatever the item leads
+ * with. The fallback is instance config — the engine prefers no language.
  */
-export function translationFor(item: LearnItem, lang: string): string {
+export function translationFor(
+  item: LearnItem,
+  lang: string,
+  fallbackLang: string,
+): string {
   const exact = item.translations.find((entry) => entry.lang === lang);
   if (exact !== undefined) {
     return exact.text;
   }
-  const english = item.translations.find((entry) => entry.lang === 'en');
-  return english?.text ?? item.translations[0]?.text ?? '';
+  const fallback = item.translations.find(
+    (entry) => entry.lang === fallbackLang,
+  );
+  return fallback?.text ?? item.translations[0]?.text ?? '';
 }
 
 /** Unique distractors around the correct answer, shuffled deterministically. */
@@ -46,14 +56,15 @@ export function buildChoices(
   target: LearnItem,
   pool: readonly LearnItem[],
   count: number,
-  lang = 'en',
+  lang: string,
+  fallbackLang: string,
   random: () => number = Math.random,
 ): string[] {
   return pickOptions(
-    translationFor(target, lang),
+    translationFor(target, lang, fallbackLang),
     pool
       .filter((item) => item.id !== target.id)
-      .map((item) => translationFor(item, lang)),
+      .map((item) => translationFor(item, lang, fallbackLang)),
     count,
     random,
   );
@@ -78,14 +89,19 @@ export function buildReverseChoices(
 }
 
 /** Tolerant typed answers: never punish the keyboard (ADR 0003). */
-export function checkTyped(expected: string, given: string): boolean {
+export function checkTyped(
+  normalize: ExercisePack['normalize'],
+  expected: string,
+  given: string,
+): boolean {
   const normalized = normalize(given);
   return normalized.length > 0 && normalized === normalize(expected);
 }
 
 export interface MatchingPair {
   itemId: string;
-  isv: string;
+  /** The item's canonical text in the language being learned. */
+  target: string;
   translation: string;
 }
 
@@ -93,10 +109,13 @@ export interface MatchingPair {
 export function buildMatching(
   pool: readonly LearnItem[],
   count: number,
-  lang = 'en',
+  lang: string,
+  fallbackLang: string,
   random: () => number = Math.random,
 ): MatchingPair[] {
-  const usable = pool.filter((item) => translationFor(item, lang) !== '');
+  const usable = pool.filter(
+    (item) => translationFor(item, lang, fallbackLang) !== '',
+  );
   const picked: LearnItem[] = [];
   const remaining = [...usable];
   while (picked.length < count && remaining.length > 0) {
@@ -105,8 +124,8 @@ export function buildMatching(
   }
   return picked.map((item) => ({
     itemId: item.id,
-    isv: item.text,
-    translation: translationFor(item, lang),
+    target: item.text,
+    translation: translationFor(item, lang, fallbackLang),
   }));
 }
 
@@ -119,23 +138,20 @@ export interface Cloze {
   translation: string;
 }
 
-/** Loose stem: enough of a headword to recognize its inflected forms. */
-function stemOf(word: string): string {
-  const folded = normalize(word);
-  return folded.slice(0, Math.max(3, folded.length - 2));
-}
-
 /**
  * Blanks one pool-word occurrence in a sentence; the learner types it
  * back. Returns null when the sentence shares no word with the pool.
+ * Stemming and normalization are the pack's judgment calls (ADR 0029).
  */
 export function buildCloze(
+  pack: ExercisePack,
   sentence: LearnItem,
   pool: readonly LearnItem[],
-  lang = 'en',
+  lang: string,
+  fallbackLang: string,
   random: () => number = Math.random,
 ): Cloze | null {
-  const stems = pool.map((item) => ({ item, stem: stemOf(item.text) }));
+  const stems = pool.map((item) => ({ item, stem: pack.stem(item.text) }));
   const matches: {
     start: number;
     end: number;
@@ -143,7 +159,7 @@ export function buildCloze(
     itemId: string;
   }[] = [];
   for (const hit of sentence.text.matchAll(/[\p{L}́]+/gu)) {
-    const folded = normalize(hit[0]);
+    const folded = pack.normalize(hit[0]);
     const matched = stems.find(({ stem }) => folded.startsWith(stem));
     if (matched !== undefined) {
       matches.push({
@@ -163,7 +179,7 @@ export function buildCloze(
     before: sentence.text.slice(0, picked.start),
     answer: picked.token,
     after: sentence.text.slice(picked.end),
-    translation: translationFor(sentence, lang),
+    translation: translationFor(sentence, lang, fallbackLang),
   };
 }
 
@@ -210,7 +226,8 @@ export function scrambleOrder(
  */
 export function buildAssembly(
   sentence: LearnItem,
-  lang = 'en',
+  lang: string,
+  fallbackLang: string,
   random: () => number = Math.random,
 ): Assembly | null {
   const answer = sentence.text.split(/\s+/).filter((token) => token !== '');
@@ -225,7 +242,7 @@ export function buildAssembly(
     itemId: sentence.id,
     tokens,
     answer,
-    translation: translationFor(sentence, lang),
+    translation: translationFor(sentence, lang, fallbackLang),
   };
 }
 

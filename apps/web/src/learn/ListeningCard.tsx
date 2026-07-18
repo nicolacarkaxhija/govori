@@ -8,10 +8,11 @@ import {
 } from '../api/client';
 import { checkTyped, translationFor } from './exercises';
 import { useT } from '../i18n';
+import { instance, pack } from '../instance';
 
 export interface ListeningCardProps {
   item: LearnItem;
-  /** Learner language (L1) for translations; English by default. */
+  /** Learner language (L1); the instance's fallback by default. */
   lang?: string;
   onGrade: (grade: Grade) => void;
   /** No recordings for this item yet — the lesson falls back (ADR 0004). */
@@ -23,7 +24,7 @@ type Outcome = 'correct' | 'incorrect';
 /** Listening transcription (ADR 0005): hear a community clip, type it. */
 export function ListeningCard({
   item,
-  lang = 'en',
+  lang = instance.fallbackTranslationLang,
   onGrade,
   onUnavailable,
 }: ListeningCardProps) {
@@ -62,7 +63,9 @@ export function ListeningCard({
     if (outcome !== null) {
       return;
     }
-    setOutcome(checkTyped(item.text, typed) ? 'correct' : 'incorrect');
+    setOutcome(
+      checkTyped(pack.normalize, item.text, typed) ? 'correct' : 'incorrect',
+    );
   };
 
   if (recordings.length === 0) {
@@ -112,10 +115,10 @@ export function ListeningCard({
         <div className="card-feedback">
           <p className="feedback-text">
             {outcome === 'correct' ? t('correct') : t('incorrect')}{' '}
-            <span lang="isv" className="feedback-answer">
+            <span lang={pack.bcp47} className="feedback-answer">
               {item.text}
             </span>{' '}
-            = {translationFor(item, lang)}
+            = {translationFor(item, lang, instance.fallbackTranslationLang)}
           </p>
           <button
             type="button"

@@ -1,5 +1,5 @@
 import { useState, type SubmitEvent } from 'react';
-import { isCanonical } from '@glotty/transliteration-isv';
+import { pack } from '../instance';
 import { contribute } from '../api/client';
 import { useT } from '../i18n';
 
@@ -27,7 +27,7 @@ export function ContributeView({ onExit, onSignIn }: ContributeViewProps) {
 
   const submit = async (event: SubmitEvent) => {
     event.preventDefault();
-    if (!isCanonical(text.trim())) {
+    if (!pack.validateCanonical(text.trim())) {
       setNotice('notCanonical');
       return;
     }

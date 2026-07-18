@@ -150,9 +150,6 @@ importers:
       '@glotty/srs':
         specifier: workspace:*
         version: link:../../packages/srs
-      '@glotty/transliteration-isv':
-        specifier: workspace:*
-        version: link:../../packs/transliteration-isv
       react:
         specifier: ^19.2.7
         version: 19.2.7

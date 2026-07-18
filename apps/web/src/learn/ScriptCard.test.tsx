@@ -19,20 +19,20 @@ describe('ScriptCard', () => {
   it('prompts in Latin and asks for Cyrillic', () => {
     render(<ScriptCard item={item} script="latin" onGrade={vi.fn()} />);
     expect(screen.getByRole('heading', { name: 'hlěb' })).toBeDefined();
-    expect(screen.getByLabelText('Type it in Cyrillic')).toBeDefined();
+    expect(screen.getByLabelText('Type it in Жж')).toBeDefined();
   });
 
   it('prompts in Cyrillic and asks for Latin', () => {
     render(<ScriptCard item={item} script="cyrillic" onGrade={vi.fn()} />);
     expect(screen.getByRole('heading', { name: 'хлєб' })).toBeDefined();
-    expect(screen.getByLabelText('Type it in Latin')).toBeDefined();
+    expect(screen.getByLabelText('Type it in Žž')).toBeDefined();
   });
 
   it('grades the other script as good and reveals both forms', async () => {
     const user = userEvent.setup();
     const onGrade = vi.fn();
     render(<ScriptCard item={item} script="latin" onGrade={onGrade} />);
-    await user.type(screen.getByLabelText('Type it in Cyrillic'), 'хлєб');
+    await user.type(screen.getByLabelText('Type it in Жж'), 'хлєб');
     await user.click(screen.getByRole('button', { name: 'Check' }));
     expect(screen.getByText(/Pravilno/)).toBeDefined();
     expect(screen.getByText(/хлєб/)).toBeDefined();
@@ -43,7 +43,7 @@ describe('ScriptCard', () => {
   it('tolerates the source script too', async () => {
     const user = userEvent.setup();
     render(<ScriptCard item={item} script="latin" onGrade={vi.fn()} />);
-    await user.type(screen.getByLabelText('Type it in Cyrillic'), 'hleb');
+    await user.type(screen.getByLabelText('Type it in Жж'), 'hleb');
     await user.click(screen.getByRole('button', { name: 'Check' }));
     expect(screen.getByText(/Pravilno/)).toBeDefined();
   });
@@ -52,7 +52,7 @@ describe('ScriptCard', () => {
     const user = userEvent.setup();
     const onGrade = vi.fn();
     render(<ScriptCard item={item} script="latin" onGrade={onGrade} />);
-    await user.type(screen.getByLabelText('Type it in Cyrillic'), 'вода');
+    await user.type(screen.getByLabelText('Type it in Жж'), 'вода');
     await user.click(screen.getByRole('button', { name: 'Check' }));
     expect(screen.getByText(/Ne sovsěm/)).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'Continue' }));

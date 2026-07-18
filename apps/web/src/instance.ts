@@ -1,3 +1,4 @@
+import { renderIn } from '@glotty/language';
 import { resolveInstance } from './instances';
 
 /**
@@ -9,3 +10,8 @@ const resolved = resolveInstance(import.meta.env.VITE_INSTANCE);
 
 export const instance = resolved.instance;
 export const pack = resolved.pack;
+
+/** Renders canonical text in one of the pack's scripts (ADR 0003). */
+export function renderText(text: string, scriptId: string): string {
+  return renderIn(pack, scriptId, text);
+}

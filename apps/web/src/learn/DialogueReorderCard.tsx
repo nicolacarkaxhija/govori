@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
-import { transliterate } from '@glotty/transliteration-isv';
 import type { LessonDialogue } from '../api/client';
 import { scrambleOrder } from './exercises';
 import type { Script } from './useScript';
 import { useT } from '../i18n';
+import { pack, renderText } from '../instance';
 
 export interface DialogueReorderCardProps {
   dialogue: LessonDialogue;
@@ -38,7 +38,7 @@ export function DialogueReorderCard({
     const turn = dialogue.turns[index];
     return turn === undefined
       ? ''
-      : `${turn.speaker}: ${transliterate(turn.text, { script })}`;
+      : `${turn.speaker}: ${renderText(turn.text, script)}`;
   };
 
   const place = (index: number) => {
@@ -74,7 +74,7 @@ export function DialogueReorderCard({
             key={index}
             type="button"
             className="choice"
-            lang="isv"
+            lang={pack.bcp47}
             onClick={() => {
               takeBack(index);
             }}
@@ -94,7 +94,7 @@ export function DialogueReorderCard({
             key={index}
             type="button"
             className="choice"
-            lang="isv"
+            lang={pack.bcp47}
             onClick={() => {
               place(index);
             }}

@@ -22,7 +22,6 @@
     "@glotty/language": "workspace:*",
     "@glotty/pack-isv": "workspace:*",
     "@glotty/srs": "workspace:*",
-    "@glotty/transliteration-isv": "workspace:*",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "zod": "catalog:"

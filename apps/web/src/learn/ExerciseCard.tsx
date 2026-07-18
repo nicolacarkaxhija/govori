@@ -1,5 +1,4 @@
 import { useMemo, useState, type SubmitEvent } from 'react';
-import { transliterate } from '@glotty/transliteration-isv';
 import type { Grade } from '@glotty/srs';
 import type { LearnItem } from '../api/client';
 import { AudioTools } from './AudioTools';
@@ -11,6 +10,7 @@ import {
 } from './exercises';
 import type { Script } from './useScript';
 import { useT } from '../i18n';
+import { instance, pack, renderText } from '../instance';
 
 export interface ExerciseCardProps {
   item: LearnItem;
@@ -18,7 +18,7 @@ export interface ExerciseCardProps {
   script: Script;
   mode: 'choices' | 'typed' | 'reverseChoices' | 'reverseTyped';
   onGrade: (grade: Grade) => void;
-  /** Learner language (L1) for translations; English by default. */
+  /** Learner language (L1); the instance's fallback by default. */
   lang?: string;
   /** Community audio rights; omitted while the flag is dark (ADR 0004). */
   audio?: { canListen: boolean; canRecord: boolean } | undefined;
@@ -32,7 +32,7 @@ export function ExerciseCard({
   script,
   mode,
   onGrade,
-  lang = 'en',
+  lang = instance.fallbackTranslationLang,
   audio,
 }: ExerciseCardProps) {
   const t = useT();
@@ -42,8 +42,12 @@ export function ExerciseCard({
 
   // Reverse rounds prompt with the translation and answer in Interslavic.
   const reverse = mode === 'reverseChoices' || mode === 'reverseTyped';
-  const word = transliterate(item.text, { script });
-  const translation = translationFor(item, lang);
+  const word = renderText(item.text, script);
+  const translation = translationFor(
+    item,
+    lang,
+    instance.fallbackTranslationLang,
+  );
   const prompt = reverse ? translation : word;
   const correct = reverse ? item.text : translation;
   // The card remounts per item (keyed by the parent), so choices are
@@ -52,7 +56,7 @@ export function ExerciseCard({
     () =>
       reverse
         ? buildReverseChoices(item, pool, 4)
-        : buildChoices(item, pool, 4, lang),
+        : buildChoices(item, pool, 4, lang, instance.fallbackTranslationLang),
     [item, pool, reverse, lang],
   );
 
@@ -73,7 +77,9 @@ export function ExerciseCard({
     if (outcome !== null) {
       return;
     }
-    setOutcome(checkTyped(item.text, typed) ? 'correct' : 'incorrect');
+    setOutcome(
+      checkTyped(pack.normalize, item.text, typed) ? 'correct' : 'incorrect',
+    );
   };
 
   const finish = () => {
@@ -91,7 +97,7 @@ export function ExerciseCard({
               : 'kindSentence',
         )}
       </p>
-      <h2 className="card-prompt" lang={reverse ? undefined : 'isv'}>
+      <h2 className="card-prompt" lang={reverse ? undefined : pack.bcp47}>
         {prompt}
       </h2>
 
@@ -114,7 +120,7 @@ export function ExerciseCard({
               key={choice}
               type="button"
               className="choice"
-              lang={reverse ? 'isv' : undefined}
+              lang={reverse ? pack.bcp47 : undefined}
               data-state={
                 outcome === null
                   ? 'open'
@@ -128,7 +134,7 @@ export function ExerciseCard({
                 answerChoice(choice);
               }}
             >
-              {reverse ? transliterate(choice, { script }) : choice}
+              {reverse ? renderText(choice, script) : choice}
             </button>
           ))}
         </div>
@@ -162,7 +168,7 @@ export function ExerciseCard({
         <div className="card-feedback">
           <p className="feedback-text">
             {outcome === 'correct' ? t('correct') : t('incorrect')}{' '}
-            <span lang="isv" className="feedback-answer">
+            <span lang={pack.bcp47} className="feedback-answer">
               {word}
             </span>{' '}
             = {translation}
