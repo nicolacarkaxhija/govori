@@ -14,6 +14,8 @@ import { DrizzleCourse } from '../course/drizzle-course.js';
 import { DrizzleReviewQueue } from '../review/drizzle-review-queue.js';
 import { DrizzleVoteStore } from '../review/drizzle-vote-store.js';
 import { DrizzleRecordingStore } from '../audio/drizzle-recording-store.js';
+import { DrizzleMorphologyRepository } from '../morphology/drizzle-morphology-repository.js';
+import { importMorphologyArtifact } from '../morphology/import-morphology.js';
 
 let container: StartedPostgreSqlContainer;
 let db: Db;
@@ -38,6 +40,8 @@ const artifact = {
       kind: 'word',
       text: 'voda',
       frequency: 9.9,
+      pos: 'noun',
+      posDetail: 'f.',
       translations: [{ lang: 'en', text: 'water' }],
       notes: [],
       provenance: {
@@ -142,6 +146,10 @@ describe('DrizzleItemRepository reads', () => {
     expect(rest).toHaveLength(1);
     expect(first[0]?.text).toBe('voda');
     expect(first[0]?.frequency).toBeCloseTo(9.9, 5);
+    expect(first[0]?.pos).toBe('noun');
+    expect(first[0]?.posDetail).toBe('f.');
+    // Items without a part of speech omit the fields entirely.
+    expect(Object.keys(rest[0] ?? {})).not.toContain('pos');
     const all = [...first, ...rest].map((item) => item.id);
     expect(new Set(all).size).toBe(3);
   });
@@ -350,5 +358,71 @@ describe('DrizzleRecordingStore', () => {
     expect(
       await store.listForItem('00000000-0000-4000-8000-00000000dead'),
     ).toEqual([]);
+  });
+});
+
+describe('DrizzleMorphologyRepository through importMorphologyArtifact', () => {
+  const vodaId = '3e2d8f0a-4b1c-4f6e-9a7d-1c2b3a4d5e6f';
+  const morphology = {
+    schemaVersion: 1,
+    createdAt: '2026-07-18T00:00:00Z',
+    producer: { name: 'govori-content-forge', version: '0.2.0' },
+    entries: [
+      {
+        itemId: vodaId,
+        pos: 'noun',
+        forms: [
+          { tag: 'sg.nom', text: 'voda' },
+          { tag: 'sg.gen', text: 'vody' },
+          { tag: 'pl.nom', text: 'vody' },
+        ],
+      },
+    ],
+  };
+
+  it('imports a paradigm and serves its forms', async () => {
+    const repository = new DrizzleMorphologyRepository(db);
+    const result = await importMorphologyArtifact(morphology, repository);
+    expect(result).toEqual({
+      entries: 1,
+      forms: 3,
+      producer: 'govori-content-forge@0.2.0',
+    });
+    expect(await repository.formsFor(vodaId)).toEqual([
+      { tag: 'pl.nom', text: 'vody' },
+      { tag: 'sg.gen', text: 'vody' },
+      { tag: 'sg.nom', text: 'voda' },
+    ]);
+  });
+
+  it('reimports idempotently, replacing each paradigm wholesale', async () => {
+    const repository = new DrizzleMorphologyRepository(db);
+    const trimmed = {
+      ...morphology,
+      entries: [
+        {
+          itemId: vodaId,
+          pos: 'noun',
+          forms: [
+            { tag: 'sg.nom', text: 'voda' },
+            { tag: 'sg.dat', text: 'vodě' },
+          ],
+        },
+      ],
+    };
+    await importMorphologyArtifact(trimmed, repository);
+    await importMorphologyArtifact(trimmed, repository);
+    expect(await repository.formsFor(vodaId)).toEqual([
+      { tag: 'sg.dat', text: 'vodě' },
+      { tag: 'sg.nom', text: 'voda' },
+    ]);
+  });
+
+  it('answers unknown items with an empty paradigm', async () => {
+    const repository = new DrizzleMorphologyRepository(db);
+    expect(
+      await repository.formsFor('00000000-0000-4000-8000-00000000dead'),
+    ).toEqual([]);
+    await repository.replaceForItems([]);
   });
 });

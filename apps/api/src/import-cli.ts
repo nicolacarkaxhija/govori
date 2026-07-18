@@ -7,18 +7,25 @@ import { DrizzleItemRepository } from './content/drizzle-item-repository.js';
 import { DrizzleCourse } from './course/drizzle-course.js';
 import { DrizzleReviewQueue } from './review/drizzle-review-queue.js';
 import { importArtifact } from './content/import-artifact.js';
+import { DrizzleMorphologyRepository } from './morphology/drizzle-morphology-repository.js';
+import { importMorphologyArtifact } from './morphology/import-morphology.js';
 
 // Composition-root script (ADR 0037):
-//   import <artifact.json>                 items
-//   import --curriculum <curriculum.json>  course structure
-//   import --drafts <drafts.json>          review queue (ADR 0038)
+//   import <artifact.json>                  items
+//   import --curriculum <curriculum.json>   course structure
+//   import --drafts <drafts.json>           review queue (ADR 0038)
+//   import --morphology <morphology.json>   inflected forms
 const mode =
-  process.argv[2] === '--curriculum' || process.argv[2] === '--drafts'
+  process.argv[2] === '--curriculum' ||
+  process.argv[2] === '--drafts' ||
+  process.argv[2] === '--morphology'
     ? process.argv[2]
     : 'items';
 const path = mode === 'items' ? process.argv[2] : process.argv[3];
 if (path === undefined) {
-  console.error('usage: import [--curriculum|--drafts] <artifact.json>');
+  console.error(
+    'usage: import [--curriculum|--drafts|--morphology] <artifact.json>',
+  );
   process.exit(1);
 }
 
@@ -33,6 +40,14 @@ if (mode === '--drafts') {
   const queued = await new DrizzleReviewQueue(db).addPending(artifact.items);
   console.log(
     `queued ${String(queued)} of ${String(artifact.items.length)} drafts for review`,
+  );
+} else if (mode === '--morphology') {
+  const result = await importMorphologyArtifact(
+    raw,
+    new DrizzleMorphologyRepository(db),
+  );
+  console.log(
+    `morphology: ${String(result.entries)} paradigms, ${String(result.forms)} forms from ${result.producer}`,
   );
 } else if (mode === '--curriculum') {
   const curriculum = parseCurriculumArtifact(raw);

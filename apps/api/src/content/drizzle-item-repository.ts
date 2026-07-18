@@ -86,6 +86,8 @@ export class DrizzleItemRepository implements ItemRepository, ItemQueries {
       text: row.text,
       provenance: row.provenance,
       ...(row.frequency === null ? {} : { frequency: row.frequency }),
+      ...(row.pos === null ? {} : { pos: row.pos }),
+      ...(row.posDetail === null ? {} : { posDetail: row.posDetail }),
       translations: allTranslations
         .filter((translation) => translation.itemId === row.id)
         .map(({ lang, text }) => ({ lang, text })),
@@ -115,6 +117,8 @@ export class DrizzleItemRepository implements ItemRepository, ItemQueries {
               provenance: item.provenance,
               audit: item.audit ?? null,
               frequency: item.frequency ?? null,
+              pos: item.pos ?? null,
+              posDetail: item.posDetail ?? null,
             })),
           )
           .onConflictDoUpdate({
@@ -125,6 +129,8 @@ export class DrizzleItemRepository implements ItemRepository, ItemQueries {
               provenance: sql`excluded."provenance"`,
               audit: sql`excluded."audit"`,
               frequency: sql`excluded."frequency"`,
+              pos: sql`excluded."pos"`,
+              posDetail: sql`excluded."pos_detail"`,
               updatedAt: new Date(),
             },
           });

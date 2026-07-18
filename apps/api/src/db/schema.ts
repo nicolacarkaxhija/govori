@@ -13,6 +13,7 @@ import type {
   CurriculumArtifact,
   Item,
   OriginalityAudit,
+  PartOfSpeech,
   Provenance,
 } from '@govori/content';
 
@@ -24,6 +25,10 @@ export const items = pgTable('items', {
   provenance: jsonb('provenance').$type<Provenance>().notNull(),
   audit: jsonb('audit').$type<OriginalityAudit>(),
   frequency: real('frequency'),
+  /** Normalized part of speech from the content artifact; null until set. */
+  pos: text('pos').$type<PartOfSpeech>(),
+  /** The source's raw part-of-speech tag, e.g. `v.tr. ipf.` or `m.anim.`. */
+  posDetail: text('pos_detail'),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -73,6 +78,22 @@ export const translations = pgTable(
     text: text('text').notNull(),
   },
   (table) => [primaryKey({ columns: [table.itemId, table.lang, table.text] })],
+);
+
+/**
+ * Inflected forms per item for morphology drills; replaced wholesale on
+ * reimport (ADR 0037). `tag` is a short slot name like `pres.2sg`.
+ */
+export const itemForms = pgTable(
+  'item_forms',
+  {
+    itemId: uuid('item_id')
+      .notNull()
+      .references(() => items.id, { onDelete: 'cascade' }),
+    tag: text('tag').notNull(),
+    text: text('text').notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.itemId, table.tag, table.text] })],
 );
 
 /** Contrastive notes per source language (ADR 0001). */
