@@ -248,4 +248,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | feat: add a weekly plan generator | 2.5–3.5 | Pure buildPlan drafts a Mon–Fri checklist from weak items, a picked interest unit, and the reviews goal, with weekends left as a deliberate rest; per-week checked-state persisted in localStorage with a Monday-anchored key; WeeklyPlanView with a unit picker and checkable tasks, unit- and render-tested; fourteen catalog keys (weekday names, task labels, plan chrome) across both instances' seven catalogs |
 
+| 2026-07-18 | docs: record the production-first exercise expansion | 0.5–1 | ADR 0045 recording the design of the free-production round, micro-journal, weekly goal chips, and weekly plan — how each rides the pack seam and the offline-first review log without naming a language or touching the sync schema — plus its registry row |
+
 **Running total: 257.1–329.7 h**
