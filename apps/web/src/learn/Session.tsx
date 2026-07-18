@@ -7,6 +7,7 @@ import { ClozeCard } from './ClozeCard';
 import { ExerciseCard } from './ExerciseCard';
 import { ListeningCard } from './ListeningCard';
 import { MatchingCard } from './MatchingCard';
+import { MorphologyCard } from './MorphologyCard';
 import { ScriptCard } from './ScriptCard';
 import {
   buildAssembly,
@@ -58,6 +59,7 @@ export function Session({
   const [assembly, setAssembly] = useState<Assembly | null>(null);
   const [sentenceRounds, setSentenceRounds] = useState(0);
   const [scriptRounds, setScriptRounds] = useState(0);
+  const [morphologyRounds, setMorphologyRounds] = useState(0);
 
   const advance = () => {
     setPhase(phaseFor(pool));
@@ -95,6 +97,7 @@ export function Session({
       audioOn,
       sentenceRounds,
       scriptRounds,
+      morphologyRounds,
     });
     setCloze(next === 'cloze' ? builtCloze : null);
     setAssembly(next === 'assembly' ? builtAssembly : null);
@@ -129,6 +132,13 @@ export function Session({
     setAnswered((count) => count + 1);
     setSentenceRounds((count) => count + 1);
     proceed(nextMode('assembly'));
+  };
+
+  const gradeMorphology = (item: LearnItem) => (value: Grade) => {
+    recordReview(item.id, value);
+    setAnswered((count) => count + 1);
+    setMorphologyRounds((count) => count + 1);
+    proceed(nextMode('morphology'));
   };
 
   const gradeScript = (item: LearnItem) => (value: Grade) => {
@@ -202,6 +212,19 @@ export function Session({
           item={phase.item}
           script={script}
           onGrade={gradeScript(phase.item)}
+        />
+      )}
+      {phase.name === 'exercise' && mode === 'morphology' && (
+        <MorphologyCard
+          key={'morphology' + phase.item.id + String(answered)}
+          item={phase.item}
+          script={script}
+          lang={learnLang}
+          onGrade={gradeMorphology(phase.item)}
+          onUnavailable={() => {
+            setMorphologyRounds((count) => count + 1);
+            setMode('choices');
+          }}
         />
       )}
       {phase.name === 'exercise' && mode === 'listening' && (

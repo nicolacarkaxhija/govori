@@ -557,3 +557,23 @@ export async function uploadRecording(
     return false;
   }
 }
+
+const formsSchema = z.object({
+  forms: z.array(z.object({ tag: z.string(), text: z.string() })),
+});
+
+export type ItemForm = z.infer<typeof formsSchema>['forms'][number];
+
+/** Inflected forms of an item (morphology artifact); empty when none. */
+export async function fetchForms(itemId: string): Promise<ItemForm[]> {
+  try {
+    const response = await fetch(new URL(`/items/${itemId}/forms`, apiBaseUrl));
+    if (!response.ok) {
+      return [];
+    }
+    const payload: unknown = await response.json();
+    return formsSchema.parse(payload).forms;
+  } catch {
+    return [];
+  }
+}

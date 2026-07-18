@@ -547,3 +547,29 @@ describe('audio client', () => {
     ).toBe(false);
   });
 });
+
+describe('fetchForms', () => {
+  it('lists inflected forms and falls back to none', async () => {
+    const { fetchForms } = await import('./client');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve({
+          status: 200,
+          ok: true,
+          json: () => Promise.resolve({ forms: [{ tag: 'pl', text: 'domy' }] }),
+        }),
+      ),
+    );
+    expect(await fetchForms('7d9a2f04-6d19-4c1a-9e3a-1f2b3c4d5e6f')).toEqual([
+      { tag: 'pl', text: 'domy' },
+    ]);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.reject(new Error('offline'))),
+    );
+    expect(await fetchForms('7d9a2f04-6d19-4c1a-9e3a-1f2b3c4d5e6f')).toEqual(
+      [],
+    );
+  });
+});

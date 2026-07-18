@@ -238,7 +238,8 @@ export type ExerciseMode =
   | 'listening'
   | 'reverseChoices'
   | 'reverseTyped'
-  | 'script';
+  | 'script'
+  | 'morphology';
 
 export interface RoundContext {
   poolSize: number;
@@ -249,6 +250,8 @@ export interface RoundContext {
   sentenceRounds: number;
   /** Script drills already played; one per lesson is plenty (ADR 0003). */
   scriptRounds: number;
+  /** Morphology drills already played; one per session. */
+  morphologyRounds: number;
 }
 
 /**
@@ -280,6 +283,9 @@ export function planNextMode(
     return 'reverseTyped';
   }
   if (current === 'reverseTyped') {
+    return context.morphologyRounds === 0 ? 'morphology' : 'choices';
+  }
+  if (current === 'morphology') {
     return 'choices';
   }
   if (

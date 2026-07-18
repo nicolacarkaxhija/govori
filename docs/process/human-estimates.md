@@ -191,4 +191,7 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: recognize the reviewer role across the app | 1–1.5 | Role enums widened on session/directory/role-change clients, drafts queue opened to reviewers while user management stays admin-only, three-way role picker replacing the flip button, catalog keys |
 
-**Running total: 218.7–278.2 h**
+| 2026-07-18 | feat: drill inflected word forms in the rotation | 1.5–2 | Forms client, a typed-drill card over five curated paradigm slots with graceful bow-out, one rotation slot per session, planner tests reconciled |
+| 2026-07-18 | feat: state the content license on the contribute form | 0.5 | CC BY-SA 4.0 notice in both languages ahead of publicizing the open export |
+
+**Running total: 220.7–280.7 h**

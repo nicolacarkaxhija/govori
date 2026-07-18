@@ -344,6 +344,7 @@ describe('planNextMode', () => {
     audioOn: false,
     sentenceRounds: 0,
     scriptRounds: 1,
+    morphologyRounds: 0,
   };
 
   it('walks recognition into production', () => {
@@ -376,7 +377,10 @@ describe('planNextMode', () => {
     expect(planNextMode('cloze', base)).toBe('reverseChoices');
     expect(planNextMode('assembly', base)).toBe('reverseChoices');
     expect(planNextMode('reverseChoices', base)).toBe('reverseTyped');
-    expect(planNextMode('reverseTyped', base)).toBe('choices');
+    expect(planNextMode('reverseTyped', base)).toBe('morphology');
+    expect(planNextMode('reverseTyped', { ...base, morphologyRounds: 1 })).toBe(
+      'choices',
+    );
   });
 
   it('goes reverse straight away when sentences run dry', () => {
@@ -407,5 +411,25 @@ describe('planNextMode', () => {
     expect(planNextMode('listening', { ...base, audioOn: true })).toBe(
       'reverseChoices',
     );
+  });
+});
+
+describe('planNextMode morphology round', () => {
+  const base = {
+    poolSize: 3,
+    hasCloze: false,
+    hasAssembly: false,
+    audioOn: false,
+    sentenceRounds: 0,
+    scriptRounds: 1,
+    morphologyRounds: 0,
+  };
+
+  it('slots one morphology round after the reverse pass', () => {
+    expect(planNextMode('reverseTyped', base)).toBe('morphology');
+    expect(planNextMode('reverseTyped', { ...base, morphologyRounds: 1 })).toBe(
+      'choices',
+    );
+    expect(planNextMode('morphology', base)).toBe('choices');
   });
 });
