@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Item } from '@glotty/content';
+import type { InstanceConfig } from '@glotty/language';
+import { folInstance } from '@glotty/instance-fol';
 import { buildApp } from '../app.js';
 import type { Auth } from '../auth/auth.js';
 import type { PendingVotes } from './ports.js';
@@ -41,9 +43,11 @@ interface Setup {
   session?: string | null;
   /** Someone else decides the entry between the vote and the publish. */
   raceLost?: boolean;
+  /** Overrides the resolved instance to exercise its vote threshold. */
+  instance?: InstanceConfig;
 }
 
-function testApp({ session = 'u1', raceLost = false }: Setup = {}) {
+function testApp({ session = 'u1', raceLost = false, instance }: Setup = {}) {
   const pending = new Map<string, Item>([[draft.id, draft]]);
   const ballots = new Map<string, boolean>();
   const decisions: { id: string; decision: string; decidedBy: string }[] = [];
@@ -67,6 +71,7 @@ function testApp({ session = 'u1', raceLost = false }: Setup = {}) {
 
   const deps = makeTestDeps({
     auth: sessionAs(session),
+    ...(instance === undefined ? {} : { instance }),
     reviewQueue: {
       addPending: () => Promise.resolve(0),
       listPending: (limit) => {
@@ -186,6 +191,45 @@ describe('POST /review/:id/vote', () => {
     });
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({ upvotes: 3, downvotes: 0 });
+    expect(decisions).toEqual([
+      { id: draft.id, decision: 'approved', decidedBy: 'community:vote' },
+    ]);
+    expect(published.map((item) => item.id)).toEqual([draft.id]);
+    await app.close();
+  });
+
+  it('holds back publication below a higher instance threshold (fol needs five)', async () => {
+    const { app, ballots, published } = testApp({ instance: folInstance });
+    // Four net upvotes clear govori's bar but not fol's five.
+    ballots.set(`${draft.id}:u2`, true);
+    ballots.set(`${draft.id}:u3`, true);
+    ballots.set(`${draft.id}:u4`, true);
+    const response = await app.inject({
+      method: 'POST',
+      url: `/review/${draft.id}/vote`,
+      payload: { up: true },
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ upvotes: 4, downvotes: 0 });
+    expect(published).toHaveLength(0);
+    await app.close();
+  });
+
+  it('publishes at the higher instance threshold (fol at net five)', async () => {
+    const { app, ballots, decisions, published } = testApp({
+      instance: folInstance,
+    });
+    ballots.set(`${draft.id}:u2`, true);
+    ballots.set(`${draft.id}:u3`, true);
+    ballots.set(`${draft.id}:u4`, true);
+    ballots.set(`${draft.id}:u5`, true);
+    const response = await app.inject({
+      method: 'POST',
+      url: `/review/${draft.id}/vote`,
+      payload: { up: true },
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ upvotes: 5, downvotes: 0 });
     expect(decisions).toEqual([
       { id: draft.id, decision: 'approved', decidedBy: 'community:vote' },
     ]);

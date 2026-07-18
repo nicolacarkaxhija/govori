@@ -13,7 +13,7 @@ import {
   ProvenanceSchema,
   type Item,
 } from '@glotty/content';
-import type { LanguagePack } from '@glotty/language';
+import type { InstanceConfig, LanguagePack } from '@glotty/language';
 import { resolveFlags, type ViewerRole } from '@glotty/config';
 import type { Auth } from './auth/auth.js';
 import type { ApiConfig } from './config.js';
@@ -25,11 +25,7 @@ import type { ReviewEventStore } from './reviews/ports.js';
 import type { StatsQueries } from './stats/ports.js';
 import type { CourseQueries } from './course/ports.js';
 import type { AccountRights } from './account/ports.js';
-import {
-  COMMUNITY_PUBLISH_NET_VOTES,
-  type ReviewQueue,
-  type VoteStore,
-} from './review/ports.js';
+import type { ReviewQueue, VoteStore } from './review/ports.js';
 import type { UserDirectory } from './auth/ports.js';
 import type { RecordingStore } from './audio/ports.js';
 import type { MorphologyQueries } from './morphology/ports.js';
@@ -37,6 +33,9 @@ import type { ExportQueries } from './export/ports.js';
 
 export interface AppDependencies {
   config: ApiConfig;
+  /** The resolved product (ADR 0029): owns branding and tuning knobs like
+   * the community publish threshold (ADR 0040). */
+  instance: InstanceConfig;
   /** The instance's language pack (ADR 0029): canonical validation and
    * script renderings are its judgment calls, never this adapter's. */
   pack: LanguagePack;
@@ -107,6 +106,7 @@ const ReviewEventSchema = z.object({
  */
 export function buildApp({
   config,
+  instance,
   pack,
   items,
   flagStates,
@@ -212,8 +212,8 @@ export function buildApp({
 
   // Routes live in a child plugin so the OpenAPI onRoute hook, installed
   // when the swagger plugin loads, sees every registration.
-  void app.register((instance) => {
-    const routes = instance.withTypeProvider<ZodTypeProvider>();
+  void app.register((plugin) => {
+    const routes = plugin.withTypeProvider<ZodTypeProvider>();
 
     routes.get('/health', () => ({ status: 'ok' }));
 
@@ -655,7 +655,8 @@ export function buildApp({
     );
 
     // Community voting (ADR 0040): any signed-in learner may vote a
-    // pending draft up or down; net-3 upvotes publish it like an approval.
+    // pending draft up or down; enough net upvotes publish it like an
+    // approval. The threshold is this instance's to set (ADR 0040).
     routes.post(
       '/review/:id/vote',
       {
@@ -689,7 +690,10 @@ export function buildApp({
           sessionResult.user.id,
           request.body.up,
         );
-        if (tally.upvotes - tally.downvotes >= COMMUNITY_PUBLISH_NET_VOTES) {
+        if (
+          tally.upvotes - tally.downvotes >=
+          instance.communityPublishNetVotes
+        ) {
           // Publishing mirrors a reviewer approval (ADR 0040); a decide
           // that comes back empty means someone else got there first.
           const item = await reviewQueue.decide(

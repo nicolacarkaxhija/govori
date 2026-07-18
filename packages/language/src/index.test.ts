@@ -80,6 +80,7 @@ describe('resolveInstance', () => {
     packId: 'fake',
     uiLanguages: ['en'],
     fallbackTranslationLang: 'en',
+    communityPublishNetVotes: 3,
     learnLanguages: [{ code: 'en', name: 'English' }],
     catalogs: { en: { check: 'Check' } },
   };

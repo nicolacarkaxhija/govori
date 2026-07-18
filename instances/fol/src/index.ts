@@ -30,6 +30,8 @@ export const folInstance: InstanceConfig = {
   packId: 'sq',
   uiLanguages: ['en', 'sq', 'de', 'it', 'tr'],
   fallbackTranslationLang: 'en',
+  /** A wider diaspora audience warrants a higher bar: five net upvotes. */
+  communityPublishNetVotes: 5,
   /**
    * Curated learner languages (L1): the languages of the Albanian
    * diaspora and its neighbours, each under its native name.

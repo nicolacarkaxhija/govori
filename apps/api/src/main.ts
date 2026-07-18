@@ -26,6 +26,7 @@ await runMigrations(db);
 const itemRepository = new DrizzleItemRepository(db);
 const app = buildApp({
   config,
+  instance,
   pack,
   items: itemRepository,
   flagStates: new DrizzleFlagStore(db),

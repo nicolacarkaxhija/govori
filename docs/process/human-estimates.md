@@ -239,4 +239,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | feat: target feature flags by viewer role | 2.5–3 | flag_states/flag_audit gained a target_role ring (drizzle migration 0011, generated clean); the flag store reads/writes it and preserves the ring across a plain on/off flip while auditing the resulting ring; GET /flags now resolves per session role (anonymous without one); PUT /admin/flags/:key takes an optional targetRole; every flag-store stub and the integration suite moved to the {enabled,targetRole} shape; api 98.3/92.4 |
 
+| 2026-07-18 | feat: make the community publish threshold instance config | 1–1.5 | InstanceConfig gained communityPublishNetVotes (govori 3, fol 5); the vote route reads it off the resolved instance handed to buildApp instead of a shared ports constant, which was removed; both thresholds covered via a makeTestDeps instance override; ADR 0040 records thresholds as instance config; language stays 100% branch, api 98.3/92.4 |
+
 **Running total: 221.2–281.7 h**

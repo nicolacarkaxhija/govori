@@ -58,6 +58,13 @@ export interface InstanceConfig {
   readonly uiLanguages: readonly string[];
   /** Translation language shown when an item lacks the learner's own. */
   readonly fallbackTranslationLang: string;
+  /**
+   * Net community votes (upvotes − downvotes) at which a pending draft
+   * publishes without a reviewer (ADR 0040). A tuning knob each product
+   * owns: a larger, busier community can demand a higher bar than a
+   * fledgling one.
+   */
+  readonly communityPublishNetVotes: number;
   /** Learner languages (L1) offered in the picker, in display order. */
   readonly learnLanguages: readonly {
     /** BCP 47 language code as served in item translations. */

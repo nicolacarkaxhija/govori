@@ -32,8 +32,11 @@ refused; a rejection ends the vote.
 
 - The queue drains through two doors: one trusted reviewer or three net
   community voices; neither blocks the other.
-- The publish threshold is a single named constant in the review ports,
-  so tuning it is a one-line change.
+- The publish threshold is instance config, not an engine constant:
+  `InstanceConfig.communityPublishNetVotes` (govori 3, fol 5), read by the
+  vote route from the resolved instance. Each product owns its own bar — a
+  larger, busier community can demand more net votes than a fledgling one —
+  and tuning it stays a one-line change in that instance.
 - Brigading (coordinated vote pushes) is a real risk we accept at the
   current community size, where voters are few and known; revisit the
   threshold, weighting, or eligibility rules as the community grows.

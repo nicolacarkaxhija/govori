@@ -26,6 +26,8 @@ export const govoriInstance: InstanceConfig = {
   packId: 'isv',
   uiLanguages: ['en', 'isv'],
   fallbackTranslationLang: 'en',
+  /** A small, close-knit community: three net upvotes publish (ADR 0040). */
+  communityPublishNetVotes: 3,
   /**
    * Curated learner languages (L1): the most common codes in the corpus,
    * each under its native name.

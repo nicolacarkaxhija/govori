@@ -23,6 +23,7 @@ export function makeTestDeps(
 ): AppDependencies {
   return {
     config: loadConfig(env, govoriInstance.brand),
+    instance: govoriInstance,
     pack: isvPack,
     items: {
       findById: () => Promise.resolve(undefined),

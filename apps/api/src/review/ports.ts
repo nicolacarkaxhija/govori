@@ -20,12 +20,6 @@ export interface ReviewQueue {
   ): Promise<Item | undefined>;
 }
 
-/**
- * Net community votes (upvotes − downvotes) at which a pending draft
- * publishes without a reviewer (ADR 0040).
- */
-export const COMMUNITY_PUBLISH_NET_VOTES = 3;
-
 export interface VoteTally {
   upvotes: number;
   downvotes: number;
