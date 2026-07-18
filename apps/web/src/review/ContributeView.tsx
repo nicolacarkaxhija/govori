@@ -82,7 +82,7 @@ export function ContributeView({ onExit, onSignIn }: ContributeViewProps) {
           </select>
         </label>
         <label className="field">
-          {t('isvLabel')}
+          {t('targetTextLabel')}
           <input
             required
             value={text}

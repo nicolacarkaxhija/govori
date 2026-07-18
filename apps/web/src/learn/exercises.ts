@@ -71,8 +71,8 @@ export function buildChoices(
 }
 
 /**
- * Reverse direction (production): the target's Interslavic word among
- * Interslavic distractors, prompted by its translation.
+ * Reverse direction (production): the target's word among same-language
+ * distractors, prompted by its translation.
  */
 export function buildReverseChoices(
   target: LearnItem,

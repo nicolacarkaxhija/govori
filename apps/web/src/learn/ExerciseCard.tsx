@@ -40,7 +40,7 @@ export function ExerciseCard({
   const [picked, setPicked] = useState<string | null>(null);
   const [typed, setTyped] = useState('');
 
-  // Reverse rounds prompt with the translation and answer in Interslavic.
+  // Reverse rounds prompt with the translation; answers are in the target language.
   const reverse = mode === 'reverseChoices' || mode === 'reverseTyped';
   const word = renderText(item.text, script);
   const translation = translationFor(
@@ -113,7 +113,7 @@ export function ExerciseCard({
         <div
           className="card-choices"
           role="group"
-          aria-label={reverse ? t('interslavicAria') : t('translationsAria')}
+          aria-label={reverse ? t('targetLanguageAria') : t('translationsAria')}
         >
           {choices.map((choice) => (
             <button

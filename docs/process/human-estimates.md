@@ -223,4 +223,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | docs: record the platform split and the pack seam | 1.5–2 | ADR 0041 (one engine, many language apps) and ADR 0042 (LanguagePack seam with the never-names-a-language acceptance standard) plus registry rows, root CONTEXT.md glossary, README retitled to glotty with a products section, CLAUDE.md realigned |
 
+| 2026-07-18 | refactor: purge language-named identifiers from engine strings | 0.5–1 | interslavicAria/isvLabel catalog keys renamed to target-language terms, engine comments reworded, catalogs re-sorted with the parity gate |
+
 **Running total: 221.2–281.7 h**

@@ -26,7 +26,7 @@ function shuffled<T>(values: readonly T[], random: () => number): T[] {
     .map((entry) => entry.value);
 }
 
-/** Match ISV words to translations; a miss marks both items for relearning. */
+/** Match target-language words to translations; a miss marks both for relearning. */
 export function MatchingCard({
   pool,
   script,
@@ -92,7 +92,7 @@ export function MatchingCard({
         <div
           className="matching-column"
           role="group"
-          aria-label={t('interslavicAria')}
+          aria-label={t('targetLanguageAria')}
         >
           {left.map((side) => (
             <button
