@@ -1,16 +1,22 @@
-// These suites pin the deprecated forge-facing wrappers until the forge
-// binds its own pack through makeContentSchemas.
-/* eslint-disable @typescript-eslint/no-deprecated */
 import { describe, expect, it } from 'vitest';
 import {
   ArtifactError,
-  ContentArtifactSchema,
-  ItemSchema,
+  makeContentSchemas,
   PartOfSpeechSchema,
+} from './index.js';
+
+// A stand-in canonical validator: the engine never knows a language, so
+// these suites bind one that rejects Cyrillic, the letter q, and blanks —
+// enough to exercise every canonical-text seam with the fixtures below.
+const {
+  ItemSchema,
+  ContentArtifactSchema,
   parseContentArtifact,
   parseCurriculumArtifact,
   parseMorphologyArtifact,
-} from './index.js';
+} = makeContentSchemas(
+  (text) => text.trim().length > 0 && !/[qЀ-ӿ]/u.test(text),
+);
 
 const validItem = {
   id: '3e2d8f0a-4b1c-4f6e-9a7d-1c2b3a4d5e6f',

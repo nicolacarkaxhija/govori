@@ -207,4 +207,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | feat: inject the language pack into the api | 2.5–3 | pack on AppDependencies, artifact schemas bound in buildApp, renderings keyed by pack scripts with a fake-pack route test, contribute rejection worded by the pack, import seams take bound parsers, suites migrated off the deprecated wrappers |
 
+| 2026-07-18 | refactor!: drop the isv-bound content schema exports | 1–1.5 | Breaking seam cleanup: forge-compat module deleted, @glotty/content depends on zod alone, suites rebound to a stand-in validator so the engine package never names a language; forge migration documented for its own repo |
+
 **Running total: 221.2–281.7 h**

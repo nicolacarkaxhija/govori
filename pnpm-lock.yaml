@@ -209,9 +209,6 @@ importers:
 
   packages/content:
     dependencies:
-      '@glotty/pack-isv':
-        specifier: workspace:*
-        version: link:../../packs/isv
       zod:
         specifier: 'catalog:'
         version: 4.4.3

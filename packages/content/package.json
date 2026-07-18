@@ -22,8 +22,7 @@
     "mutation": "stryker run"
   },
   "dependencies": {
-    "zod": "catalog:",
-    "@glotty/pack-isv": "workspace:*"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@stryker-mutator/core": "catalog:",

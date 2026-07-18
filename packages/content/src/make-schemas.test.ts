@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ArtifactError, makeContentSchemas } from './schemas.js';
+import { ArtifactError, makeContentSchemas } from './index.js';
 
 // A deliberately non-Interslavic validator: canonical means "no letter q".
 const schemas = makeContentSchemas((text) => !text.includes('q'));
