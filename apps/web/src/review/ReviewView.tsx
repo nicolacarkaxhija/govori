@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { transliterate } from '@govori/transliteration';
+import { transliterate } from '@glotty/transliteration-isv';
 import {
   decideReview,
   fetchPendingReviews,

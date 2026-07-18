@@ -6,8 +6,8 @@ depends-on: [adr-0003, adr-0012, adr-0035, adr-0037]
 
 # Content schemas & artifact contract
 
-Package: `packages/content` (`@govori/content`). Depends on zod and
-`@govori/transliteration` (canonical-orthography validation).
+Package: `packages/content` (`@glotty/content`). Depends on zod and
+`@glotty/transliteration-isv` (canonical-orthography validation).
 
 ## Public seam
 

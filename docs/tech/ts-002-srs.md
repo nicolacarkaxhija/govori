@@ -6,7 +6,7 @@ depends-on: [adr-0030, adr-0036]
 
 # SRS engine
 
-Package: `packages/srs` (`@govori/srs`). Pure domain code, no dependencies.
+Package: `packages/srs` (`@glotty/srs`). Pure domain code, no dependencies.
 
 ## Public seam
 

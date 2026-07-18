@@ -1,4 +1,4 @@
-import { defineFlags } from '@govori/config';
+import { defineFlags } from '@glotty/config';
 
 /**
  * The product's feature-flag graph (ADR 0025). Risky-at-small-scale features

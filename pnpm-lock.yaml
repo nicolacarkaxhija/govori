@@ -77,18 +77,18 @@ importers:
       '@fastify/swagger':
         specifier: ^9.8.1
         version: 9.8.1
-      '@govori/config':
+      '@glotty/config':
         specifier: workspace:*
         version: link:../../packages/config
-      '@govori/content':
+      '@glotty/content':
         specifier: workspace:*
         version: link:../../packages/content
-      '@govori/srs':
+      '@glotty/srs':
         specifier: workspace:*
         version: link:../../packages/srs
-      '@govori/transliteration':
+      '@glotty/transliteration-isv':
         specifier: workspace:*
-        version: link:../../packages/transliteration
+        version: link:../../packs/transliteration-isv
       better-auth:
         specifier: ^1.6.23
         version: 1.6.23(drizzle-kit@0.31.10)(drizzle-orm@0.45.2(kysely@0.29.3)(postgres@3.4.9))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(vitest@4.1.10)
@@ -135,12 +135,12 @@ importers:
       '@fontsource/source-sans-3':
         specifier: ^5.2.9
         version: 5.2.9
-      '@govori/srs':
+      '@glotty/srs':
         specifier: workspace:*
         version: link:../../packages/srs
-      '@govori/transliteration':
+      '@glotty/transliteration-isv':
         specifier: workspace:*
-        version: link:../../packages/transliteration
+        version: link:../../packs/transliteration-isv
       react:
         specifier: ^19.2.7
         version: 19.2.7
@@ -206,9 +206,9 @@ importers:
 
   packages/content:
     dependencies:
-      '@govori/transliteration':
+      '@glotty/transliteration-isv':
         specifier: workspace:*
-        version: link:../transliteration
+        version: link:../../packs/transliteration-isv
       zod:
         specifier: 'catalog:'
         version: 4.4.3
@@ -235,7 +235,7 @@ importers:
         specifier: 'catalog:'
         version: 4.9.0
 
-  packages/transliteration:
+  packs/transliteration-isv:
     devDependencies:
       '@stryker-mutator/core':
         specifier: 'catalog:'

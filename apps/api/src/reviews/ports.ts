@@ -1,4 +1,4 @@
-import type { ReviewEvent } from '@govori/srs';
+import type { ReviewEvent } from '@glotty/srs';
 
 /** Per-user review-event log; event ids make set-union sync trivial (ADR 0030). */
 export interface ReviewEventStore {

@@ -4,7 +4,7 @@ import {
   parseCurriculumArtifact,
   parseMorphologyArtifact,
   type Item,
-} from '@govori/content';
+} from '@glotty/content';
 import { buildApp } from '../app.js';
 import { makeTestDeps } from '../test-support.js';
 import type { ExportQueries, ExportUnit } from './ports.js';

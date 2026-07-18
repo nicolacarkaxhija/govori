@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { ReviewEvent } from '@govori/srs';
+import type { ReviewEvent } from '@glotty/srs';
 
 const metaSchema = z.object({
   brand: z.object({

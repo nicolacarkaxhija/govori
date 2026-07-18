@@ -1,4 +1,4 @@
-import type { CurriculumArtifact, Item } from '@govori/content';
+import type { CurriculumArtifact, Item } from '@glotty/content';
 
 export type LessonDialogue = NonNullable<
   CurriculumArtifact['units'][number]['lessons'][number]['dialogue']

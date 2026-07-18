@@ -1,5 +1,5 @@
 import { and, asc, eq } from 'drizzle-orm';
-import type { Item } from '@govori/content';
+import type { Item } from '@glotty/content';
 import type { Db } from '../db/client.js';
 import { reviewQueue } from '../db/schema.js';
 import type { ReviewDecision, ReviewQueue } from './ports.js';

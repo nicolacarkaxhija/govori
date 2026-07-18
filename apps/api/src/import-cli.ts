@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { parseContentArtifact, parseCurriculumArtifact } from '@govori/content';
+import { parseContentArtifact, parseCurriculumArtifact } from '@glotty/content';
 import { loadConfig } from './config.js';
 import { createDb } from './db/client.js';
 import { runMigrations } from './db/migrate.js';

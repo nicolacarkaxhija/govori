@@ -1,5 +1,5 @@
 import { asc, eq } from 'drizzle-orm';
-import type { CurriculumArtifact, Item } from '@govori/content';
+import type { CurriculumArtifact, Item } from '@glotty/content';
 import type { Db } from '../db/client.js';
 import { lessonItems, lessons, units } from '../db/schema.js';
 import type { ItemQueries } from '../content/ports.js';

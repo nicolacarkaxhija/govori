@@ -1,5 +1,5 @@
 {
-  "name": "@govori/content",
+  "name": "@glotty/content",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "zod": "catalog:",
-    "@govori/transliteration": "workspace:*"
+    "@glotty/transliteration-isv": "workspace:*"
   },
   "devDependencies": {
     "@stryker-mutator/core": "catalog:",

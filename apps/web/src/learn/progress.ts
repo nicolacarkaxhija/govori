@@ -1,4 +1,4 @@
-import { replay, selectDue, type Grade, type ReviewEvent } from '@govori/srs';
+import { replay, selectDue, type Grade, type ReviewEvent } from '@glotty/srs';
 
 const STORAGE_KEY = 'govori.reviews.v1';
 

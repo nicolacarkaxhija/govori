@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { buildConfig, envSource } from '@govori/config';
+import { buildConfig, envSource } from '@glotty/config';
 
 /** Deployment configuration schema for the API (ADR 0024). */
 const configSchema = z.object({

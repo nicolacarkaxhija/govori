@@ -8,7 +8,7 @@ import {
   parseCurriculumArtifact,
   parseMorphologyArtifact,
   type Item,
-} from '@govori/content';
+} from '@glotty/content';
 import { createDb, type Db } from '../db/client.js';
 import { runMigrations } from '../db/migrate.js';
 import { DrizzleItemRepository } from './drizzle-item-repository.js';

@@ -1,5 +1,5 @@
 {
-  "name": "@govori/transliteration",
+  "name": "@glotty/transliteration-isv",
   "version": "0.0.0",
   "private": true,
   "type": "module",

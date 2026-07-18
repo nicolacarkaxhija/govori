@@ -1,5 +1,5 @@
 import { useState, type SubmitEvent } from 'react';
-import { isCanonical } from '@govori/transliteration';
+import { isCanonical } from '@glotty/transliteration-isv';
 import { contribute } from '../api/client';
 import { useT } from '../i18n';
 

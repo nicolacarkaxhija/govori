@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ConfigError } from '@govori/config';
+import { ConfigError } from '@glotty/config';
 import { loadConfig } from './config.js';
 
 describe('loadConfig', () => {

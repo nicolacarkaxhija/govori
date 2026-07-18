@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { isCanonical } from '@govori/transliteration';
+import { isCanonical } from '@glotty/transliteration-isv';
 
 /** A content artifact failed validation at the import seam (ADR 0037). */
 export class ArtifactError extends Error {

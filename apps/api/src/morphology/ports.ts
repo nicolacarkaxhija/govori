@@ -1,4 +1,4 @@
-import type { MorphologyArtifact } from '@govori/content';
+import type { MorphologyArtifact } from '@glotty/content';
 
 /** One item's paradigm as shipped in the morphology artifact (ADR 0037). */
 export type MorphologyEntry = MorphologyArtifact['entries'][number];

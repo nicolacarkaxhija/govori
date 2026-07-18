@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Item } from '@govori/content';
+import type { Item } from '@glotty/content';
 import { buildApp } from '../app.js';
 import { makeTestDeps } from '../test-support.js';
 

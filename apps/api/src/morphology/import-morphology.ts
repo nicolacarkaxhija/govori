@@ -1,4 +1,4 @@
-import { parseMorphologyArtifact } from '@govori/content';
+import { parseMorphologyArtifact } from '@glotty/content';
 import type { MorphologyRepository } from './ports.js';
 
 export interface MorphologyImportResult {

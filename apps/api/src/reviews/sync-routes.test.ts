@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { ReviewEvent } from '@govori/srs';
+import type { ReviewEvent } from '@glotty/srs';
 import { buildApp } from '../app.js';
 import type { Auth } from '../auth/auth.js';
 import { makeTestDeps } from '../test-support.js';

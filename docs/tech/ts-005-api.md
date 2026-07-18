@@ -6,7 +6,7 @@ depends-on: [adr-0018, adr-0019, adr-0020, adr-0024, adr-0025, adr-0037]
 
 # API server
 
-App: `apps/api` (`@govori/api`). Fastify 5 over the domain packages.
+App: `apps/api` (`@glotty/api`). Fastify 5 over the domain packages.
 
 ## Shape
 

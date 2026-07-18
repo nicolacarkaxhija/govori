@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { transliterate } from '@govori/transliteration';
-import type { Grade } from '@govori/srs';
+import { transliterate } from '@glotty/transliteration-isv';
+import type { Grade } from '@glotty/srs';
 import type { Assembly } from './exercises';
 import type { Script } from './useScript';
 import { useT } from '../i18n';

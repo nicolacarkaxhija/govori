@@ -1,9 +1,9 @@
 {
-  "name": "govori",
+  "name": "glotty",
   "private": true,
   "type": "module",
   "version": "0.1.0",
-  "description": "Govori — community-driven Interslavic learning app",
+  "description": "glotty — open community language-learning engine",
   "license": "AGPL-3.0-only",
   "author": "Nicola Carkaxhija",
   "repository": {

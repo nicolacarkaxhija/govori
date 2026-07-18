@@ -1,4 +1,4 @@
-import type { ReviewEvent } from '@govori/srs';
+import type { ReviewEvent } from '@glotty/srs';
 
 export interface ExportBundle {
   user: {

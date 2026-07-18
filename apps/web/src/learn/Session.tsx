@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Grade } from '@govori/srs';
+import type { Grade } from '@glotty/srs';
 import type { LearnItem } from '../api/client';
 import { useT } from '../i18n';
 import { AssemblyCard } from './AssemblyCard';

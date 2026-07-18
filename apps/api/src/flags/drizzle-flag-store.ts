@@ -4,7 +4,7 @@ import { flagAudit, flagStates } from '../db/schema.js';
 
 /**
  * Postgres adapter for runtime flag states, with an append-only audit trail
- * of every change (ADR 0025). Graph semantics live in @govori/config.
+ * of every change (ADR 0025). Graph semantics live in @glotty/config.
  */
 export class DrizzleFlagStore {
   constructor(private readonly db: Db) {}

@@ -1,5 +1,5 @@
 import { useEffect, useState, type SubmitEvent } from 'react';
-import type { Grade } from '@govori/srs';
+import type { Grade } from '@glotty/srs';
 import {
   fetchRecordings,
   recordingUrl,

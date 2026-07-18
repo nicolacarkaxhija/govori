@@ -1,4 +1,4 @@
-import type { Item } from '@govori/content';
+import type { Item } from '@glotty/content';
 
 export type ReviewDecision = 'approved' | 'rejected';
 

@@ -1,6 +1,6 @@
 import { useEffect, useState, type SubmitEvent } from 'react';
-import { transliterate } from '@govori/transliteration';
-import type { Grade } from '@govori/srs';
+import { transliterate } from '@glotty/transliteration-isv';
+import type { Grade } from '@glotty/srs';
 import { fetchForms, type ItemForm, type LearnItem } from '../api/client';
 import { checkTyped, translationFor } from './exercises';
 import type { Script } from './useScript';

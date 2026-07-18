@@ -195,5 +195,6 @@ developer working alone. Appended in the same commit it describes.
 | 2026-07-18 | feat: state the content license on the contribute form | 0.5 | CC BY-SA 4.0 notice in both languages ahead of publicizing the open export |
 
 | 2026-07-18 | feat: enforce mobile Lighthouse gates and charter the SEO posture | 0.5–1 | Performance/best-practices/SEO categories armed as blocking at 0.9 on mobile emulation; ADR 0043 pins SEO to prerendered product shells over the open artifacts |
+| 2026-07-18 | refactor: rename the workspace scope to glotty | 1–1.5 | Mechanical @govori→@glotty sweep across packages, apps, CI, Dockerfiles, and tech specs; transliteration engine relocated to packs/ as the first language-specific module; lockfile importers rebuilt |
 
 **Running total: 221.2–281.7 h**

@@ -15,9 +15,9 @@ import {
   MorphologyArtifactSchema,
   ProvenanceSchema,
   type Item,
-} from '@govori/content';
-import { transliterate } from '@govori/transliteration';
-import { resolveFlags } from '@govori/config';
+} from '@glotty/content';
+import { transliterate } from '@glotty/transliteration-isv';
+import { resolveFlags } from '@glotty/config';
 import type { Auth } from './auth/auth.js';
 import type { ApiConfig } from './config.js';
 import type { ItemQueries } from './content/ports.js';

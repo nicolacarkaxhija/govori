@@ -1,4 +1,4 @@
-import { parseContentArtifact } from '@govori/content';
+import { parseContentArtifact } from '@glotty/content';
 import type { ItemRepository } from './ports.js';
 
 export interface ImportResult {

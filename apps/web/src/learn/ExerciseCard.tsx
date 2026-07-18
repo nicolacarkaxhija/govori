@@ -1,6 +1,6 @@
 import { useMemo, useState, type SubmitEvent } from 'react';
-import { transliterate } from '@govori/transliteration';
-import type { Grade } from '@govori/srs';
+import { transliterate } from '@glotty/transliteration-isv';
+import type { Grade } from '@glotty/srs';
 import type { LearnItem } from '../api/client';
 import { AudioTools } from './AudioTools';
 import {

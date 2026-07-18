@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import { transliterate } from '@govori/transliteration';
-import type { Grade } from '@govori/srs';
+import { transliterate } from '@glotty/transliteration-isv';
+import type { Grade } from '@glotty/srs';
 import type { LearnItem } from '../api/client';
 import { buildMatching } from './exercises';
 import type { Script } from './useScript';

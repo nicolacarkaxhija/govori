@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Grade } from '@govori/srs';
+import type { Grade } from '@glotty/srs';
 import { fetchItems, type LearnItem } from '../api/client';
 import { useT } from '../i18n';
 import { MatchingCard } from '../learn/MatchingCard';

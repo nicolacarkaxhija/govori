@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ArtifactError, type Item } from '@govori/content';
+import { ArtifactError, type Item } from '@glotty/content';
 import { importArtifact } from './import-artifact.js';
 import type { ItemRepository } from './ports.js';
 

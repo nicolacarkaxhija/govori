@@ -1,4 +1,4 @@
-import type { CurriculumArtifact, Item } from '@govori/content';
+import type { CurriculumArtifact, Item } from '@glotty/content';
 import type { MorphologyEntry } from '../morphology/ports.js';
 
 /** One unit as it appears in the exported curriculum artifact. */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ArtifactError } from '@govori/content';
+import { ArtifactError } from '@glotty/content';
 import { importMorphologyArtifact } from './import-morphology.js';
 import type { MorphologyEntry, MorphologyRepository } from './ports.js';
 

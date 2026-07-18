@@ -6,7 +6,7 @@ depends-on: [adr-0003]
 
 # Transliteration engine
 
-Package: `packages/transliteration` (`@govori/transliteration`). Pure domain
+Package: `packs/transliteration-isv` (`@glotty/transliteration-isv`). Pure domain
 code, no dependencies.
 
 ## Public seam

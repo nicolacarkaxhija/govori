@@ -6,7 +6,7 @@ depends-on: [adr-0024, adr-0025]
 
 # Configuration & feature-flag machinery
 
-Package: `packages/config` (`@govori/config`). Pure domain code; depends only
+Package: `packages/config` (`@glotty/config`). Pure domain code; depends only
 on zod.
 
 ## Public seam

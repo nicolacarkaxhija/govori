@@ -1,5 +1,5 @@
 import { asc, eq, sql } from 'drizzle-orm';
-import type { Item, PartOfSpeech } from '@govori/content';
+import type { Item, PartOfSpeech } from '@glotty/content';
 import type { Db } from '../db/client.js';
 import {
   contrastiveNotes,

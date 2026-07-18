@@ -1,5 +1,5 @@
 import { and, asc, eq, gt } from 'drizzle-orm';
-import type { ReviewEvent } from '@govori/srs';
+import type { ReviewEvent } from '@glotty/srs';
 import type { Db } from '../db/client.js';
 import { reviewEvents } from '../db/schema.js';
 import type { ReviewEventStore } from './ports.js';

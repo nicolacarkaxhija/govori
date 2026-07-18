@@ -1,5 +1,5 @@
 {
-  "name": "@govori/api",
+  "name": "@glotty/api",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -16,10 +16,10 @@
   "dependencies": {
     "@fastify/cors": "^11.3.0",
     "@fastify/swagger": "^9.8.1",
-    "@govori/config": "workspace:*",
-    "@govori/content": "workspace:*",
-    "@govori/srs": "workspace:*",
-    "@govori/transliteration": "workspace:*",
+    "@glotty/config": "workspace:*",
+    "@glotty/content": "workspace:*",
+    "@glotty/srs": "workspace:*",
+    "@glotty/transliteration-isv": "workspace:*",
     "better-auth": "^1.6.23",
     "drizzle-orm": "^0.45.2",
     "fastify": "^5.7.1",

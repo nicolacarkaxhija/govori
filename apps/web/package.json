@@ -1,5 +1,5 @@
 {
-  "name": "@govori/web",
+  "name": "@glotty/web",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -18,8 +18,8 @@
     "@capacitor/core": "^8.4.2",
     "@fontsource-variable/literata": "^5.2.8",
     "@fontsource/source-sans-3": "^5.2.9",
-    "@govori/srs": "workspace:*",
-    "@govori/transliteration": "workspace:*",
+    "@glotty/srs": "workspace:*",
+    "@glotty/transliteration-isv": "workspace:*",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "zod": "catalog:"

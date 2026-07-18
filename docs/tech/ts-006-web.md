@@ -6,7 +6,7 @@ depends-on: [adr-0003, adr-0013, adr-0022, adr-0026, adr-0030, adr-0038]
 
 # Web app
 
-App: `apps/web` (`@govori/web`). Vite + React 19 PWA over the domain
+App: `apps/web` (`@glotty/web`). Vite + React 19 PWA over the domain
 packages; no framework state library, no router — a discriminated-union
 view machine in `App`.
 

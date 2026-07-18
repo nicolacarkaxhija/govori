@@ -1,4 +1,4 @@
-import { normalize } from '@govori/transliteration';
+import { normalize } from '@glotty/transliteration-isv';
 import type { LearnItem } from '../api/client';
 
 /**

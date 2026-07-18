@@ -1,4 +1,4 @@
-import { transliterate } from '@govori/transliteration';
+import { transliterate } from '@glotty/transliteration-isv';
 import type { LessonDialogue } from '../api/client';
 import { useT } from '../i18n';
 import type { Script } from './useScript';

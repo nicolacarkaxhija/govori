@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { transliterate } from '@govori/transliteration';
+import { transliterate } from '@glotty/transliteration-isv';
 import { castVote, fetchPendingVotes, type PendingVote } from '../api/client';
 import { useT } from '../i18n';
 import type { Script } from '../learn/useScript';

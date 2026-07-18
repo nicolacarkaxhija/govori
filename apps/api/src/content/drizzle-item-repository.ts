@@ -1,5 +1,5 @@
 import { and, asc, count, eq, inArray, or, sql } from 'drizzle-orm';
-import type { Item } from '@govori/content';
+import type { Item } from '@glotty/content';
 import type { Db } from '../db/client.js';
 import { contrastiveNotes, items, translations } from '../db/schema.js';
 import type { ItemQueries, ItemRepository } from './ports.js';

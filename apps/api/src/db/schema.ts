@@ -15,7 +15,7 @@ import type {
   OriginalityAudit,
   PartOfSpeech,
   Provenance,
-} from '@govori/content';
+} from '@glotty/content';
 
 /** The content atom (ADR 0002/0003); text is canonical etymological Latin. */
 export const items = pgTable('items', {

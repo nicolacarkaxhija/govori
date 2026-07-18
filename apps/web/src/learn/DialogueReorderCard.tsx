@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { transliterate } from '@govori/transliteration';
+import { transliterate } from '@glotty/transliteration-isv';
 import type { LessonDialogue } from '../api/client';
 import { scrambleOrder } from './exercises';
 import type { Script } from './useScript';

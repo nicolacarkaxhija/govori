@@ -1,4 +1,4 @@
-import type { Item } from '@govori/content';
+import type { Item } from '@glotty/content';
 
 /** Persistence port for content items (ADR 0018). */
 export interface ItemRepository {

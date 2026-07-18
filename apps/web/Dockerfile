@@ -5,8 +5,8 @@ WORKDIR /repo
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json turbo.json tsconfig.base.json ./
 COPY packages ./packages
 COPY apps/web ./apps/web
-RUN pnpm install --frozen-lockfile --filter @govori/web... --filter .
-RUN pnpm exec turbo run build --filter=@govori/web
+RUN pnpm install --frozen-lockfile --filter @glotty/web... --filter .
+RUN pnpm exec turbo run build --filter=@glotty/web
 
 FROM caddy:2-alpine
 COPY deploy/Caddyfile /etc/caddy/Caddyfile
