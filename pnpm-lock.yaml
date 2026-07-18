@@ -247,6 +247,25 @@ importers:
         specifier: 'catalog:'
         version: 4.9.0
 
+  packs/isv:
+    dependencies:
+      '@glotty/language':
+        specifier: workspace:*
+        version: link:../../packages/language
+      '@glotty/transliteration-isv':
+        specifier: workspace:*
+        version: link:../transliteration-isv
+    devDependencies:
+      '@stryker-mutator/core':
+        specifier: 'catalog:'
+        version: 9.6.1(@types/node@26.1.1)
+      '@stryker-mutator/vitest-runner':
+        specifier: 'catalog:'
+        version: 9.6.1(@stryker-mutator/core@9.6.1(@types/node@26.1.1))(vitest@4.1.10)
+      fast-check:
+        specifier: 'catalog:'
+        version: 4.9.0
+
   packs/transliteration-isv:
     devDependencies:
       '@stryker-mutator/core':

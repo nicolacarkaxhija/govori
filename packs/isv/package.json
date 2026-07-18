@@ -1,0 +1,33 @@
+{
+  "name": "@glotty/pack-isv",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-only",
+  "description": "The Interslavic language pack: canonical validation, normalization, stemming, and both scripts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint src",
+    "test": "vitest run --coverage",
+    "mutation": "stryker run"
+  },
+  "dependencies": {
+    "@glotty/language": "workspace:*",
+    "@glotty/transliteration-isv": "workspace:*"
+  },
+  "devDependencies": {
+    "@stryker-mutator/core": "catalog:",
+    "@stryker-mutator/vitest-runner": "catalog:",
+    "fast-check": "catalog:"
+  }
+}

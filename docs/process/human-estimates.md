@@ -199,4 +199,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | feat: define the language pack contract | 1–1.5 | New @glotty/language domain package: LanguagePack/ScriptVariant interfaces plus renderIn/hasScriptChoice/nextScript helpers, 100% branch and 100% mutation, full domain gate config |
 
+| 2026-07-18 | feat: ship the interslavic language pack | 1–1.5 | @glotty/pack-isv implementing the contract over the transliteration engine, loose stem promoted from the web app, script-variant factory to keep mutants observable, 100% mutation |
+
 **Running total: 221.2–281.7 h**
