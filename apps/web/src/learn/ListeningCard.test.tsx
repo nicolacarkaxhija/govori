@@ -67,6 +67,29 @@ describe('ListeningCard', () => {
     expect(onGrade).toHaveBeenCalledWith('good');
   });
 
+  it('speaks the learner language in feedback', async () => {
+    const user = userEvent.setup();
+    const polishItem: LearnItem = {
+      ...item,
+      translations: [
+        { lang: 'en', text: 'snow' },
+        { lang: 'pl', text: 'śnieg' },
+      ],
+    };
+    render(
+      <ListeningCard
+        item={polishItem}
+        lang="pl"
+        onGrade={vi.fn()}
+        onUnavailable={vi.fn()}
+      />,
+    );
+    await screen.findByRole('button', { name: 'Listen' });
+    await user.type(screen.getByLabelText('Type what you hear'), 'sneg');
+    await user.click(screen.getByRole('button', { name: 'Check' }));
+    expect(screen.getByText(/śnieg/)).toBeDefined();
+  });
+
   it('marks a wrong transcription and grades again', async () => {
     const user = userEvent.setup();
     const onGrade = vi.fn();

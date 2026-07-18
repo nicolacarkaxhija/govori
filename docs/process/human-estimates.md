@@ -171,4 +171,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: pick exercise translations by learner language | 1–1.5 | translationFor with exact/en/first fallback chain, lang threaded through the choice, matching, cloze, and assembly builders with English defaults, language-gap coverage |
 
+| 2026-07-17 | feat: carry the learner language through every exercise card | 1.5–2 | Persisted useLearnLanguage hook over a curated 12-language list with unknown-code refusal, lang props on exercise/matching/listening cards and the lesson view, gap-fallback UI tests |
+
 **Running total: 198.7–252.2 h**

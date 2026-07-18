@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { LearnItem } from '../api/client';
@@ -88,5 +88,36 @@ describe('MatchingCard', () => {
       'aaaaaaaa-0000-4000-8000-000000000001',
       'aaaaaaaa-0000-4000-8000-000000000002',
     ]);
+  });
+});
+
+describe('MatchingCard learner language', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('labels the translation column in the learner language', () => {
+    const polishPool: LearnItem[] = pool.map((item, index) => ({
+      ...item,
+      translations:
+        index === 0
+          ? item.translations
+          : [...item.translations, { lang: 'pl', text: `pl-${item.text}` }],
+    }));
+    render(
+      <MatchingCard
+        pool={polishPool}
+        script="latin"
+        lang="pl"
+        onComplete={vi.fn()}
+      />,
+    );
+    const column = screen.getByRole('group', { name: 'translations' });
+    const labels = Array.from(column.querySelectorAll('button')).map(
+      (button) => button.textContent,
+    );
+    expect(labels).toContain('pl-voda');
+    // The first item has no Polish translation: English fills the gap.
+    expect(labels).toContain('bread');
   });
 });

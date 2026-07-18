@@ -280,6 +280,48 @@ describe('LessonView listening rotation', () => {
   });
 });
 
+describe('LessonView learner language', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    fetchLessonMock.mockReset().mockResolvedValue({
+      title: 'Lekcija',
+      items: [
+        {
+          id: 'bbbbbbbb-0000-4000-8000-000000000001',
+          kind: 'word',
+          text: 'voda',
+          translations: [
+            { lang: 'en', text: 'water' },
+            { lang: 'pl', text: 'woda' },
+          ],
+        },
+        {
+          id: 'bbbbbbbb-0000-4000-8000-000000000002',
+          kind: 'word',
+          text: 'hlěb',
+          translations: [{ lang: 'en', text: 'bread' }],
+        },
+      ],
+    });
+    fetchSentencesMock.mockReset().mockResolvedValue([]);
+    fetchFlagsMock.mockReset().mockResolvedValue({});
+    fetchRecordingsMock.mockReset().mockResolvedValue([]);
+  });
+
+  it('speaks the chosen language in exercises, English filling gaps', async () => {
+    render(
+      <LessonView
+        lessonId="cccccccc-0000-4000-8000-000000000001"
+        script="latin"
+        learnLang="pl"
+        onExit={vi.fn()}
+      />,
+    );
+    expect(await screen.findByRole('button', { name: 'woda' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'bread' })).toBeDefined();
+  });
+});
+
 describe('LessonView reverse rotation', () => {
   const threeItems: LearnItem[] = [
     ...items,

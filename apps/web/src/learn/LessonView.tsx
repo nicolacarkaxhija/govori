@@ -28,6 +28,8 @@ import type { Script } from './useScript';
 export interface LessonViewProps {
   lessonId: string;
   script: Script;
+  /** Learner language (L1) for translations; English by default. */
+  learnLang?: string;
   onExit: () => void;
 }
 
@@ -37,7 +39,12 @@ type Phase =
   | { name: 'done' }
   | { name: 'exercise'; item: LearnItem };
 
-export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
+export function LessonView({
+  lessonId,
+  script,
+  learnLang = 'en',
+  onExit,
+}: LessonViewProps) {
   const t = useT();
   const [pool, setPool] = useState<LearnItem[]>([]);
   const [sentences, setSentences] = useState<LearnItem[]>([]);
@@ -89,7 +96,7 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
   // A cloze needs a sentence sharing a word with this pool; try a few.
   const makeCloze = (): Cloze | null => {
     for (const sentence of sentences) {
-      const built = buildCloze(sentence, pool);
+      const built = buildCloze(sentence, pool, learnLang);
       if (built !== null) {
         return built;
       }
@@ -100,7 +107,7 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
   // Assembly needs a sentence long enough to reorder (ADR 0005).
   const makeAssembly = (): Assembly | null => {
     for (const sentence of sentences) {
-      const built = buildAssembly(sentence);
+      const built = buildAssembly(sentence, learnLang);
       if (built !== null) {
         return built;
       }
@@ -204,6 +211,7 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
           key={'matching' + String(answered)}
           pool={pool}
           script={script}
+          lang={learnLang}
           onComplete={gradeMany}
         />
       )}
@@ -233,6 +241,7 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
         <ListeningCard
           key={'listening' + phase.item.id + String(answered)}
           item={phase.item}
+          lang={learnLang}
           onGrade={grade(phase.item)}
           onUnavailable={() => {
             setMode('choices');
@@ -251,6 +260,7 @@ export function LessonView({ lessonId, script, onExit }: LessonViewProps) {
             pool={pool}
             script={script}
             mode={mode}
+            lang={learnLang}
             onGrade={grade(phase.item)}
             audio={
               audioOn && (mode === 'choices' || mode === 'typed')

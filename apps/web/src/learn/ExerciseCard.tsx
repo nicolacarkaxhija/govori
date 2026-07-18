@@ -3,7 +3,12 @@ import { transliterate } from '@govori/transliteration';
 import type { Grade } from '@govori/srs';
 import type { LearnItem } from '../api/client';
 import { AudioTools } from './AudioTools';
-import { buildChoices, buildReverseChoices, checkTyped } from './exercises';
+import {
+  buildChoices,
+  buildReverseChoices,
+  checkTyped,
+  translationFor,
+} from './exercises';
 import type { Script } from './useScript';
 import { useT } from '../i18n';
 
@@ -13,6 +18,8 @@ export interface ExerciseCardProps {
   script: Script;
   mode: 'choices' | 'typed' | 'reverseChoices' | 'reverseTyped';
   onGrade: (grade: Grade) => void;
+  /** Learner language (L1) for translations; English by default. */
+  lang?: string;
   /** Community audio rights; omitted while the flag is dark (ADR 0004). */
   audio?: { canListen: boolean; canRecord: boolean } | undefined;
 }
@@ -25,6 +32,7 @@ export function ExerciseCard({
   script,
   mode,
   onGrade,
+  lang = 'en',
   audio,
 }: ExerciseCardProps) {
   const t = useT();
@@ -35,7 +43,7 @@ export function ExerciseCard({
   // Reverse rounds prompt with the translation and answer in Interslavic.
   const reverse = mode === 'reverseChoices' || mode === 'reverseTyped';
   const word = transliterate(item.text, { script });
-  const translation = item.translations[0]?.text ?? '';
+  const translation = translationFor(item, lang);
   const prompt = reverse ? translation : word;
   const correct = reverse ? item.text : translation;
   // The card remounts per item (keyed by the parent), so choices are
@@ -44,8 +52,8 @@ export function ExerciseCard({
     () =>
       reverse
         ? buildReverseChoices(item, pool, 4)
-        : buildChoices(item, pool, 4),
-    [item, pool, reverse],
+        : buildChoices(item, pool, 4, lang),
+    [item, pool, reverse, lang],
   );
 
   const answerChoice = (choice: string) => {

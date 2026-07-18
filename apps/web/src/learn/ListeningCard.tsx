@@ -6,11 +6,13 @@ import {
   type LearnItem,
   type Recording,
 } from '../api/client';
-import { checkTyped } from './exercises';
+import { checkTyped, translationFor } from './exercises';
 import { useT } from '../i18n';
 
 export interface ListeningCardProps {
   item: LearnItem;
+  /** Learner language (L1) for translations; English by default. */
+  lang?: string;
   onGrade: (grade: Grade) => void;
   /** No recordings for this item yet — the lesson falls back (ADR 0004). */
   onUnavailable: () => void;
@@ -21,6 +23,7 @@ type Outcome = 'correct' | 'incorrect';
 /** Listening transcription (ADR 0005): hear a community clip, type it. */
 export function ListeningCard({
   item,
+  lang = 'en',
   onGrade,
   onUnavailable,
 }: ListeningCardProps) {
@@ -112,7 +115,7 @@ export function ListeningCard({
             <span lang="isv" className="feedback-answer">
               {item.text}
             </span>{' '}
-            = {item.translations[0]?.text ?? ''}
+            = {translationFor(item, lang)}
           </p>
           <button
             type="button"

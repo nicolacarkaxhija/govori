@@ -214,3 +214,70 @@ describe('ExerciseCard reverse direction', () => {
     expect(onGrade).toHaveBeenCalledWith('good');
   });
 });
+
+describe('ExerciseCard learner language', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  const polishTarget: LearnItem = {
+    id: 'aaaaaaaa-0000-4000-8000-000000000011',
+    kind: 'word',
+    text: 'hlěb',
+    translations: [
+      { lang: 'en', text: 'bread' },
+      { lang: 'pl', text: 'chleb' },
+    ],
+  };
+  const polishPool: LearnItem[] = [
+    polishTarget,
+    {
+      id: 'aaaaaaaa-0000-4000-8000-000000000012',
+      kind: 'word',
+      text: 'voda',
+      translations: [
+        { lang: 'en', text: 'water' },
+        { lang: 'pl', text: 'woda' },
+      ],
+    },
+    {
+      id: 'aaaaaaaa-0000-4000-8000-000000000013',
+      kind: 'word',
+      text: 'mlěko',
+      translations: [{ lang: 'en', text: 'milk' }],
+    },
+  ];
+
+  it('offers choices in the learner language with English gap fallback', async () => {
+    const user = userEvent.setup();
+    render(
+      <ExerciseCard
+        item={polishTarget}
+        pool={polishPool}
+        script="latin"
+        mode="choices"
+        lang="pl"
+        onGrade={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'woda' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'milk' })).toBeDefined();
+    await user.click(screen.getByRole('button', { name: 'chleb' }));
+    expect(screen.getByText(/Pravilno/)).toBeDefined();
+    expect(screen.getByText(/= chleb/)).toBeDefined();
+  });
+
+  it('prompts the reverse round with the learner language', () => {
+    render(
+      <ExerciseCard
+        item={polishTarget}
+        pool={polishPool}
+        script="latin"
+        mode="reverseChoices"
+        lang="pl"
+        onGrade={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole('heading', { name: 'chleb' })).toBeDefined();
+  });
+});

@@ -9,6 +9,8 @@ import { useT } from '../i18n';
 export interface MatchingCardProps {
   pool: readonly LearnItem[];
   script: Script;
+  /** Learner language (L1) for translations; English by default. */
+  lang?: string;
   onComplete: (results: { itemId: string; grade: Grade }[]) => void;
 }
 
@@ -25,9 +27,14 @@ function shuffled<T>(values: readonly T[], random: () => number): T[] {
 }
 
 /** Match ISV words to translations; a miss marks both items for relearning. */
-export function MatchingCard({ pool, script, onComplete }: MatchingCardProps) {
+export function MatchingCard({
+  pool,
+  script,
+  lang = 'en',
+  onComplete,
+}: MatchingCardProps) {
   const t = useT();
-  const pairs = useMemo(() => buildMatching(pool, 4), [pool]);
+  const pairs = useMemo(() => buildMatching(pool, 4, lang), [pool, lang]);
   const [left, right] = useMemo(
     () => [
       shuffled(
