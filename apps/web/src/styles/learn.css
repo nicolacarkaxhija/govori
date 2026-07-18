@@ -272,6 +272,13 @@ button:active {
   font-weight: 600;
 }
 
+.feedback-note {
+  width: 100%;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
 .continue {
   padding: 0.55rem 1.4rem;
   border: none;

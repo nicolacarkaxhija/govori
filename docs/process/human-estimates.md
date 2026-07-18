@@ -175,4 +175,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: offer the translation-language picker in the footer | 0.5–1 | Native-name select over the curated list wired to the persisted preference and the lesson view, catalog keys in both languages, footer styling |
 
+| 2026-07-17 | feat: surface contrastive notes in exercise feedback | 1–1.5 | Optional notes on the learn-item schema, language-matched hint under the feedback line with quiet fallback, schema roundtrip and card visibility tests |
+
 **Running total: 198.7–252.2 h**

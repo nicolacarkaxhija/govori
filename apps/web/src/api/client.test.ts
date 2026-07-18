@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fetchCourse, fetchItems, fetchLesson, fetchMeta } from './client';
 
 const validMeta = {
@@ -117,6 +117,50 @@ describe('fetchCourse and fetchLesson', () => {
     expect(await fetchLesson('9c8d7e6f-5a4b-4c3d-8e2f-1a0b9c8d7e6f')).toEqual(
       lesson,
     );
+  });
+});
+
+describe('contrastive notes on learn items', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.unstubAllGlobals();
+  });
+
+  it('keeps notes when the API serves them', async () => {
+    const noted = {
+      id: 'aaaaaaaa-0000-4000-8000-000000000001',
+      kind: 'word',
+      text: 'čista',
+      translations: [{ lang: 'en', text: 'clean' }],
+      notes: [{ sourceLang: 'pl', text: 'čista ≈ czysta' }],
+    };
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ items: [noted] }), { status: 200 }),
+        ),
+    );
+    expect(await fetchItems(1)).toEqual([noted]);
+  });
+
+  it('still accepts items without notes', async () => {
+    const bare = {
+      id: 'aaaaaaaa-0000-4000-8000-000000000001',
+      kind: 'word',
+      text: 'voda',
+      translations: [{ lang: 'en', text: 'water' }],
+    };
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ items: [bare] }), { status: 200 }),
+        ),
+    );
+    expect(await fetchItems(1)).toEqual([bare]);
   });
 });
 

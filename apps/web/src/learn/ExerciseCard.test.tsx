@@ -281,3 +281,52 @@ describe('ExerciseCard learner language', () => {
     expect(screen.getByRole('heading', { name: 'chleb' })).toBeDefined();
   });
 });
+
+describe('ExerciseCard contrastive notes', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  const noted: LearnItem = {
+    id: 'aaaaaaaa-0000-4000-8000-000000000031',
+    kind: 'word',
+    text: 'čista',
+    translations: [
+      { lang: 'en', text: 'clean' },
+      { lang: 'pl', text: 'czysta' },
+    ],
+    notes: [{ sourceLang: 'pl', text: 'čista ≈ czysta' }],
+  };
+
+  it('shows a note matching the learner language after answering', async () => {
+    const user = userEvent.setup();
+    render(
+      <ExerciseCard
+        item={noted}
+        pool={[noted, ...pool]}
+        script="latin"
+        mode="choices"
+        lang="pl"
+        onGrade={vi.fn()}
+      />,
+    );
+    expect(screen.queryByText('čista ≈ czysta')).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'czysta' }));
+    expect(screen.getByText('čista ≈ czysta')).toBeDefined();
+  });
+
+  it('keeps quiet when no note matches the learner language', async () => {
+    const user = userEvent.setup();
+    render(
+      <ExerciseCard
+        item={noted}
+        pool={[noted, ...pool]}
+        script="latin"
+        mode="choices"
+        onGrade={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: 'clean' }));
+    expect(screen.queryByText('čista ≈ czysta')).toBeNull();
+  });
+});

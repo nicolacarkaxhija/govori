@@ -56,6 +56,10 @@ export function ExerciseCard({
     [item, pool, reverse, lang],
   );
 
+  // Contrastive hint (flagship): shown after answering when the item
+  // carries a note written for the learner's language.
+  const note = (item.notes ?? []).find((entry) => entry.sourceLang === lang);
+
   const answerChoice = (choice: string) => {
     if (outcome !== null) {
       return;
@@ -163,6 +167,7 @@ export function ExerciseCard({
             </span>{' '}
             = {translation}
           </p>
+          {note !== undefined && <p className="feedback-note">{note.text}</p>}
           <button type="button" className="continue" onClick={finish} autoFocus>
             {t('continueButton')}
           </button>

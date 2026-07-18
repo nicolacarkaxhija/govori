@@ -34,6 +34,10 @@ const learnItemSchema = z.object({
   translations: z
     .array(z.object({ lang: z.string(), text: z.string() }))
     .min(1),
+  /** Contrastive hints per source language; absent on most items. */
+  notes: z
+    .array(z.object({ sourceLang: z.string(), text: z.string() }))
+    .optional(),
 });
 
 const itemsSchema = z.object({ items: z.array(learnItemSchema) });
