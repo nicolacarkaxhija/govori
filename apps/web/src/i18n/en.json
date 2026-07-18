@@ -88,6 +88,7 @@
   "tagline": "Learn Interslavic",
   "toggleTheme": "Toggle theme",
   "translationLabel": "English translation",
+  "translationLanguage": "Translation language",
   "translationsAria": "translations",
   "typedLabel": "Type it in Interslavic — any script, accents optional",
   "unreachable": "The server is unreachable — try again in a moment.",

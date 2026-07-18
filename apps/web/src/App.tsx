@@ -3,6 +3,7 @@ import { brand } from './brand';
 import { fetchMeta } from './api/client';
 import { useTheme } from './hooks/useTheme';
 import { useScript } from './learn/useScript';
+import { LEARN_LANGUAGES, useLearnLanguage } from './learn/useLearnLanguage';
 import { LessonView } from './learn/LessonView';
 import { CourseView } from './learn/CourseView';
 import { AccountView } from './account/AccountView';
@@ -32,6 +33,7 @@ function AppShell({
   const t = useT();
   const { theme, toggle } = useTheme();
   const { script, toggle: toggleScript } = useScript();
+  const { learnLang, setLearnLang } = useLearnLanguage();
   const [shortName, setShortName] = useState<string>(brand.shortName);
   const [fullName, setFullName] = useState<string>(brand.fullName);
   const [view, setView] = useState<
@@ -174,6 +176,7 @@ function AppShell({
         <LessonView
           lessonId={view.lessonId}
           script={script}
+          learnLang={learnLang}
           onExit={() => {
             setView({ name: 'course' });
           }}
@@ -189,6 +192,20 @@ function AppShell({
       <footer className="footer">
         <p>{t('codeLicense')}</p>
         <p>{t('contentLicense')}</p>
+        <select
+          className="footer-select"
+          aria-label={t('translationLanguage')}
+          value={learnLang}
+          onChange={(event) => {
+            setLearnLang(event.target.value);
+          }}
+        >
+          {LEARN_LANGUAGES.map((entry) => (
+            <option key={entry.code} value={entry.code}>
+              {entry.name}
+            </option>
+          ))}
+        </select>
         <button
           type="button"
           className="footer-link"

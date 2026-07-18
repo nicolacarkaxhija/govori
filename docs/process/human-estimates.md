@@ -173,4 +173,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: carry the learner language through every exercise card | 1.5–2 | Persisted useLearnLanguage hook over a curated 12-language list with unknown-code refusal, lang props on exercise/matching/listening cards and the lesson view, gap-fallback UI tests |
 
+| 2026-07-17 | feat: offer the translation-language picker in the footer | 0.5–1 | Native-name select over the curated list wired to the persisted preference and the lesson view, catalog keys in both languages, footer styling |
+
 **Running total: 198.7–252.2 h**

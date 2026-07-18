@@ -139,6 +139,22 @@ describe('account entry', () => {
   });
 });
 
+describe('learning language picker', () => {
+  it('persists the chosen translation language from the footer', async () => {
+    stubOfflineApi();
+    const user = userEvent.setup();
+    render(<App />);
+    const picker = screen.getByRole('combobox', {
+      name: 'Translation language',
+    });
+    await user.selectOptions(picker, 'pl');
+    expect(localStorage.getItem('govori.learnlang')).toBe('pl');
+    expect(
+      screen.getByRole('option', { name: 'Polski', selected: true }),
+    ).toBeDefined();
+  });
+});
+
 describe('ui language', () => {
   it('toggles between English and Interslavic', async () => {
     stubOfflineApi();
