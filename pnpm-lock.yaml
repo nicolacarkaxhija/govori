@@ -83,12 +83,15 @@ importers:
       '@glotty/content':
         specifier: workspace:*
         version: link:../../packages/content
+      '@glotty/language':
+        specifier: workspace:*
+        version: link:../../packages/language
+      '@glotty/pack-isv':
+        specifier: workspace:*
+        version: link:../../packs/isv
       '@glotty/srs':
         specifier: workspace:*
         version: link:../../packages/srs
-      '@glotty/transliteration-isv':
-        specifier: workspace:*
-        version: link:../../packs/transliteration-isv
       better-auth:
         specifier: ^1.6.23
         version: 1.6.23(drizzle-kit@0.31.10)(drizzle-orm@0.45.2(kysely@0.29.3)(postgres@3.4.9))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(vitest@4.1.10)

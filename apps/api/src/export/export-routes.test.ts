@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import {
+import { type Item } from '@glotty/content';
+import { buildApp } from '../app.js';
+import { makeTestDeps, testSchemas } from '../test-support.js';
+
+const {
   parseContentArtifact,
   parseCurriculumArtifact,
   parseMorphologyArtifact,
-  type Item,
-} from '@glotty/content';
-import { buildApp } from '../app.js';
-import { makeTestDeps } from '../test-support.js';
+} = testSchemas;
 import type { ExportQueries, ExportUnit } from './ports.js';
 import type { MorphologyEntry } from '../morphology/ports.js';
 
@@ -68,7 +69,7 @@ describe('GET /export/content', () => {
     expect(body.attribution).toBe('Govori — Interslavic Learning App');
     // Round-trip guarantee: what we export, our own importer accepts.
     const artifact = parseContentArtifact(body.artifact);
-    expect(artifact.producer).toEqual({ name: 'govori-api', version: '1' });
+    expect(artifact.producer).toEqual({ name: 'glotty-api', version: '1' });
     expect(artifact.items).toEqual([voda]);
     await app.close();
   });

@@ -205,4 +205,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | feat: name language identity in the pack contract | 0.5–1 | bcp47 and orthographyName on LanguagePack so engine code never hardcodes a language, InstanceConfig contract (brand, packId, uiLanguages, fallback language, catalogs), isv pack fields |
 
+| 2026-07-18 | feat: inject the language pack into the api | 2.5–3 | pack on AppDependencies, artifact schemas bound in buildApp, renderings keyed by pack scripts with a fake-pack route test, contribute rejection worded by the pack, import seams take bound parsers, suites migrated off the deprecated wrappers |
+
 **Running total: 221.2–281.7 h**

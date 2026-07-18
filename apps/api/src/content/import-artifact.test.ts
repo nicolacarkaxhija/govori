@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ArtifactError, type Item } from '@glotty/content';
+import { testSchemas } from '../test-support.js';
 import { importArtifact } from './import-artifact.js';
 import type { ItemRepository } from './ports.js';
 
@@ -40,7 +41,11 @@ class FakeRepository implements ItemRepository {
 describe('importArtifact', () => {
   it('validates then upserts, reporting the producer', async () => {
     const repository = new FakeRepository();
-    const result = await importArtifact(artifact, repository);
+    const result = await importArtifact(
+      artifact,
+      repository,
+      testSchemas.parseContentArtifact,
+    );
     expect(result).toEqual({
       imported: 1,
       producer: 'govori-content-forge@0.1.0',
@@ -51,7 +56,11 @@ describe('importArtifact', () => {
   it('rejects invalid artifacts before anything is written', async () => {
     const repository = new FakeRepository();
     await expect(
-      importArtifact({ ...artifact, schemaVersion: 2 }, repository),
+      importArtifact(
+        { ...artifact, schemaVersion: 2 },
+        repository,
+        testSchemas.parseContentArtifact,
+      ),
     ).rejects.toThrow(ArtifactError);
     expect(await repository.count()).toBe(0);
   });

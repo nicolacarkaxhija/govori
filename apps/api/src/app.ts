@@ -9,14 +9,11 @@ import {
 } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import {
-  ContentArtifactSchema,
-  CurriculumArtifactSchema,
-  ItemSchema,
-  MorphologyArtifactSchema,
+  makeContentSchemas,
   ProvenanceSchema,
   type Item,
 } from '@glotty/content';
-import { transliterate } from '@glotty/transliteration-isv';
+import type { LanguagePack } from '@glotty/language';
 import { resolveFlags } from '@glotty/config';
 import type { Auth } from './auth/auth.js';
 import type { ApiConfig } from './config.js';
@@ -40,6 +37,9 @@ import type { ExportQueries } from './export/ports.js';
 
 export interface AppDependencies {
   config: ApiConfig;
+  /** The instance's language pack (ADR 0029): canonical validation and
+   * script renderings are its judgment calls, never this adapter's. */
+  pack: LanguagePack;
   items: ItemQueries;
   flagStates: FlagStore;
   auth: Auth;
@@ -90,15 +90,6 @@ export function toWebRequest(
   });
 }
 
-const RenderedItemSchema = z.object({
-  item: ItemSchema,
-  /** Scripts derived from canonical text at the edge (ADR 0003). */
-  renderings: z.object({
-    latin: z.string(),
-    cyrillic: z.string(),
-  }),
-});
-
 const NotFoundSchema = z.object({ message: z.string() });
 
 const ReviewEventSchema = z.object({
@@ -116,6 +107,7 @@ const ReviewEventSchema = z.object({
  */
 export function buildApp({
   config,
+  pack,
   items,
   flagStates,
   auth,
@@ -135,6 +127,21 @@ export function buildApp({
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
+
+  // Artifact schemas bound to this instance's language (ADR 0029).
+  const {
+    ItemSchema,
+    ContentArtifactSchema,
+    CurriculumArtifactSchema,
+    MorphologyArtifactSchema,
+  } = makeContentSchemas((text) => pack.validateCanonical(text));
+
+  const RenderedItemSchema = z.object({
+    item: ItemSchema,
+    /** Scripts derived from canonical text at the edge (ADR 0003),
+     * keyed by the pack's script ids. */
+    renderings: z.record(z.string(), z.string()),
+  });
 
   void app.register(cors, {
     origin: config.server.corsOrigins,
@@ -424,8 +431,8 @@ export function buildApp({
         });
         if (!candidate.success) {
           return reply.status(400).send({
-            message:
-              'the Interslavic text must use canonical etymological Latin',
+            // The pack owns its orthography's name (ADR 0029).
+            message: `the text must be written in ${pack.orthographyName}`,
           });
         }
         await reviewQueue.addPending([candidate.data]);
@@ -983,10 +990,9 @@ export function buildApp({
         }
         return {
           item,
-          renderings: {
-            latin: transliterate(item.text, { script: 'latin' }),
-            cyrillic: transliterate(item.text, { script: 'cyrillic' }),
-          },
+          renderings: Object.fromEntries(
+            pack.scripts.map((script) => [script.id, script.render(item.text)]),
+          ),
         };
       },
     );
@@ -1021,7 +1027,7 @@ export function buildApp({
     const artifactStamp = () => ({
       schemaVersion: 1 as const,
       createdAt: new Date().toISOString(),
-      producer: { name: 'govori-api', version: '1' },
+      producer: { name: 'glotty-api', version: '1' },
     });
     const exportResponse = <T extends z.ZodType>(artifact: T) =>
       z.object({

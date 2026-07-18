@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
-import { parseContentArtifact, parseCurriculumArtifact } from '@glotty/content';
+import { makeContentSchemas } from '@glotty/content';
+import { isvPack } from '@glotty/pack-isv';
 import { loadConfig } from './config.js';
 import { createDb } from './db/client.js';
 import { runMigrations } from './db/migrate.js';
@@ -33,6 +34,13 @@ const config = loadConfig(process.env);
 const db = createDb(config.db.url);
 await runMigrations(db);
 
+// Artifact schemas bound to the instance's language pack (ADR 0029).
+const {
+  parseContentArtifact,
+  parseCurriculumArtifact,
+  parseMorphologyArtifact,
+} = makeContentSchemas((text) => isvPack.validateCanonical(text));
+
 const raw: unknown = JSON.parse(await readFile(path, 'utf-8'));
 const itemRepository = new DrizzleItemRepository(db);
 if (mode === '--drafts') {
@@ -45,6 +53,7 @@ if (mode === '--drafts') {
   const result = await importMorphologyArtifact(
     raw,
     new DrizzleMorphologyRepository(db),
+    parseMorphologyArtifact,
   );
   console.log(
     `morphology: ${String(result.entries)} paradigms, ${String(result.forms)} forms from ${result.producer}`,
@@ -60,7 +69,11 @@ if (mode === '--drafts') {
     `curriculum: ${String(curriculum.units.length)} units, ${String(lessons)} lessons`,
   );
 } else {
-  const result = await importArtifact(raw, itemRepository);
+  const result = await importArtifact(
+    raw,
+    itemRepository,
+    parseContentArtifact,
+  );
   console.log(
     `imported ${String(result.imported)} items from ${result.producer}`,
   );

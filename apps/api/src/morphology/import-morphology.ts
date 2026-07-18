@@ -1,4 +1,4 @@
-import { parseMorphologyArtifact } from '@glotty/content';
+import type { ContentSchemas } from '@glotty/content';
 import type { MorphologyRepository } from './ports.js';
 
 export interface MorphologyImportResult {
@@ -9,13 +9,15 @@ export interface MorphologyImportResult {
 
 /**
  * The morphology seeding seam (ADR 0037): re-validates an untrusted
- * morphology artifact against the shared schemas, then replaces each
- * item's paradigm idempotently. Invalid artifacts throw before anything
- * touches the repository.
+ * morphology artifact against the shared schemas — bound to the
+ * instance's language pack at the composition root (ADR 0029) — then
+ * replaces each item's paradigm idempotently. Invalid artifacts throw
+ * before anything touches the repository.
  */
 export async function importMorphologyArtifact(
   input: unknown,
   repository: MorphologyRepository,
+  parseMorphologyArtifact: ContentSchemas['parseMorphologyArtifact'],
 ): Promise<MorphologyImportResult> {
   const artifact = parseMorphologyArtifact(input);
   await repository.replaceForItems(artifact.entries);

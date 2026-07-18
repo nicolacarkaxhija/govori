@@ -3,13 +3,15 @@ import {
   PostgreSqlContainer,
   type StartedPostgreSqlContainer,
 } from '@testcontainers/postgresql';
-import {
+import { type Item } from '@glotty/content';
+import { testSchemas } from '../test-support.js';
+import { createDb, type Db } from '../db/client.js';
+
+const {
   parseContentArtifact,
   parseCurriculumArtifact,
   parseMorphologyArtifact,
-  type Item,
-} from '@glotty/content';
-import { createDb, type Db } from '../db/client.js';
+} = testSchemas;
 import { runMigrations } from '../db/migrate.js';
 import { DrizzleItemRepository } from './drizzle-item-repository.js';
 import { DrizzleFlagStore } from '../flags/drizzle-flag-store.js';
@@ -97,7 +99,11 @@ const artifact = {
 describe('DrizzleItemRepository through importArtifact', () => {
   it('imports an artifact into Postgres', async () => {
     const repository = new DrizzleItemRepository(db);
-    const result = await importArtifact(artifact, repository);
+    const result = await importArtifact(
+      artifact,
+      repository,
+      parseContentArtifact,
+    );
     expect(result.imported).toBe(3);
     expect(await repository.count()).toBe(3);
   });
@@ -112,7 +118,7 @@ describe('DrizzleItemRepository through importArtifact', () => {
           : item,
       ),
     };
-    await importArtifact(updated, repository);
+    await importArtifact(updated, repository, parseContentArtifact);
     expect(await repository.count()).toBe(3);
   });
 });
@@ -389,7 +395,11 @@ describe('DrizzleMorphologyRepository through importMorphologyArtifact', () => {
 
   it('imports a paradigm and serves its forms', async () => {
     const repository = new DrizzleMorphologyRepository(db);
-    const result = await importMorphologyArtifact(morphology, repository);
+    const result = await importMorphologyArtifact(
+      morphology,
+      repository,
+      parseMorphologyArtifact,
+    );
     expect(result).toEqual({
       entries: 1,
       forms: 3,
@@ -417,8 +427,16 @@ describe('DrizzleMorphologyRepository through importMorphologyArtifact', () => {
         },
       ],
     };
-    await importMorphologyArtifact(trimmed, repository);
-    await importMorphologyArtifact(trimmed, repository);
+    await importMorphologyArtifact(
+      trimmed,
+      repository,
+      parseMorphologyArtifact,
+    );
+    await importMorphologyArtifact(
+      trimmed,
+      repository,
+      parseMorphologyArtifact,
+    );
     expect(await repository.formsFor(vodaId)).toEqual([
       { tag: 'sg.dat', text: 'vodě' },
       { tag: 'sg.nom', text: 'voda' },
@@ -456,7 +474,7 @@ describe('DrizzleExport', () => {
     const roundTrip = parseContentArtifact({
       schemaVersion: 1,
       createdAt: '2026-07-18T00:00:00Z',
-      producer: { name: 'govori-api', version: '1' },
+      producer: { name: 'glotty-api', version: '1' },
       items: exported,
     });
     expect(roundTrip.items).toHaveLength(3);
@@ -500,7 +518,7 @@ describe('DrizzleExport', () => {
     const roundTrip = parseCurriculumArtifact({
       schemaVersion: 1,
       createdAt: '2026-07-18T00:00:00Z',
-      producer: { name: 'govori-api', version: '1' },
+      producer: { name: 'glotty-api', version: '1' },
       units,
     });
     expect(roundTrip.units).toHaveLength(1);
@@ -542,7 +560,7 @@ describe('DrizzleExport', () => {
     const roundTrip = parseMorphologyArtifact({
       schemaVersion: 1,
       createdAt: '2026-07-18T00:00:00Z',
-      producer: { name: 'govori-api', version: '1' },
+      producer: { name: 'glotty-api', version: '1' },
       entries,
     });
     // Only voda both carries a pos and keeps a two-form paradigm.

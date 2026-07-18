@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ArtifactError } from '@glotty/content';
+import { testSchemas } from '../test-support.js';
 import { importMorphologyArtifact } from './import-morphology.js';
 import type { MorphologyEntry, MorphologyRepository } from './ports.js';
 
@@ -40,7 +41,11 @@ class FakeRepository implements MorphologyRepository {
 describe('importMorphologyArtifact', () => {
   it('validates then replaces, reporting producer and counts', async () => {
     const repository = new FakeRepository();
-    const result = await importMorphologyArtifact(artifact, repository);
+    const result = await importMorphologyArtifact(
+      artifact,
+      repository,
+      testSchemas.parseMorphologyArtifact,
+    );
     expect(result).toEqual({
       entries: 2,
       forms: 5,
@@ -55,7 +60,11 @@ describe('importMorphologyArtifact', () => {
   it('rejects invalid artifacts before anything is written', async () => {
     const repository = new FakeRepository();
     await expect(
-      importMorphologyArtifact({ ...artifact, schemaVersion: 2 }, repository),
+      importMorphologyArtifact(
+        { ...artifact, schemaVersion: 2 },
+        repository,
+        testSchemas.parseMorphologyArtifact,
+      ),
     ).rejects.toThrow(ArtifactError);
     expect(repository.stored).toHaveLength(0);
   });
@@ -73,7 +82,11 @@ describe('importMorphologyArtifact', () => {
       ],
     };
     await expect(
-      importMorphologyArtifact(truncated, repository),
+      importMorphologyArtifact(
+        truncated,
+        repository,
+        testSchemas.parseMorphologyArtifact,
+      ),
     ).rejects.toThrow(ArtifactError);
     expect(repository.stored).toHaveLength(0);
   });

@@ -58,6 +58,38 @@ describe('GET /items/:id', () => {
     await app.close();
   });
 
+  it('derives renderings from the injected pack, not a fixed script pair', async () => {
+    const app = buildApp(
+      makeTestDeps({
+        items: new FakeItemQueries(),
+        pack: {
+          id: 'fake',
+          bcp47: 'zxx',
+          orthographyName: 'fake canonical spelling',
+          validateCanonical: () => true,
+          normalize: (text) => text,
+          stem: (word) => word,
+          scripts: [
+            {
+              id: 'shouty',
+              label: 'AA',
+              render: (text) => text.toUpperCase(),
+            },
+          ],
+        },
+      }),
+    );
+    const response = await app.inject({
+      method: 'GET',
+      url: `/items/${voda.id}`,
+    });
+    expect(response.statusCode).toBe(200);
+    expect(
+      response.json<{ renderings: Record<string, string> }>().renderings,
+    ).toEqual({ shouty: 'VȮLNŲ' });
+    await app.close();
+  });
+
   it('404s on unknown items', async () => {
     const app = testApp();
     const response = await app.inject({

@@ -1,6 +1,13 @@
+import { makeContentSchemas, type ContentSchemas } from '@glotty/content';
+import { isvPack } from '@glotty/pack-isv';
 import type { AppDependencies } from './app.js';
 import type { Auth } from './auth/auth.js';
 import { loadConfig } from './config.js';
+
+/** Artifact schemas bound to the suite's fixture pack (isv test data). */
+export const testSchemas: ContentSchemas = makeContentSchemas((text) =>
+  isvPack.validateCanonical(text),
+);
 
 /**
  * Baseline dependencies for route tests: everything stubbed inert, any
@@ -12,6 +19,7 @@ export function makeTestDeps(
 ): AppDependencies {
   return {
     config: loadConfig(env),
+    pack: isvPack,
     items: {
       findById: () => Promise.resolve(undefined),
       findByIds: () => Promise.resolve([]),

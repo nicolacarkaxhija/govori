@@ -1,3 +1,4 @@
+import { isvPack } from '@glotty/pack-isv';
 import { buildApp } from './app.js';
 import { loadConfig } from './config.js';
 import { createDb } from './db/client.js';
@@ -23,6 +24,7 @@ await runMigrations(db);
 const itemRepository = new DrizzleItemRepository(db);
 const app = buildApp({
   config,
+  pack: isvPack,
   items: itemRepository,
   flagStates: new DrizzleFlagStore(db),
   auth: createAuth(db, {

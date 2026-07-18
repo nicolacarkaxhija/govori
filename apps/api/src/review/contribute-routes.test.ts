@@ -72,7 +72,7 @@ describe('POST /contribute', () => {
     await app.close();
   });
 
-  it('rejects non-canonical text with a helpful message', async () => {
+  it('rejects non-canonical text, naming the orthography the pack owns', async () => {
     const { app, queued } = testApp();
     const response = await app.inject({
       method: 'POST',
@@ -80,6 +80,10 @@ describe('POST /contribute', () => {
       payload: { ...payload, text: 'снег' },
     });
     expect(response.statusCode).toBe(400);
+    // The wording comes from the pack, never from engine code (ADR 0029).
+    expect(response.json<{ message: string }>().message).toBe(
+      'the text must be written in canonical etymological Latin',
+    );
     expect(queued).toHaveLength(0);
     await app.close();
   });
