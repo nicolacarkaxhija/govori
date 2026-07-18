@@ -8,6 +8,7 @@ import {
   buildReverseChoices,
   checkTyped,
   planNextMode,
+  translationFor,
 } from './exercises';
 
 const items: LearnItem[] = [
@@ -37,11 +38,119 @@ const items: LearnItem[] = [
   },
 ];
 
+describe('translationFor', () => {
+  const czysta: LearnItem = {
+    id: 'aaaaaaaa-0000-4000-8000-000000000011',
+    kind: 'word',
+    text: 'čista',
+    translations: [
+      { lang: 'en', text: 'clean' },
+      { lang: 'pl', text: 'czysta' },
+    ],
+  };
+
+  it('prefers the exact language match', () => {
+    expect(translationFor(czysta, 'pl')).toBe('czysta');
+    expect(translationFor(czysta, 'en')).toBe('clean');
+  });
+
+  it('falls back to English when the language is missing', () => {
+    expect(translationFor(czysta, 'ru')).toBe('clean');
+  });
+
+  it('falls back to the first translation when English is missing too', () => {
+    const noEnglish: LearnItem = {
+      ...czysta,
+      translations: [{ lang: 'pl', text: 'czysta' }],
+    };
+    expect(translationFor(noEnglish, 'ru')).toBe('czysta');
+  });
+
+  it('is empty for an item with no translations at all', () => {
+    expect(translationFor({ ...czysta, translations: [] }, 'pl')).toBe('');
+  });
+});
+
+const polishItems: LearnItem[] = [
+  {
+    id: 'aaaaaaaa-0000-4000-8000-000000000021',
+    kind: 'word',
+    text: 'voda',
+    translations: [
+      { lang: 'en', text: 'water' },
+      { lang: 'pl', text: 'woda' },
+    ],
+  },
+  {
+    id: 'aaaaaaaa-0000-4000-8000-000000000022',
+    kind: 'word',
+    text: 'hlěb',
+    translations: [
+      { lang: 'en', text: 'bread' },
+      { lang: 'pl', text: 'chleb' },
+    ],
+  },
+  {
+    id: 'aaaaaaaa-0000-4000-8000-000000000023',
+    kind: 'word',
+    text: 'mlěko',
+    translations: [{ lang: 'en', text: 'milk' }],
+  },
+];
+
+describe('builders speak the learner language', () => {
+  it('buildChoices offers translations in the chosen language', () => {
+    const target = polishItems[0];
+    if (target === undefined) throw new Error('fixture missing');
+    const choices = buildChoices(target, polishItems, 3, 'pl', () => 0.5);
+    expect(choices).toContain('woda');
+    expect(choices).toContain('chleb');
+    // Language gaps fall back to English rather than vanishing.
+    expect(choices).toContain('milk');
+  });
+
+  it('buildMatching pairs words with the chosen language', () => {
+    const pairs = buildMatching(polishItems, 3, 'pl', () => 0.1);
+    const translations = pairs.map((pair) => pair.translation);
+    expect(translations).toContain('woda');
+    expect(translations).toContain('chleb');
+    expect(translations).toContain('milk');
+  });
+
+  it('buildCloze carries the sentence translation in the chosen language', () => {
+    const sentence: LearnItem = {
+      id: 'aaaaaaaa-0000-4000-8000-000000000029',
+      kind: 'sentence',
+      text: 'Ja pijų vodų.',
+      translations: [
+        { lang: 'en', text: 'I drink water.' },
+        { lang: 'pl', text: 'Piję wodę.' },
+      ],
+    };
+    const cloze = buildCloze(sentence, polishItems, 'pl', () => 0);
+    expect(cloze?.translation).toBe('Piję wodę.');
+  });
+
+  it('buildAssembly carries the sentence translation in the chosen language', () => {
+    const sentence: LearnItem = {
+      id: 'aaaaaaaa-0000-4000-8000-000000000030',
+      kind: 'sentence',
+      text: 'Voda je čista.',
+      translations: [
+        { lang: 'en', text: 'The water is clean.' },
+        { lang: 'pl', text: 'Woda jest czysta.' },
+      ],
+    };
+    const built = buildAssembly(sentence, 'pl', () => 0.9);
+    expect(built?.translation).toBe('Woda jest czysta.');
+  });
+});
+
 describe('buildChoices', () => {
   it('includes the correct translation plus unique distractors', () => {
     const target = items.find((i) => i.text === 'voda') ?? items[0];
     if (target === undefined) throw new Error('fixture missing');
-    const choices = buildChoices(target, items, 4, () => 0.5);
+    const choices = buildChoices(target, items, 4, 'en', () => 0.5);
     expect(choices).toHaveLength(4);
     expect(choices).toContain('water');
     expect(new Set(choices).size).toBe(4);
@@ -50,8 +159,8 @@ describe('buildChoices', () => {
   it('is deterministic for a fixed random source', () => {
     const target = items.find((i) => i.text === 'hlěb');
     if (target === undefined) throw new Error('fixture missing');
-    const first = buildChoices(target, items, 3, () => 0.42);
-    const second = buildChoices(target, items, 3, () => 0.42);
+    const first = buildChoices(target, items, 3, 'en', () => 0.42);
+    const second = buildChoices(target, items, 3, 'en', () => 0.42);
     expect(first).toEqual(second);
   });
 });
@@ -103,7 +212,7 @@ describe('checkTyped', () => {
 
 describe('buildMatching', () => {
   it('picks distinct items with their translations', () => {
-    const pairs = buildMatching(items, 3, () => 0.1);
+    const pairs = buildMatching(items, 3, 'en', () => 0.1);
     expect(pairs).toHaveLength(3);
     expect(new Set(pairs.map((pair) => pair.itemId)).size).toBe(3);
     for (const pair of pairs) {
@@ -112,13 +221,15 @@ describe('buildMatching', () => {
   });
 
   it('is deterministic for a fixed random source', () => {
-    expect(buildMatching(items, 4, () => 0.42)).toEqual(
-      buildMatching(items, 4, () => 0.42),
+    expect(buildMatching(items, 4, 'en', () => 0.42)).toEqual(
+      buildMatching(items, 4, 'en', () => 0.42),
     );
   });
 
   it('caps at the pool size', () => {
-    expect(buildMatching(items.slice(0, 2), 4, () => 0.5)).toHaveLength(2);
+    expect(buildMatching(items.slice(0, 2), 4, 'en', () => 0.5)).toHaveLength(
+      2,
+    );
   });
 });
 
@@ -143,7 +254,7 @@ describe('buildCloze', () => {
   };
 
   it('blanks a token that matches a pool word, tolerantly', () => {
-    const cloze = buildCloze(sentence, [vodaWord], () => 0);
+    const cloze = buildCloze(sentence, [vodaWord], 'en', () => 0);
     expect(cloze).toEqual({
       itemId: vodaWord.id,
       before: 'Ja pijų ',
@@ -160,15 +271,15 @@ describe('buildCloze', () => {
       text: 'ja',
       translations: [{ lang: 'en', text: 'I' }],
     };
-    const first = buildCloze(sentence, [ja, vodaWord], () => 0);
-    const last = buildCloze(sentence, [ja, vodaWord], () => 0.99);
+    const first = buildCloze(sentence, [ja, vodaWord], 'en', () => 0);
+    const last = buildCloze(sentence, [ja, vodaWord], 'en', () => 0.99);
     expect(first?.answer).toBe('Ja');
     expect(first?.itemId).toBe(ja.id);
     expect(last?.answer).toBe('vodų');
   });
 
   it('returns null when no pool word appears in the sentence', () => {
-    expect(buildCloze(sentence, [hlebWord], () => 0)).toBeNull();
+    expect(buildCloze(sentence, [hlebWord], 'en', () => 0)).toBeNull();
   });
 });
 
@@ -189,7 +300,7 @@ describe('buildAssembly', () => {
   };
 
   it('shuffles the words away from the original order', () => {
-    const built = buildAssembly(sentence, () => 0.9);
+    const built = buildAssembly(sentence, 'en', () => 0.9);
     expect(built).not.toBeNull();
     expect(built?.tokens.toSorted()).toEqual(
       ['Voda', 'je', 'čista.'].toSorted(),
@@ -200,7 +311,7 @@ describe('buildAssembly', () => {
 
   it('refuses sentences too short to reorder', () => {
     expect(
-      buildAssembly({ ...sentence, text: 'Dobry denj.' }, () => 0.5),
+      buildAssembly({ ...sentence, text: 'Dobry denj.' }, 'en', () => 0.5),
     ).toBeNull();
   });
 });

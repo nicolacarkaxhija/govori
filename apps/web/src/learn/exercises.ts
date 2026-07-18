@@ -1,8 +1,18 @@
 import { normalize } from '@govori/transliteration';
 import type { LearnItem } from '../api/client';
 
-function primaryTranslation(item: LearnItem): string {
-  return item.translations[0]?.text ?? '';
+/**
+ * The translation an item shows a learner whose language is `lang`
+ * (ADR 0003 spirit: never punish a language gap): exact match wins,
+ * then English, then whatever the item leads with.
+ */
+export function translationFor(item: LearnItem, lang: string): string {
+  const exact = item.translations.find((entry) => entry.lang === lang);
+  if (exact !== undefined) {
+    return exact.text;
+  }
+  const english = item.translations.find((entry) => entry.lang === 'en');
+  return english?.text ?? item.translations[0]?.text ?? '';
 }
 
 /** Unique distractors around the correct answer, shuffled deterministically. */
@@ -36,11 +46,14 @@ export function buildChoices(
   target: LearnItem,
   pool: readonly LearnItem[],
   count: number,
+  lang = 'en',
   random: () => number = Math.random,
 ): string[] {
   return pickOptions(
-    primaryTranslation(target),
-    pool.filter((item) => item.id !== target.id).map(primaryTranslation),
+    translationFor(target, lang),
+    pool
+      .filter((item) => item.id !== target.id)
+      .map((item) => translationFor(item, lang)),
     count,
     random,
   );
@@ -80,9 +93,10 @@ export interface MatchingPair {
 export function buildMatching(
   pool: readonly LearnItem[],
   count: number,
+  lang = 'en',
   random: () => number = Math.random,
 ): MatchingPair[] {
-  const usable = pool.filter((item) => primaryTranslation(item) !== '');
+  const usable = pool.filter((item) => translationFor(item, lang) !== '');
   const picked: LearnItem[] = [];
   const remaining = [...usable];
   while (picked.length < count && remaining.length > 0) {
@@ -92,7 +106,7 @@ export function buildMatching(
   return picked.map((item) => ({
     itemId: item.id,
     isv: item.text,
-    translation: primaryTranslation(item),
+    translation: translationFor(item, lang),
   }));
 }
 
@@ -118,6 +132,7 @@ function stemOf(word: string): string {
 export function buildCloze(
   sentence: LearnItem,
   pool: readonly LearnItem[],
+  lang = 'en',
   random: () => number = Math.random,
 ): Cloze | null {
   const stems = pool.map((item) => ({ item, stem: stemOf(item.text) }));
@@ -148,7 +163,7 @@ export function buildCloze(
     before: sentence.text.slice(0, picked.start),
     answer: picked.token,
     after: sentence.text.slice(picked.end),
-    translation: sentence.translations[0]?.text ?? '',
+    translation: translationFor(sentence, lang),
   };
 }
 
@@ -168,6 +183,7 @@ export interface Assembly {
  */
 export function buildAssembly(
   sentence: LearnItem,
+  lang = 'en',
   random: () => number = Math.random,
 ): Assembly | null {
   const answer = sentence.text.split(/\s+/).filter((token) => token !== '');
@@ -195,7 +211,7 @@ export function buildAssembly(
     itemId: sentence.id,
     tokens,
     answer,
-    translation: sentence.translations[0]?.text ?? '',
+    translation: translationFor(sentence, lang),
   };
 }
 

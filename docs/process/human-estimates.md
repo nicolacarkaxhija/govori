@@ -169,4 +169,6 @@ developer working alone. Appended in the same commit it describes.
 | 2026-07-18 | feat: publish the open data export | 2.5–3 | Three public CC BY-SA endpoints emitting importer-shaped artifacts, bulk-read adapter with map grouping sized for 250k translations, empty-pool 404 semantics, round-trip tests through the shared parsers at both the route and real-Postgres layers |
 | 2026-07-17 | feat: add reverse-direction exercises to the rotation | 2–2.5 | Shared option-picking core with an Interslavic-answer builder, direction-aware exercise card (script-rendered choices, tolerant typing), planner extended with a reverse pass after the sentence round |
 
+| 2026-07-17 | feat: pick exercise translations by learner language | 1–1.5 | translationFor with exact/en/first fallback chain, lang threaded through the choice, matching, cloze, and assembly builders with English defaults, language-gap coverage |
+
 **Running total: 198.7–252.2 h**
