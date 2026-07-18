@@ -241,4 +241,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | feat: make the community publish threshold instance config | 1–1.5 | InstanceConfig gained communityPublishNetVotes (govori 3, fol 5); the vote route reads it off the resolved instance handed to buildApp instead of a shared ports constant, which was removed; both thresholds covered via a makeTestDeps instance override; ADR 0040 records thresholds as instance config; language stays 100% branch, api 98.3/92.4 |
 
-**Running total: 221.2–281.7 h**
+| 2026-07-18 | fix: steady the lighthouse gate with a three-run median | 0.2 | Single-run performance scores swing on shared runners; median-of-three removes the flake without loosening the bar |
+
+**Running total: 256.6–328.7 h**
