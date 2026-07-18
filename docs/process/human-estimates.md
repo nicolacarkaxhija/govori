@@ -167,5 +167,6 @@ developer working alone. Appended in the same commit it describes.
 | 2026-07-17 | feat(content): add the morphology artifact contract | 1–1.5 | New import-seam schema for inflected-form paradigms keyed to item ids, two-form floor, canonical-text gate on every form, parse function mirroring the existing artifact parsers with joined issue paths |
 
 | 2026-07-18 | feat: import word forms and part of speech | 2–2.5 | item_forms table + pos columns in one verified-clean migration, morphology port with chunked delete-then-insert Drizzle adapter, artifact re-validation seam, CLI mode, pos threading through the item repository, unit + real-Postgres tests |
+| 2026-07-18 | feat: serve item forms | 0.5–1 | Read port wired through the dependency seam and composition root, GET /items/:id/forms with empty-list semantics for unknown items, four-path route test including the OpenAPI surface |
 
 **Running total: 193.7–245.7 h**

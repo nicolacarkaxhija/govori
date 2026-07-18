@@ -28,6 +28,7 @@ import {
 } from './review/ports.js';
 import type { UserDirectory } from './auth/ports.js';
 import type { RecordingStore } from './audio/ports.js';
+import type { MorphologyQueries } from './morphology/ports.js';
 
 export interface AppDependencies {
   config: ApiConfig;
@@ -46,6 +47,8 @@ export interface AppDependencies {
   itemWriter: { upsertMany(items: readonly Item[]): Promise<void> };
   userDirectory: UserDirectory;
   recordings: RecordingStore;
+  /** Inflected forms per item for morphology drills (ADR 0037). */
+  morphology: MorphologyQueries;
 }
 
 /** Bridges Fastify's raw request to the Web Request better-auth consumes. */
@@ -116,6 +119,7 @@ export function buildApp({
   itemWriter,
   userDirectory,
   recordings,
+  morphology,
 }: AppDependencies) {
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
   app.setValidatorCompiler(validatorCompiler);
@@ -974,6 +978,25 @@ export function buildApp({
           },
         };
       },
+    );
+
+    routes.get(
+      '/items/:id/forms',
+      {
+        schema: {
+          params: z.object({ id: z.uuid() }),
+          response: {
+            // Unknown or formless items answer with an empty list — the
+            // paradigm is an attribute of the item, never a resource 404.
+            200: z.object({
+              forms: z.array(z.object({ tag: z.string(), text: z.string() })),
+            }),
+          },
+        },
+      },
+      async (request) => ({
+        forms: await morphology.formsFor(request.params.id),
+      }),
     );
   });
 

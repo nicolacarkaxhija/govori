@@ -63,6 +63,9 @@ export function makeTestDeps(
       listForItem: () => Promise.resolve([]),
       get: () => Promise.resolve(undefined),
     },
+    morphology: {
+      formsFor: () => Promise.resolve([]),
+    },
     ...overrides,
   };
 }
