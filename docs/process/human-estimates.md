@@ -246,4 +246,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | feat: add weekly goal chips to the home screen | 1.5–2 | Pure weeklyGoals over the review log and journal days — reviews answered, journal entries, distinct active days this week, each a task count with a Monday-anchored week window; goalFraction/goalMet helpers; GoalChips home widget with progress bars, unit- and render-tested; five catalog keys across both instances' seven catalogs |
 
+| 2026-07-18 | feat: add a weekly plan generator | 2.5–3.5 | Pure buildPlan drafts a Mon–Fri checklist from weak items, a picked interest unit, and the reviews goal, with weekends left as a deliberate rest; per-week checked-state persisted in localStorage with a Monday-anchored key; WeeklyPlanView with a unit picker and checkable tasks, unit- and render-tested; fourteen catalog keys (weekday names, task labels, plan chrome) across both instances' seven catalogs |
+
 **Running total: 257.1–329.7 h**

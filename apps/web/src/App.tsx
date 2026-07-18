@@ -10,6 +10,7 @@ import { PracticeView } from './practice/PracticeView';
 import { SpeedReviewView } from './practice/SpeedReviewView';
 import { JournalView } from './journal/JournalView';
 import { GoalChips } from './goals/GoalChips';
+import { WeeklyPlanView } from './plan/WeeklyPlanView';
 import { AccountView } from './account/AccountView';
 import { StatsView } from './stats/StatsView';
 import { ReviewView } from './review/ReviewView';
@@ -60,6 +61,7 @@ function AppShell({
     | { name: 'common' }
     | { name: 'speed' }
     | { name: 'journal' }
+    | { name: 'plan' }
     | { name: 'vote' }
   >({ name: 'home' });
 
@@ -186,6 +188,15 @@ function AppShell({
               >
                 {t('journalTitle')}
               </button>
+              <button
+                type="button"
+                className="quiet"
+                onClick={() => {
+                  setView({ name: 'plan' });
+                }}
+              >
+                {t('weeklyPlanTitle')}
+              </button>
             </div>
           </nav>
         </main>
@@ -254,6 +265,12 @@ function AppShell({
         <JournalView
           script={script}
           learnLang={learnLang}
+          onExit={() => {
+            setView({ name: 'home' });
+          }}
+        />
+      ) : view.name === 'plan' ? (
+        <WeeklyPlanView
           onExit={() => {
             setView({ name: 'home' });
           }}
