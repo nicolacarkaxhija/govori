@@ -243,4 +243,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | fix: steady the lighthouse gate with a three-run median | 0.2 | Single-run performance scores swing on shared runners; median-of-three removes the flake without loosening the bar |
 
-**Running total: 256.6–328.7 h**
+| 2026-07-18 | docs: draft the launch outreach letters | 0.5–1 | Committee letter, founding-reviewer and bilingual founding-voter invites, sending checklist — stage-1 of the marketing ladder |
+
+**Running total: 257.1–329.7 h**
