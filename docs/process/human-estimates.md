@@ -235,4 +235,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | docs: charter the fol instance | 0.5–1 | ADR 0044 recording Fol's chartered decisions — diaspora-first audience, Standard canon with Gheg contrastive notes, kaikki/Tatoeba CC sources with GPL-as-tool, audio dark with a pre-committed flip, Fol/Alba/Alo naming poll, freemium reserved to Fol's own charter — plus registry row |
 
+| 2026-07-18 | feat: resolve feature flags from the viewer's role | 1.5–2 | resolveFlags in @glotty/config became viewer-aware — flags carry a target ring (all/reviewer/admin), effectiveness now also demands the viewer's ring reach the flag's and rings propagate through requirements; rank-based ring check keeps the branch count flat; suite reworked to the {enabled,targetRole}+viewerRole shape at 100% branch |
+
 **Running total: 221.2–281.7 h**

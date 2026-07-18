@@ -114,6 +114,42 @@ export interface ResolvedFlag {
 }
 
 /**
+ * The visibility ring a flag targets (ADR 0025): role-and-up may see it.
+ * `admin` ⊂ `reviewer` ⊂ `all` — a `reviewer` flag is on for reviewers
+ * and admins, an `admin` flag for admins alone.
+ */
+export type TargetRole = 'all' | 'reviewer' | 'admin';
+
+/** Who is asking; anonymous and signed-in learners see only `all` flags. */
+export type ViewerRole = 'anonymous' | 'learner' | 'reviewer' | 'admin';
+
+/** One flag's stored runtime state: its switch and its visibility ring. */
+export interface FlagState {
+  readonly enabled: boolean;
+  readonly targetRole: TargetRole;
+}
+
+/** How far a viewer reaches; anonymous and learner share the outer ring. */
+const viewerRank: Record<ViewerRole, number> = {
+  anonymous: 0,
+  learner: 0,
+  reviewer: 1,
+  admin: 2,
+};
+
+/** How far in a flag's ring sits; deeper rings admit fewer viewers. */
+const targetRank: Record<TargetRole, number> = {
+  all: 0,
+  reviewer: 1,
+  admin: 2,
+};
+
+/** True when the viewer's ring reaches the flag's target ring. */
+function ringSatisfied(target: TargetRole, viewer: ViewerRole): boolean {
+  return viewerRank[viewer] >= targetRank[target];
+}
+
+/**
  * Validates a feature-flag dependency graph at definition time: unknown
  * requirements and cycles are boot failures, never runtime surprises
  * (ADR 0025).
@@ -151,13 +187,16 @@ export function defineFlags<T extends FlagDefinitions>(definitions: T): T {
 }
 
 /**
- * Combines stored flag states with the dependency graph: a flag is effective
- * only when its own state and every transitive requirement are enabled.
- * Suppressed flags report which requirements hold them back (admin UI).
+ * Combines stored flag states with the dependency graph, from one viewer's
+ * vantage: a flag is effective only when its own switch is on, its target
+ * ring admits the viewer, and every transitive requirement is itself
+ * effective for that viewer. Suppressed flags report which requirements
+ * hold them back (admin UI).
  */
 export function resolveFlags<T extends FlagDefinitions>(
   definitions: T,
-  state: Readonly<Record<string, boolean>>,
+  state: Readonly<Record<string, FlagState>>,
+  viewerRole: ViewerRole,
 ): Readonly<Record<keyof T & string, ResolvedFlag>> {
   for (const key of Object.keys(state)) {
     if (!(key in definitions)) {
@@ -171,8 +210,14 @@ export function resolveFlags<T extends FlagDefinitions>(
     if (memo !== undefined) {
       return memo;
     }
+    const stored = state[key];
+    const enabled = stored?.enabled ?? false;
+    const targetRole = stored?.targetRole ?? 'all';
     const requires = definitions[key]?.requires ?? [];
-    const effective = (state[key] ?? false) && requires.every(isEffective);
+    const effective =
+      enabled &&
+      ringSatisfied(targetRole, viewerRole) &&
+      requires.every(isEffective);
     effectiveMemo.set(key, effective);
     return effective;
   };
