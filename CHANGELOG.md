@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.1.1](https://github.com/nicolacarkaxhija/govori/compare/govori-v0.1.0...govori-v0.1.1) (2026-07-18)
+
+
+### Features
+
+* accept learner contributions into review ([92aa716](https://github.com/nicolacarkaxhija/govori/commit/92aa7166963abc2e4ab6bec1af161fe2189d356b))
+* add a script drill to the lesson rotation ([498ba1e](https://github.com/nicolacarkaxhija/govori/commit/498ba1e60855072b8f29f5f50849d7b1ed07a579))
+* add a timed speed review over matching boards ([b0695d4](https://github.com/nicolacarkaxhija/govori/commit/b0695d4ac41e3da9c6350180ed5e6d5660d94d9a))
+* add listening transcription to the lesson rotation ([2e137dc](https://github.com/nicolacarkaxhija/govori/commit/2e137dc5e4919d501b643002be2d9e01f924ec7f))
+* add reverse-direction exercises to the rotation ([506976e](https://github.com/nicolacarkaxhija/govori/commit/506976e9949ed1643c6c6f5909f45965d552ee02))
+* add sentence assembly and a pure rotation planner ([ce323d5](https://github.com/nicolacarkaxhija/govori/commit/ce323d5425379f6e5571a083e75563f2d12dabf9))
+* add the contribute form ([eccd652](https://github.com/nicolacarkaxhija/govori/commit/eccd652acd45c61e17d5622b8f52b3bf68e0010e))
+* carry the learner language through every exercise card ([c415d13](https://github.com/nicolacarkaxhija/govori/commit/c415d136a92aba145d250c57a0051865dab64845))
+* **content:** add part-of-speech fields to items ([7f4e563](https://github.com/nicolacarkaxhija/govori/commit/7f4e5631f0cf46fb7dcc7e0871cf06427dfab2bf))
+* **content:** add the morphology artifact contract ([9c140aa](https://github.com/nicolacarkaxhija/govori/commit/9c140aaf82ca1a466d0dc0f6b987a643eadc2ddb))
+* drill inflected word forms in the rotation ([89e052a](https://github.com/nicolacarkaxhija/govori/commit/89e052ac9c8e6c798d63b1c082b3a3f885f09e3c))
+* enforce mobile Lighthouse gates and charter the SEO posture ([1d3f207](https://github.com/nicolacarkaxhija/govori/commit/1d3f207d3301270df7cf9803e5f05128c0ee63a1))
+* import word forms and part of speech ([95b7bd0](https://github.com/nicolacarkaxhija/govori/commit/95b7bd0c88919c018b9a274214bff574ab3a5668))
+* let learners vote on pending community drafts ([2ccd57f](https://github.com/nicolacarkaxhija/govori/commit/2ccd57f573541eea26c840cf556e600b57e1e308))
+* let the community vote drafts into the course ([06e4e52](https://github.com/nicolacarkaxhija/govori/commit/06e4e5246e05f9b4db60636380128b65cec0fd6c))
+* offer the translation-language picker in the footer ([e30ac7e](https://github.com/nicolacarkaxhija/govori/commit/e30ac7e1e4ba041cb6d8327a86a316f234cc7ceb))
+* open review decisions to the reviewer tier ([c733925](https://github.com/nicolacarkaxhija/govori/commit/c733925b7c4103913f50770d154996053e160133))
+* pick exercise translations by learner language ([beea5ea](https://github.com/nicolacarkaxhija/govori/commit/beea5ea7a9597c9040fb437340a42619c5022f6e))
+* play and contribute pronunciations in exercises ([4684515](https://github.com/nicolacarkaxhija/govori/commit/4684515fd61001bb907490cabeb24278bed55094))
+* practise weak and common words from the home screen ([6fda070](https://github.com/nicolacarkaxhija/govori/commit/6fda07062a8f31189a180f100fedb856f6ca292c))
+* publish the open data export ([1c31f85](https://github.com/nicolacarkaxhija/govori/commit/1c31f85fb0553e6dfce93750c024ff335d36faef))
+* recognize the reviewer role across the app ([9f00698](https://github.com/nicolacarkaxhija/govori/commit/9f00698c6ca96c843641584d8a06285b65bd54dd))
+* reorder seen dialogues instead of replaying them ([7ab0380](https://github.com/nicolacarkaxhija/govori/commit/7ab0380924952cc69e5299d08aba948cf0a1b548))
+* serve item forms ([116eebf](https://github.com/nicolacarkaxhija/govori/commit/116eebf0da4ea6d811d7db03605c5c93c31c87de))
+* state the content license on the contribute form ([3288313](https://github.com/nicolacarkaxhija/govori/commit/3288313ff519b35ca9950d6c9249e3f4caf7f619))
+* store and serve community recordings behind the audio flag ([88292c2](https://github.com/nicolacarkaxhija/govori/commit/88292c284697ef3331b41714022dd9d7e3d20649))
+* surface contrastive notes in exercise feedback ([0596777](https://github.com/nicolacarkaxhija/govori/commit/0596777bba4db2559955bf11e6fdf1dcb376fa72))
+* wrap the web app in a native android shell ([7c3d74b](https://github.com/nicolacarkaxhija/govori/commit/7c3d74bb659824fcacc61cbffcf4923b8b6a1c7e))
+
 ## 0.1.0 (2026-07-17)
 
 
