@@ -213,4 +213,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | refactor: render and judge every exercise through the pack | 3.5–4 | transliteration import removed from the web app: cards render via pack scripts, checkTyped/cloze take pack normalize/stem, translationFor and builders require an explicit instance fallback language, lang markup from pack.bcp47, script drill labels from script variants, useScript cycles pack scripts |
 
+| 2026-07-18 | feat: hide the script choice when the pack has none | 1–1.5 | scriptCount on RoundContext with a planner guard and an all-modes never-script test, toggle rendered only under hasScriptChoice, single-script instance test via a mocked entry point |
+
 **Running total: 221.2–281.7 h**

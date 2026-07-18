@@ -35,7 +35,13 @@ function AppShell({
 }) {
   const t = useT();
   const { theme, toggle } = useTheme();
-  const { script, toggle: toggleScript, currentLabel, nextLabel } = useScript();
+  const {
+    script,
+    toggle: toggleScript,
+    hasChoice: hasScriptChoice,
+    currentLabel,
+    nextLabel,
+  } = useScript();
   const { learnLang, setLearnLang } = useLearnLanguage();
   const [shortName, setShortName] = useState<string>(instance.brand.shortName);
   const [fullName, setFullName] = useState<string>(instance.brand.fullName);
@@ -97,14 +103,16 @@ function AppShell({
           >
             {nextLanguage.toUpperCase()}
           </button>
-          <button
-            type="button"
-            className="quiet"
-            onClick={toggleScript}
-            aria-label={t('switchScript')}
-          >
-            {`${currentLabel ?? ''} → ${nextLabel ?? ''}`}
-          </button>
+          {hasScriptChoice && (
+            <button
+              type="button"
+              className="quiet"
+              onClick={toggleScript}
+              aria-label={t('switchScript')}
+            >
+              {`${currentLabel ?? ''} → ${nextLabel ?? ''}`}
+            </button>
+          )}
           <button
             type="button"
             className="quiet"

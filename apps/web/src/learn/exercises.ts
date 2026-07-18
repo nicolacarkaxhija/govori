@@ -267,6 +267,8 @@ export interface RoundContext {
   sentenceRounds: number;
   /** Script drills already played; one per lesson is plenty (ADR 0003). */
   scriptRounds: number;
+  /** How many scripts the pack writes; below two there is no drill. */
+  scriptCount: number;
   /** Morphology drills already played; one per session. */
   morphologyRounds: number;
 }
@@ -307,7 +309,8 @@ export function planNextMode(
   }
   if (
     (current === 'cloze' || current === 'assembly') &&
-    context.scriptRounds === 0
+    context.scriptRounds === 0 &&
+    context.scriptCount > 1
   ) {
     return 'script';
   }

@@ -108,6 +108,7 @@ export function Session({
       audioOn,
       sentenceRounds,
       scriptRounds,
+      scriptCount: pack.scripts.length,
       morphologyRounds,
     });
     setCloze(next === 'cloze' ? builtCloze : null);

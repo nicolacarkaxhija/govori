@@ -368,8 +368,31 @@ describe('planNextMode', () => {
     audioOn: false,
     sentenceRounds: 0,
     scriptRounds: 1,
+    scriptCount: 2,
     morphologyRounds: 0,
   };
+
+  it('never deals a script round when the pack has a single script', () => {
+    const modes = [
+      'choices',
+      'typed',
+      'matching',
+      'cloze',
+      'assembly',
+      'listening',
+      'reverseChoices',
+      'reverseTyped',
+      'script',
+      'morphology',
+    ] as const;
+    for (const mode of modes) {
+      for (const scriptRounds of [0, 1]) {
+        expect(
+          planNextMode(mode, { ...base, scriptRounds, scriptCount: 1 }),
+        ).not.toBe('script');
+      }
+    }
+  });
 
   it('walks recognition into production', () => {
     expect(planNextMode('choices', base)).toBe('typed');
@@ -446,6 +469,7 @@ describe('planNextMode morphology round', () => {
     audioOn: false,
     sentenceRounds: 0,
     scriptRounds: 1,
+    scriptCount: 2,
     morphologyRounds: 0,
   };
 
