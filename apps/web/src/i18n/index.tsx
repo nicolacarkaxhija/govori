@@ -5,50 +5,61 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import en from './en.json';
-import isv from './isv.json';
+import { instance } from '../instance';
+import type { MessageKey } from '../instances';
 
-export type Language = 'en' | 'isv';
-export type MessageKey = keyof typeof en;
+export type Language = string;
+export type { MessageKey };
 
-const catalogs: Record<Language, Partial<Record<MessageKey, string>>> = {
-  en,
-  isv,
-};
+const { catalogs, uiLanguages } = instance;
 
-/** Flat Weblate-friendly catalogs (ADR 0013); English is the fallback. */
+// The instance's first uiLanguage anchors runtime fallback for missing
+// translations; the MessageKey type anchor is a separate, build-time
+// concern (see instances.ts).
+const anchor: Readonly<Partial<Record<string, string>>> =
+  catalogs[uiLanguages[0] ?? ''] ?? {};
+
+/** Flat Weblate-friendly catalogs (ADR 0013), served by the instance. */
 export function translate(
   language: Language,
   key: MessageKey,
   params: Record<string, string | number> = {},
 ): string {
-  const template = catalogs[language][key] ?? catalogs.en[key] ?? key;
+  const template = catalogs[language]?.[key] ?? anchor[key] ?? key;
   return template.replace(/\{(\w+)\}/g, (match, name: string) => {
     const value = params[name];
     return value === undefined ? match : String(value);
   });
 }
 
-const STORAGE_KEY = 'govori.lang';
+const STORAGE_KEY = `${instance.id}.lang`;
 
 function stored(): Language {
-  return localStorage.getItem(STORAGE_KEY) === 'isv' ? 'isv' : 'en';
+  const raw = localStorage.getItem(STORAGE_KEY);
+  return raw !== null && uiLanguages.includes(raw)
+    ? raw
+    : (uiLanguages[0] ?? 'und');
 }
 
-/** UI-language preference: one toggle, persisted, app-wide. */
+function following(current: Language): Language {
+  const index = uiLanguages.indexOf(current);
+  return uiLanguages[(index + 1) % uiLanguages.length] ?? current;
+}
+
+/** UI-language preference: cycles the instance's languages, persisted. */
 export function useLanguage() {
   const [language, setLanguage] = useState<Language>(stored);
   const toggle = useCallback(() => {
     setLanguage((current) => {
-      const next: Language = current === 'en' ? 'isv' : 'en';
+      const next = following(current);
       localStorage.setItem(STORAGE_KEY, next);
       return next;
     });
   }, []);
-  return { language, toggle };
+  return { language, toggle, next: following(language) };
 }
 
-const LanguageContext = createContext<Language>('en');
+const LanguageContext = createContext<Language>(uiLanguages[0] ?? 'und');
 
 export function LanguageProvider({
   language,

@@ -1,4 +1,6 @@
-const STORAGE_KEY = 'govori.dialogues-seen.v1';
+import { instance } from '../instance';
+
+const STORAGE_KEY = `${instance.id}.dialogues-seen.v1`;
 
 function load(): string[] {
   const raw = localStorage.getItem(STORAGE_KEY);

@@ -1,33 +1,13 @@
 import { useCallback, useState } from 'react';
-
-export interface LearnLanguage {
-  /** BCP 47 language code as served in item translations. */
-  code: string;
-  /** The language's own name, shown untranslated in the picker. */
-  name: string;
-}
+import { instance } from '../instance';
 
 /**
- * Curated learner languages (L1): the most common codes in the corpus,
- * each under its native name. Items missing a language fall back to
- * English via translationFor.
+ * Learner languages (L1) come from the instance (ADR 0029): the roster
+ * and the fallback are audience decisions, never the engine's.
  */
-export const LEARN_LANGUAGES: readonly LearnLanguage[] = [
-  { code: 'en', name: 'English' },
-  { code: 'pl', name: 'Polski' },
-  { code: 'ru', name: 'Русский' },
-  { code: 'uk', name: 'Українська' },
-  { code: 'cs', name: 'Čeština' },
-  { code: 'sk', name: 'Slovenčina' },
-  { code: 'bg', name: 'Български' },
-  { code: 'sr', name: 'Srpski' },
-  { code: 'hr', name: 'Hrvatski' },
-  { code: 'sl', name: 'Slovenščina' },
-  { code: 'mk', name: 'Македонски' },
-  { code: 'be', name: 'Беларуская' },
-];
+export const LEARN_LANGUAGES = instance.learnLanguages;
 
-const STORAGE_KEY = 'govori.learnlang';
+const STORAGE_KEY = `${instance.id}.learnlang`;
 
 function isKnown(code: string): boolean {
   return LEARN_LANGUAGES.some((entry) => entry.code === code);
@@ -35,14 +15,14 @@ function isKnown(code: string): boolean {
 
 function stored(): string {
   const raw = localStorage.getItem(STORAGE_KEY);
-  return raw !== null && isKnown(raw) ? raw : 'en';
+  return raw !== null && isKnown(raw) ? raw : instance.fallbackTranslationLang;
 }
 
 /** Learning-language preference: one picker, persisted, app-wide. */
 export function useLearnLanguage() {
   const [learnLang, setState] = useState<string>(stored);
   const setLearnLang = useCallback((code: string) => {
-    const next = isKnown(code) ? code : 'en';
+    const next = isKnown(code) ? code : instance.fallbackTranslationLang;
     localStorage.setItem(STORAGE_KEY, next);
     setState(next);
   }, []);

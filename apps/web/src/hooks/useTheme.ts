@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
+import { instance } from '../instance';
 
 export type Theme = 'light' | 'dark';
 
-const storageKey = 'govori-theme';
+const storageKey = `${instance.id}-theme`;
 
 function readStoredTheme(): Theme | null {
   const stored = localStorage.getItem(storageKey);

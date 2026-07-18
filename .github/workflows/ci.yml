@@ -9,6 +9,11 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# CI builds are builds of the govori instance; the engine itself has no
+# default and fails fast when this is missing (ADR 0029).
+env:
+  VITE_INSTANCE: govori
+
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -59,7 +64,7 @@ jobs:
         run: pnpm build
 
       - name: Build web against the e2e api origin
-        run: VITE_API_URL=http://127.0.0.1:53150 pnpm --filter @glotty/web exec vite build
+        run: VITE_INSTANCE=govori VITE_API_URL=http://127.0.0.1:53150 pnpm --filter @glotty/web exec vite build
 
       - name: Install chromium
         run: pnpm exec playwright install --with-deps chromium

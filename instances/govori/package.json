@@ -1,0 +1,26 @@
+{
+  "name": "@glotty/instance-govori",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-only",
+  "description": "The Govori instance: Interslavic branding, UI catalogs, and learner-language roster",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint src",
+    "test": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@glotty/language": "workspace:*"
+  }
+}

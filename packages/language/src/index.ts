@@ -49,6 +49,8 @@ export interface InstanceConfig {
   readonly brand: {
     readonly shortName: string;
     readonly fullName: string;
+    /** One-sentence store/SEO description; the instance owns its copy. */
+    readonly description: string;
   };
   /** The language pack this instance teaches, by pack id. */
   readonly packId: string;
@@ -56,6 +58,13 @@ export interface InstanceConfig {
   readonly uiLanguages: readonly string[];
   /** Translation language shown when an item lacks the learner's own. */
   readonly fallbackTranslationLang: string;
+  /** Learner languages (L1) offered in the picker, in display order. */
+  readonly learnLanguages: readonly {
+    /** BCP 47 language code as served in item translations. */
+    readonly code: string;
+    /** The language's own name, shown untranslated in the picker. */
+    readonly name: string;
+  }[];
   /** UI message catalogs, keyed by uiLanguage then message key. */
   readonly catalogs: Readonly<Record<string, Readonly<Record<string, string>>>>;
 }

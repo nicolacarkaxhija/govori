@@ -4,6 +4,8 @@ RUN corepack enable
 WORKDIR /repo
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json turbo.json tsconfig.base.json ./
 COPY packages ./packages
+COPY packs ./packs
+COPY instances ./instances
 COPY apps/api ./apps/api
 RUN pnpm install --frozen-lockfile --filter @glotty/api... --filter .
 RUN pnpm exec turbo run build --filter=@glotty/api

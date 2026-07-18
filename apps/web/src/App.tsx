@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { brand } from './brand';
+import { instance } from './instance';
 import { fetchMeta } from './api/client';
 import { useTheme } from './hooks/useTheme';
 import { useScript } from './learn/useScript';
@@ -18,27 +18,27 @@ import { LanguageProvider, useLanguage, useT } from './i18n';
 import { streakDays } from './learn/progress';
 
 export function App() {
-  const { language, toggle: toggleLanguage } = useLanguage();
+  const { language, toggle: toggleLanguage, next } = useLanguage();
   return (
     <LanguageProvider language={language}>
-      <AppShell onToggleLanguage={toggleLanguage} language={language} />
+      <AppShell onToggleLanguage={toggleLanguage} nextLanguage={next} />
     </LanguageProvider>
   );
 }
 
 function AppShell({
   onToggleLanguage,
-  language,
+  nextLanguage,
 }: {
   onToggleLanguage: () => void;
-  language: 'en' | 'isv';
+  nextLanguage: string;
 }) {
   const t = useT();
   const { theme, toggle } = useTheme();
   const { script, toggle: toggleScript } = useScript();
   const { learnLang, setLearnLang } = useLearnLanguage();
-  const [shortName, setShortName] = useState<string>(brand.shortName);
-  const [fullName, setFullName] = useState<string>(brand.fullName);
+  const [shortName, setShortName] = useState<string>(instance.brand.shortName);
+  const [fullName, setFullName] = useState<string>(instance.brand.fullName);
   const [view, setView] = useState<
     | { name: 'home' }
     | { name: 'course' }
@@ -95,7 +95,7 @@ function AppShell({
             onClick={onToggleLanguage}
             aria-label={t('languageSwitch')}
           >
-            {language === 'en' ? 'MS' : 'EN'}
+            {nextLanguage.toUpperCase()}
           </button>
           <button
             type="button"

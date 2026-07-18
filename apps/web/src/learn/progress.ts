@@ -1,6 +1,7 @@
 import { replay, selectDue, type Grade, type ReviewEvent } from '@glotty/srs';
+import { instance } from '../instance';
 
-const STORAGE_KEY = 'govori.reviews.v1';
+const STORAGE_KEY = `${instance.id}.reviews.v1`;
 
 /**
  * Local-first learning progress (ADR 0022/0030): an append-only review-event

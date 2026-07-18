@@ -12,6 +12,7 @@ import {
 } from '../api/client';
 import { loadEvents, mergeEvents } from '../learn/progress';
 import { useT } from '../i18n';
+import { instance } from '../instance';
 
 export interface AccountViewProps {
   onExit: () => void;
@@ -116,7 +117,7 @@ export function AccountView({ onExit, onReview, onUsers }: AccountViewProps) {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = 'govori-data.json';
+    anchor.download = `${instance.id}-data.json`;
     anchor.click();
     URL.revokeObjectURL(url);
   };

@@ -5,6 +5,9 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: 'jsdom',
+    // Tests are a build of the govori instance; the engine itself never
+    // assumes one (resolution still fails fast when this is unset).
+    env: { VITE_INSTANCE: 'govori' },
     globals: false,
     setupFiles: ['src/test-setup.ts'],
     exclude: ['**/node_modules/**', '**/dist/**'],

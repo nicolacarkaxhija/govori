@@ -209,4 +209,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | refactor!: drop the isv-bound content schema exports | 1–1.5 | Breaking seam cleanup: forge-compat module deleted, @glotty/content depends on zod alone, suites rebound to a stand-in validator so the engine package never names a language; forge migration documented for its own repo |
 
+| 2026-07-18 | feat: make the instance an explicit build input | 4–5 | @glotty/instance-govori (brand, catalogs as TS modules, learner roster, fallback language), InstanceConfig extended, web registry with fail-fast VITE_INSTANCE resolution, i18n/learn-language/theme/progress rebuilt over the instance, branded index.html placeholders stamped at build, capacitor/vite/turbo/CI/Docker wiring |
+
 **Running total: 221.2–281.7 h**
