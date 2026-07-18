@@ -254,4 +254,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-19 | feat: add a dismissible growing-course banner | 1–1.5 | Home banner inviting contributions as the course grows, keyed 'growingCourse' with remembered dismissal and a link to the contribute view; instance-neutral copy so it ships for every product; render- and persistence-tested; two catalog keys across both instances' seven catalogs |
 
-**Running total: 257.1–329.7 h**
+| 2026-07-19 | fix: require a translation before submitting a produced sentence | 0.3 | The free-production submit posted an empty gloss the API's validation always rejects; a required translation input closes the loop |
+
+**Running total: 257.4–330.0 h**

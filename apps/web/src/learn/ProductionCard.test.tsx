@@ -116,9 +116,14 @@ describe('ProductionCard signed in', () => {
     const submit = await screen.findByRole('button', {
       name: /community review/,
     });
+    expect(submit.hasAttribute('disabled')).toBe(true);
+    await user.type(
+      screen.getByLabelText(/English translation/),
+      'water and bread',
+    );
     await user.click(submit);
     expect(contributeMock).toHaveBeenCalledWith('sentence', 'voda i hlěb', [
-      { lang: 'pl', text: '' },
+      { lang: 'pl', text: 'water and bread' },
     ]);
     expect(await screen.findByText(/reviewer will look/)).toBeDefined();
   });

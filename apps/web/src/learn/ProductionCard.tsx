@@ -33,6 +33,7 @@ export function ProductionCard({
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [canContribute, setCanContribute] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [gloss, setGloss] = useState('');
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -56,7 +57,7 @@ export function ProductionCard({
   const submit = async () => {
     setBusy(true);
     const result = await contribute('sentence', typed.trim(), [
-      { lang, text: '' },
+      { lang, text: gloss.trim() },
     ]);
     setBusy(false);
     if (result === 'accepted') {
@@ -114,14 +115,28 @@ export function ProductionCard({
             (submitted ? (
               <p className="account-sync">{t('contributed')}</p>
             ) : (
-              <button
-                type="button"
-                className="footer-link"
-                disabled={busy}
-                onClick={() => void submit()}
-              >
-                {t('submitReview')}
-              </button>
+              <div className="production-contribute">
+                <label className="typed-label" htmlFor="production-gloss">
+                  {t('translationLabel')}
+                </label>
+                <input
+                  id="production-gloss"
+                  className="typed-input"
+                  autoComplete="off"
+                  value={gloss}
+                  onChange={(event) => {
+                    setGloss(event.target.value);
+                  }}
+                />
+                <button
+                  type="button"
+                  className="footer-link"
+                  disabled={busy || gloss.trim() === ''}
+                  onClick={() => void submit()}
+                >
+                  {t('submitReview')}
+                </button>
+              </div>
             ))}
           <div className="self-rate">
             <button
