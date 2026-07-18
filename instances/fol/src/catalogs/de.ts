@@ -42,6 +42,7 @@ export const de = {
   dialogueBankAria: 'Dialogzeilen',
   dialogueBuiltAria: 'Dein Dialog',
   dialogueReorderKind: 'Dialog neu aufbauen',
+  dismiss: 'Schließen',
   displayName: 'Anzeigename',
   downloadData: 'Meine Daten herunterladen',
   email: 'E-Mail',
@@ -60,6 +61,8 @@ export const de = {
   goalProgress: '{done} / {total}',
   goalReviews: 'Wiederholungen',
   goalsTitle: 'Diese Woche',
+  growingCourseBanner:
+    'Jeden Monat neue Einheiten — hilf mit, es wachsen zu lassen.',
   haveAccount: 'Schon ein Konto? Anmelden',
   incorrect: 'Jo tamam.',
   journalLabel: 'Schreib ein paar Zeilen',

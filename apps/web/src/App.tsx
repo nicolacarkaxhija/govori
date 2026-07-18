@@ -12,6 +12,7 @@ import { JournalView } from './journal/JournalView';
 import { GoalChips } from './goals/GoalChips';
 import { WeeklyPlanView } from './plan/WeeklyPlanView';
 import { Onboarding } from './onboarding/Onboarding';
+import { GrowingCourseBanner } from './home/GrowingCourseBanner';
 import { AccountView } from './account/AccountView';
 import { StatsView } from './stats/StatsView';
 import { ReviewView } from './review/ReviewView';
@@ -161,6 +162,11 @@ function AppShell({
 
       {view.name === 'home' ? (
         <main className="hero">
+          <GrowingCourseBanner
+            onContribute={() => {
+              setView({ name: 'contribute' });
+            }}
+          />
           <div className="stitch" aria-hidden="true" />
           <h1 className="hero-name">{shortName}</h1>
           <p className="hero-tagline">{t('tagline')}</p>

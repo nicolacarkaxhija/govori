@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from './App';
 
@@ -243,10 +243,11 @@ describe('community review entry', () => {
     );
     render(<App />);
     await screen.findByRole('button', { name: 'Start learning' });
+    const footer = within(screen.getByRole('contentinfo'));
     expect(
-      screen.queryByRole('button', { name: 'Community review' }),
+      footer.queryByRole('button', { name: 'Community review' }),
     ).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Contribute' })).toBeNull();
+    expect(footer.queryByRole('button', { name: 'Contribute' })).toBeNull();
   });
 
   it('opens the voting queue from the footer once signed in', async () => {

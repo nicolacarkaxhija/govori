@@ -252,4 +252,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-19 | feat: polish the first run and signed-out shell | 2–2.5 | Two-step first-visit onboarding (pick translation language via the shared preference, then a no-account-needed note) gated on a per-instance flag; Contribute and Community-review footer links hidden from signed-out users via a fetchMe check; session summaries now state tasks completed; existing App suites reworked for the gate and the signed-out footer; four catalog keys across both instances' seven catalogs |
 
+| 2026-07-19 | feat: add a dismissible growing-course banner | 1–1.5 | Home banner inviting contributions as the course grows, keyed 'growingCourse' with remembered dismissal and a link to the contribute view; instance-neutral copy so it ships for every product; render- and persistence-tested; two catalog keys across both instances' seven catalogs |
+
 **Running total: 257.1–329.7 h**
