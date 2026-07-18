@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { TargetRole } from '@glotty/config';
 import { buildApp } from '../app.js';
 import type { Auth } from '../auth/auth.js';
 import { makeTestDeps } from '../test-support.js';
@@ -22,17 +23,29 @@ interface Setup {
   session?: string | null;
 }
 
+interface Write {
+  key: string;
+  enabled: boolean;
+  changedBy: string;
+  targetRole: TargetRole | undefined;
+}
+
 function testApp({ userRole = 'learner', session = 'u1' }: Setup = {}) {
-  const written: { key: string; enabled: boolean; changedBy: string }[] = [];
+  const written: Write[] = [];
   const deps = makeTestDeps({
     auth: sessionAs(session),
     flagStates: {
       getStates: () =>
         Promise.resolve(
-          Object.fromEntries(written.map((w) => [w.key, w.enabled])),
+          Object.fromEntries(
+            written.map((w) => [
+              w.key,
+              { enabled: w.enabled, targetRole: w.targetRole ?? 'all' },
+            ]),
+          ),
         ),
-      setFlag: (key, enabled, changedBy) => {
-        written.push({ key, enabled, changedBy });
+      setFlag: (key, enabled, changedBy, targetRole) => {
+        written.push({ key, enabled, changedBy, targetRole });
         return Promise.resolve();
       },
     },
@@ -85,7 +98,12 @@ describe('PUT /admin/flags/:key', () => {
     });
     expect(response.statusCode).toBe(200);
     expect(written).toEqual([
-      { key: 'audio', enabled: true, changedBy: 'user:u1' },
+      {
+        key: 'audio',
+        enabled: true,
+        changedBy: 'user:u1',
+        targetRole: undefined,
+      },
     ]);
     expect(response.json()).toEqual({
       flags: {
@@ -96,6 +114,41 @@ describe('PUT /admin/flags/:key', () => {
         recordAndCompare: false,
       },
     });
+    await app.close();
+  });
+
+  it('carries an explicit ring through to the store', async () => {
+    const { app, written } = testApp({ userRole: 'admin' });
+    const response = await app.inject({
+      method: 'PUT',
+      url: '/admin/flags/audio',
+      payload: { enabled: true, targetRole: 'reviewer' },
+    });
+    expect(response.statusCode).toBe(200);
+    expect(written).toEqual([
+      {
+        key: 'audio',
+        enabled: true,
+        changedBy: 'user:u1',
+        targetRole: 'reviewer',
+      },
+    ]);
+    // The admin flipping it always sees the flag they just set.
+    expect(
+      response.json<{ flags: Record<string, boolean> }>().flags.audio,
+    ).toBe(true);
+    await app.close();
+  });
+
+  it('rejects an unknown ring value', async () => {
+    const { app, written } = testApp({ userRole: 'admin' });
+    const response = await app.inject({
+      method: 'PUT',
+      url: '/admin/flags/audio',
+      payload: { enabled: true, targetRole: 'superuser' },
+    });
+    expect(response.statusCode).toBe(400);
+    expect(written).toHaveLength(0);
     await app.close();
   });
 });

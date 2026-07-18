@@ -243,6 +243,10 @@ export const reviewEvents = pgTable('review_events', {
 export const flagStates = pgTable('flag_states', {
   key: text('key').primaryKey(),
   enabled: boolean('enabled').notNull(),
+  /** Visibility ring: role-and-up may see the flag (ADR 0025). */
+  targetRole: text('target_role', { enum: ['all', 'reviewer', 'admin'] })
+    .notNull()
+    .default('all'),
   updatedAt: timestamp('updated_at', { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -254,6 +258,10 @@ export const flagAudit = pgTable('flag_audit', {
   id: uuid('id').primaryKey().defaultRandom(),
   key: text('key').notNull(),
   enabled: boolean('enabled').notNull(),
+  /** The visibility ring set by this change (ADR 0025). */
+  targetRole: text('target_role', { enum: ['all', 'reviewer', 'admin'] })
+    .notNull()
+    .default('all'),
   changedBy: text('changed_by').notNull(),
   changedAt: timestamp('changed_at', { withTimezone: true })
     .notNull()

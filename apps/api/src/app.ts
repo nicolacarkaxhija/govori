@@ -14,7 +14,7 @@ import {
   type Item,
 } from '@glotty/content';
 import type { LanguagePack } from '@glotty/language';
-import { resolveFlags } from '@glotty/config';
+import { resolveFlags, type ViewerRole } from '@glotty/config';
 import type { Auth } from './auth/auth.js';
 import type { ApiConfig } from './config.js';
 import type { ItemQueries } from './content/ports.js';
@@ -158,14 +158,35 @@ export function buildApp({
     transform: jsonSchemaTransform,
   });
 
-  async function effectiveFlags(): Promise<Record<string, boolean>> {
+  async function effectiveFlags(
+    viewerRole: ViewerRole,
+  ): Promise<Record<string, boolean>> {
     const resolved = resolveFlags(
       flagDefinitions,
       await flagStates.getStates(),
+      viewerRole,
     );
     return Object.fromEntries(
       Object.entries(resolved).map(([key, flag]) => [key, flag.effective]),
     );
+  }
+
+  /** The asking viewer's ring: anonymous without a session, else their role. */
+  async function viewerRoleFor(request: {
+    url: string;
+    headers: Record<string, string | string[] | undefined>;
+  }): Promise<ViewerRole> {
+    const session = await auth.api.getSession({
+      headers: toWebRequest(config, {
+        method: 'GET',
+        url: request.url,
+        headers: request.headers,
+      }).headers,
+    });
+    if (session === null) {
+      return 'anonymous';
+    }
+    return userRoles.getRole(session.user.id);
   }
 
   // better-auth owns everything under /api/auth (ADR 0021).
@@ -336,7 +357,11 @@ export function buildApp({
           },
         },
       },
-      async () => ({ flags: await effectiveFlags() }),
+      // Ring-gated per viewer (ADR 0025): the same flag can read on for a
+      // reviewer and off for an anonymous visitor.
+      async (request) => ({
+        flags: await effectiveFlags(await viewerRoleFor(request)),
+      }),
     );
 
     routes.put(
@@ -344,7 +369,11 @@ export function buildApp({
       {
         schema: {
           params: z.object({ key: z.string().min(1) }),
-          body: z.object({ enabled: z.boolean() }),
+          // targetRole is optional: an omitted ring leaves the stored one.
+          body: z.object({
+            enabled: z.boolean(),
+            targetRole: z.enum(['all', 'reviewer', 'admin']).optional(),
+          }),
           response: {
             200: z.object({ flags: z.record(z.string(), z.boolean()) }),
             401: z.object({ message: z.string() }),
@@ -376,8 +405,10 @@ export function buildApp({
           request.params.key,
           request.body.enabled,
           `user:${sessionResult.user.id}`,
+          request.body.targetRole,
         );
-        return { flags: await effectiveFlags() };
+        // The admin doing the flip is who this response is resolved for.
+        return { flags: await effectiveFlags('admin') };
       },
     );
 
@@ -460,7 +491,8 @@ export function buildApp({
         },
       },
       async (request, reply) => {
-        const flags = await effectiveFlags();
+        // Audio is a public capability: gate on whether it is live at all.
+        const flags = await effectiveFlags('anonymous');
         if (flags.audio !== true) {
           return reply.status(404).send({ message: 'not found' });
         }
@@ -504,7 +536,8 @@ export function buildApp({
         },
       },
       async (request, reply) => {
-        const flags = await effectiveFlags();
+        // Audio is a public capability: gate on whether it is live at all.
+        const flags = await effectiveFlags('anonymous');
         if (flags.audio !== true) {
           return reply.status(404).send({ message: 'not found' });
         }
@@ -524,7 +557,8 @@ export function buildApp({
         },
       },
       async (request, reply) => {
-        const flags = await effectiveFlags();
+        // Audio is a public capability: gate on whether it is live at all.
+        const flags = await effectiveFlags('anonymous');
         if (flags.audio !== true) {
           return reply.status(404).send({ message: 'not found' });
         }

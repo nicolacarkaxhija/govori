@@ -59,7 +59,11 @@ function testApp(options: { session?: string | null; audioOn?: boolean } = {}) {
     auth: sessionAs('session' in options ? (options.session ?? null) : 'u1'),
     flagStates: {
       getStates: () =>
-        Promise.resolve(options.audioOn === true ? { audio: true } : {}),
+        Promise.resolve(
+          options.audioOn === true
+            ? { audio: { enabled: true, targetRole: 'all' } }
+            : {},
+        ),
       setFlag: () => Promise.resolve(),
     },
     items: {

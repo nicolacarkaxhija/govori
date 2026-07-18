@@ -326,12 +326,29 @@ describe('DrizzleFlagStore', () => {
     const store = new DrizzleFlagStore(db);
     await store.setFlag('audio', false, 'admin:setup');
     await store.setFlag('audio', true, 'admin:launch');
-    expect(await store.getStates()).toEqual({ audio: true });
+    expect(await store.getStates()).toEqual({
+      audio: { enabled: true, targetRole: 'all' },
+    });
     const audit = await store.getAudit('audio');
     expect(audit.map((row) => row.enabled)).toEqual([false, true]);
     expect(audit.map((row) => row.changedBy)).toEqual([
       'admin:setup',
       'admin:launch',
+    ]);
+  });
+
+  it('sets a ring and keeps it across a plain on/off flip', async () => {
+    const store = new DrizzleFlagStore(db);
+    await store.setFlag('social', true, 'admin:ring', 'reviewer');
+    // A later flip without a ring must not widen visibility back to all.
+    await store.setFlag('social', false, 'admin:flip');
+    expect(await store.getStates()).toMatchObject({
+      social: { enabled: false, targetRole: 'reviewer' },
+    });
+    const audit = await store.getAudit('social');
+    expect(audit.map((row) => row.targetRole)).toEqual([
+      'reviewer',
+      'reviewer',
     ]);
   });
 });
