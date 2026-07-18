@@ -187,4 +187,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: reorder seen dialogues instead of replaying them | 2.5–3 | scrambleOrder extracted and reused by assembly, per-lesson seen flags, tap-to-order dialogue card with pragmatic first-item credit, first-visit/return-visit lesson flow tests |
 
+| 2026-07-17 | feat: let learners vote on pending community drafts | 2.5–3 | fetchPendingVotes/castVote clients with a 401-aware result, voting view with server-confirmed tallies and vote-state buttons, sign-in handoff, footer entry, both catalog languages |
+
 **Running total: 198.7–252.2 h**

@@ -120,6 +120,84 @@ describe('fetchCourse and fetchLesson', () => {
   });
 });
 
+describe('community voting clients', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.unstubAllGlobals();
+  });
+
+  const entry = {
+    item: {
+      id: 'cccccccc-0000-4000-8000-000000000001',
+      kind: 'sentence',
+      text: 'Ja pijų vodų.',
+      translations: [{ lang: 'en', text: 'I drink water.' }],
+    },
+    upvotes: 2,
+    downvotes: 1,
+    myVote: null,
+  };
+
+  it('fetchPendingVotes parses the open queue', async () => {
+    const { fetchPendingVotes } = await import('./client');
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ pending: [entry] }), { status: 200 }),
+        ),
+    );
+    expect(await fetchPendingVotes()).toEqual([entry]);
+  });
+
+  it('fetchPendingVotes tells a signed-out session apart from a failure', async () => {
+    const { fetchPendingVotes } = await import('./client');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ message: 'sign in' }), {
+          status: 401,
+        }),
+      ),
+    );
+    expect(await fetchPendingVotes()).toBe('unauthenticated');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response('nope', { status: 500 })),
+    );
+    expect(await fetchPendingVotes()).toBeNull();
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+    expect(await fetchPendingVotes()).toBeNull();
+  });
+
+  it('castVote returns the fresh tallies and fails closed', async () => {
+    const { castVote } = await import('./client');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ upvotes: 3, downvotes: 1 }), {
+          status: 200,
+        }),
+      ),
+    );
+    expect(
+      await castVote('cccccccc-0000-4000-8000-000000000001', true),
+    ).toEqual({ upvotes: 3, downvotes: 1 });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response('gone', { status: 404 })),
+    );
+    expect(
+      await castVote('cccccccc-0000-4000-8000-000000000001', false),
+    ).toBeNull();
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+    expect(
+      await castVote('cccccccc-0000-4000-8000-000000000001', true),
+    ).toBeNull();
+  });
+});
+
 describe('contrastive notes on learn items', () => {
   beforeEach(() => {
     localStorage.clear();

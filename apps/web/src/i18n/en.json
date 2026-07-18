@@ -15,6 +15,7 @@
   "clozeLabel": "Type the missing word — any script, accents optional",
   "codeLicense": "Code: AGPL-3.0-only",
   "commonWords": "Common words",
+  "communityReview": "Community review",
   "contentLicense": "Content: CC BY-SA 4.0",
   "continueButton": "Continue",
   "contribute": "Contribute",
@@ -62,6 +63,7 @@
   "notCanonical": "Use canonical etymological Latin — letters like ě, ę, ų, å are welcome.",
   "nothingDue": "Nothing is due right now. Come back later.",
   "nothingWeak": "No weak words yet — keep learning.",
+  "noVotes": "Nothing is waiting for votes.",
   "openNumbers": "Open numbers",
   "password": "Password",
   "practiceTitle": "Practice",
@@ -82,6 +84,7 @@
   "signInIssue": "That did not work — check the details and try again.",
   "signInTitle": "Sign in",
   "signInToContribute": "Sign in to contribute.",
+  "signInToVote": "Sign in to vote.",
   "signOut": "Sign out",
   "signUpFailed": "Could not create the account — the email may be taken, or the password is shorter than 8 characters.",
   "speedReview": "Speed review",
@@ -107,6 +110,8 @@
   "unreachable": "The server is unreachable — try again in a moment.",
   "unreachableNow": "The server is unreachable right now.",
   "usersUnavailable": "The user list is unavailable — are you signed in as an admin?",
+  "voteDown": "Vote against",
+  "voteUp": "Vote for",
   "weakItems": "Weak words",
   "welcome": "Dobro došli."
 }

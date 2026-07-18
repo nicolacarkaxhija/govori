@@ -13,6 +13,7 @@ import { StatsView } from './stats/StatsView';
 import { ReviewView } from './review/ReviewView';
 import { UsersView } from './review/UsersView';
 import { ContributeView } from './review/ContributeView';
+import { VoteView } from './review/VoteView';
 import { LanguageProvider, useLanguage, useT } from './i18n';
 import { streakDays } from './learn/progress';
 
@@ -50,6 +51,7 @@ function AppShell({
     | { name: 'weak' }
     | { name: 'common' }
     | { name: 'speed' }
+    | { name: 'vote' }
   >({ name: 'home' });
 
   useEffect(() => {
@@ -209,6 +211,16 @@ function AppShell({
             setView({ name: 'account' });
           }}
         />
+      ) : view.name === 'vote' ? (
+        <VoteView
+          script={script}
+          onExit={() => {
+            setView({ name: 'home' });
+          }}
+          onSignIn={() => {
+            setView({ name: 'account' });
+          }}
+        />
       ) : view.name === 'speed' ? (
         <SpeedReviewView
           script={script}
@@ -268,6 +280,15 @@ function AppShell({
           }}
         >
           {t('contribute')}
+        </button>
+        <button
+          type="button"
+          className="footer-link"
+          onClick={() => {
+            setView({ name: 'vote' });
+          }}
+        >
+          {t('communityReview')}
         </button>
         <button
           type="button"

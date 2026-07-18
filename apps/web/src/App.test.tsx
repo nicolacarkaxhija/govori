@@ -219,6 +219,31 @@ describe('practice hub', () => {
   });
 });
 
+describe('community review entry', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('opens the voting queue from the footer and offers sign-in', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ message: 'sign in' }), {
+          status: 401,
+        }),
+      ),
+    );
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole('button', { name: 'Community review' }));
+    expect(await screen.findByText('Sign in to vote.')).toBeDefined();
+    await user.click(screen.getByRole('button', { name: 'Sign in' }));
+    expect(
+      await screen.findByRole('button', { name: 'Create account' }),
+    ).toBeDefined();
+  });
+});
+
 describe('learning language picker', () => {
   it('persists the chosen translation language from the footer', async () => {
     stubOfflineApi();

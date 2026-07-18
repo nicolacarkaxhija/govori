@@ -416,6 +416,73 @@ export async function contribute(
   }
 }
 
+const pendingVotesSchema = z.object({
+  pending: z.array(
+    z.object({
+      item: learnItemSchema,
+      upvotes: z.number(),
+      downvotes: z.number(),
+      myVote: z.boolean().nullable(),
+    }),
+  ),
+});
+
+export type PendingVote = z.infer<typeof pendingVotesSchema>['pending'][number];
+
+/**
+ * Community drafts open for voting (net-3 upvotes publishes). A 401 is a
+ * missing session, not a failure — the view offers sign-in for it.
+ */
+export async function fetchPendingVotes(
+  limit = 50,
+): Promise<PendingVote[] | 'unauthenticated' | null> {
+  try {
+    const response = await fetch(
+      new URL(`/review/pending?limit=${String(limit)}`, apiBaseUrl),
+      { credentials: 'include' },
+    );
+    if (response.status === 401) {
+      return 'unauthenticated';
+    }
+    if (!response.ok) {
+      return null;
+    }
+    const payload: unknown = await response.json();
+    return pendingVotesSchema.parse(payload).pending;
+  } catch {
+    return null;
+  }
+}
+
+const voteTallySchema = z.object({
+  upvotes: z.number(),
+  downvotes: z.number(),
+});
+
+export type VoteTally = z.infer<typeof voteTallySchema>;
+
+/** Casts or changes a vote on a pending draft; null when it did not land. */
+export async function castVote(
+  id: string,
+  up: boolean,
+): Promise<VoteTally | null> {
+  try {
+    const response = await fetch(new URL(`/review/${id}/vote`, apiBaseUrl), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ up }),
+    });
+    if (!response.ok) {
+      return null;
+    }
+    const payload: unknown = await response.json();
+    return voteTallySchema.parse(payload);
+  } catch {
+    return null;
+  }
+}
+
 const flagsSchema = z.object({
   flags: z.record(z.string(), z.boolean()),
 });

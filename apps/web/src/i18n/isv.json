@@ -15,6 +15,7 @@
   "clozeLabel": "Napiši nedostajuče slovo — ljuboje pismo, akcenty neobvezny",
   "codeLicense": "Kod: AGPL-3.0-only",
   "commonWords": "Čęsta slova",
+  "communityReview": "Pregled komunity",
   "contentLicense": "Sodržanje: CC BY-SA 4.0",
   "continueButton": "Dalje",
   "contribute": "Prispěj",
@@ -62,6 +63,7 @@
   "notCanonical": "Piši v kanoničnoj etimologičnoj latinici — bukvy kako ě, ę, ų, å sut dobrodošle.",
   "nothingDue": "Ničto ne čeka sejčas. Vrati se pozdněje.",
   "nothingWeak": "Ješče ne jest slabyh slov — prodolžaj učenje.",
+  "noVotes": "Ničto ne čeka glasov.",
   "openNumbers": "Otvorjena čisla",
   "password": "Parola",
   "practiceTitle": "Praktika",
@@ -82,6 +84,7 @@
   "signInIssue": "To ne udalo se — prověri dane i probuj znova.",
   "signInTitle": "Vojdi",
   "signInToContribute": "Vojdi, da by prispěti.",
+  "signInToVote": "Vojdi, da by glasovati.",
   "signOut": "Izidi",
   "signUpFailed": "Ne udalo se sozdati konto — e-mail može byti zanjety, ili parola jest kratša než 8 znakov.",
   "speedReview": "Bystre povtorjenje",
@@ -107,6 +110,8 @@
   "unreachable": "Server jest nedostupny — probuj znova za moment.",
   "unreachableNow": "Server sejčas jest nedostupny.",
   "usersUnavailable": "Spis uživateljev jest nedostupny — jesi li vpisany kako administrator?",
+  "voteDown": "Glasuj protiv",
+  "voteUp": "Glasuj za",
   "weakItems": "Slaba slova",
   "welcome": "Dobro došli."
 }
