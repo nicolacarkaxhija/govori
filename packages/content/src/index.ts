@@ -182,6 +182,52 @@ export function parseCurriculumArtifact(input: unknown): CurriculumArtifact {
   return result.data;
 }
 
+/**
+ * Inflected word forms for morphology drills, keyed to content items.
+ * Shipped as its own artifact so forms and items version independently;
+ * `tag` is a short slot name (e.g. `pl`, `past.f`, `pres.2sg`) derived in
+ * the forge from the dictionary's affix classes.
+ */
+export const MorphologyArtifactSchema = z.object({
+  schemaVersion: z.literal(1),
+  createdAt: z.iso.datetime(),
+  producer: z.object({
+    name: z.string().min(1),
+    version: z.string().min(1),
+  }),
+  entries: z
+    .array(
+      z.object({
+        /** The content-artifact item this paradigm belongs to. */
+        itemId: z.uuid(),
+        pos: PartOfSpeechSchema,
+        /** A one-form paradigm cannot drill anything; two is the floor. */
+        forms: z
+          .array(
+            z.object({
+              tag: z.string().trim().min(1),
+              text: CanonicalTextSchema,
+            }),
+          )
+          .min(2),
+      }),
+    )
+    .min(1),
+});
+
+export type MorphologyArtifact = z.infer<typeof MorphologyArtifactSchema>;
+
+export function parseMorphologyArtifact(input: unknown): MorphologyArtifact {
+  const result = MorphologyArtifactSchema.safeParse(input);
+  if (!result.success) {
+    const details = result.error.issues
+      .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
+      .join('; ');
+    throw new ArtifactError(`invalid morphology artifact — ${details}`);
+  }
+  return result.data;
+}
+
 /** Parses an untrusted artifact, throwing ArtifactError with every path. */
 export function parseContentArtifact(input: unknown): ContentArtifact {
   const result = ContentArtifactSchema.safeParse(input);

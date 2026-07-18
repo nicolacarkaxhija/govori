@@ -6,6 +6,7 @@ import {
   PartOfSpeechSchema,
   parseContentArtifact,
   parseCurriculumArtifact,
+  parseMorphologyArtifact,
 } from './index.js';
 
 const validItem = {
@@ -223,6 +224,84 @@ describe('parseCurriculumArtifact', () => {
     expect(() => parseCurriculumArtifact(broken)).toThrow(ArtifactError);
     expect(() => parseCurriculumArtifact(broken)).toThrow(
       /units\.0\.lessons\.0\.itemIds/,
+    );
+  });
+});
+
+describe('parseMorphologyArtifact', () => {
+  const artifact = {
+    schemaVersion: 1,
+    createdAt: '2026-07-17T00:00:00Z',
+    producer: { name: 'govori-content-forge', version: '0.3.0' },
+    entries: [
+      {
+        itemId: '3e2d8f0a-4b1c-4f6e-9a7d-1c2b3a4d5e6f',
+        pos: 'verb',
+        forms: [
+          { tag: 'past.m', text: 'byl' },
+          { tag: 'past.f', text: 'byla' },
+        ],
+      },
+    ],
+  };
+
+  it('returns typed data for a valid artifact', () => {
+    const parsed = parseMorphologyArtifact(artifact);
+    expect(parsed.entries[0]?.forms).toHaveLength(2);
+    expect(parsed.entries[0]?.pos).toBe('verb');
+  });
+
+  it('rejects artifacts from a different schema version', () => {
+    expect(() =>
+      parseMorphologyArtifact({ ...artifact, schemaVersion: 2 }),
+    ).toThrow(ArtifactError);
+  });
+
+  it('rejects artifacts without entries', () => {
+    expect(() => parseMorphologyArtifact({ ...artifact, entries: [] })).toThrow(
+      /entries/,
+    );
+  });
+
+  const withEntry = (entry: object) => ({
+    ...artifact,
+    entries: [{ ...(artifact.entries[0] ?? {}), ...entry }],
+  });
+
+  it('rejects entries with fewer than two forms, naming the path', () => {
+    const broken = withEntry({ forms: [{ tag: 'past.m', text: 'byl' }] });
+    expect(() => parseMorphologyArtifact(broken)).toThrow(ArtifactError);
+    expect(() => parseMorphologyArtifact(broken)).toThrow(/entries\.0\.forms/);
+  });
+
+  it('rejects non-canonical form text, naming the path', () => {
+    const broken = withEntry({
+      forms: [
+        { tag: 'past.m', text: 'был' },
+        { tag: 'past.f', text: 'byla' },
+      ],
+    });
+    expect(() => parseMorphologyArtifact(broken)).toThrow(
+      /entries\.0\.forms\.0\.text/,
+    );
+  });
+
+  it('rejects blank form tags', () => {
+    expect(() =>
+      parseMorphologyArtifact(
+        withEntry({
+          forms: [
+            { tag: ' ', text: 'byl' },
+            { tag: 'past.f', text: 'byla' },
+          ],
+        }),
+      ),
+    ).toThrow(ArtifactError);
+  });
+
+  it('rejects parts of speech outside the inventory', () => {
+    expect(() => parseMorphologyArtifact(withEntry({ pos: 'gerund' }))).toThrow(
+      /entries\.0\.pos/,
     );
   });
 });

@@ -164,4 +164,6 @@ developer working alone. Appended in the same commit it describes.
 | 2026-07-17 | docs: charter community voting | 0.5 | ADR 0040 (second publish path, threshold rationale, brigading risk accepted) + registry row |
 | 2026-07-17 | feat(content): add part-of-speech fields to items | 0.5–1 | Normalized twelve-value POS enum distilled from the slovnik's raw tag inventory, optional pos/posDetail on the item contract, branch coverage held at 100% |
 
-**Running total: 192.7–244.2 h**
+| 2026-07-17 | feat(content): add the morphology artifact contract | 1–1.5 | New import-seam schema for inflected-form paradigms keyed to item ids, two-form floor, canonical-text gate on every form, parse function mirroring the existing artifact parsers with joined issue paths |
+
+**Running total: 193.7–245.7 h**
