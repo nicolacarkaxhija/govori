@@ -231,4 +231,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | feat: add the fol instance | 3–4 | @glotty/instance-fol: Fol branding over the sq pack, six-language learner roster, five full UI catalogs (en key inventory + native-care sq, draft de/it/tr flagged for Weblate refinement), parity/sorted/non-empty gate parametrized over all five |
 
+| 2026-07-18 | feat: register fol in the app shells | 1–1.5 | fol/sq lines in both instance registries with the workspace deps, api registry suite proving fol resolves to the sq pack and bootless boots still fail naming both ids; full api (98.3/92.2) and web (92.7/88.4) suites green, VITE_INSTANCE=fol build stamps the Fol brand into index.html and the PWA manifest |
+
 **Running total: 221.2–281.7 h**

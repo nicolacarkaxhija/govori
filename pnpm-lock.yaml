@@ -83,6 +83,9 @@ importers:
       '@glotty/content':
         specifier: workspace:*
         version: link:../../packages/content
+      '@glotty/instance-fol':
+        specifier: workspace:*
+        version: link:../../instances/fol
       '@glotty/instance-govori':
         specifier: workspace:*
         version: link:../../instances/govori
@@ -92,6 +95,9 @@ importers:
       '@glotty/pack-isv':
         specifier: workspace:*
         version: link:../../packs/isv
+      '@glotty/pack-sq':
+        specifier: workspace:*
+        version: link:../../packs/sq
       '@glotty/srs':
         specifier: workspace:*
         version: link:../../packages/srs
@@ -141,6 +147,9 @@ importers:
       '@fontsource/source-sans-3':
         specifier: ^5.2.9
         version: 5.2.9
+      '@glotty/instance-fol':
+        specifier: workspace:*
+        version: link:../../instances/fol
       '@glotty/instance-govori':
         specifier: workspace:*
         version: link:../../instances/govori
@@ -150,6 +159,9 @@ importers:
       '@glotty/pack-isv':
         specifier: workspace:*
         version: link:../../packs/isv
+      '@glotty/pack-sq':
+        specifier: workspace:*
+        version: link:../../packs/sq
       '@glotty/srs':
         specifier: workspace:*
         version: link:../../packages/srs

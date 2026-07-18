@@ -3,8 +3,10 @@ import {
   type InstanceRegistry,
   type ResolvedInstance,
 } from '@glotty/language';
+import { folInstance } from '@glotty/instance-fol';
 import { govoriInstance } from '@glotty/instance-govori';
 import { isvPack } from '@glotty/pack-isv';
+import { sqPack } from '@glotty/pack-sq';
 
 /**
  * The registry: the one place this build enumerates shippable instances
@@ -14,8 +16,8 @@ import { isvPack } from '@glotty/pack-isv';
  * must fail, never quietly become some product.
  */
 const registry: InstanceRegistry = {
-  instances: { govori: govoriInstance },
-  packs: { isv: isvPack },
+  instances: { govori: govoriInstance, fol: folInstance },
+  packs: { isv: isvPack, sq: sqPack },
 };
 
 /**
