@@ -114,6 +114,7 @@ export function ContributeView({ onExit, onSignIn }: ContributeViewProps) {
             {t('signInTitle')}
           </button>
         )}
+        <p className="account-note">{t('contributeLicense')}</p>
         <button type="submit" className="primary" disabled={busy}>
           {t('sendForReview')}
         </button>

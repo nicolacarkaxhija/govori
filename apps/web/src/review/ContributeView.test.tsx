@@ -59,3 +59,10 @@ describe('ContributeView failure copy', () => {
     expect(await screen.findByText(/Sending failed/)).toBeDefined();
   });
 });
+
+describe('ContributeView licensing', () => {
+  it('states the CC BY-SA terms next to the submit button', () => {
+    render(<ContributeView onExit={vi.fn()} onSignIn={vi.fn()} />);
+    expect(screen.getByText(/keeps this course free to share/)).toBeDefined();
+  });
+});
