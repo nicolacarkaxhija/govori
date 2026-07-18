@@ -1,4 +1,8 @@
-# Govori — repository conventions
+# glotty — repository conventions
+
+This repository is **glotty**, the language-learning engine; **Govori**
+(Interslavic) and **Fol** (Albanian, planned) are products built on it as
+instances (ADR 0041). Vocabulary lives in `CONTEXT.md`.
 
 ## Reading order
 
@@ -9,11 +13,15 @@ re-deciding anything.
 
 ## Architecture rules
 
-- Hexagonal: `packages/*` are pure domain code — no framework, DOM, or I/O
-  imports. `apps/*` are thin adapters over them.
-- Content is stored in canonical etymological Latin only; scripts and flavours
-  are derived via the transliteration engine (ADR 0003).
-- Everything is constructor-injected; nothing imports a global singleton.
+- Hexagonal: `packages/*` and `packs/*` are pure domain code — no framework,
+  DOM, or I/O imports. `apps/*` are thin adapters over them.
+- The engine never names a language. Packs own orthography, scripts, naming,
+  and terminology; instances own branding, catalog sets, and fallback
+  languages; a build without an instance fails fast (ADR 0042).
+- Content is stored in each pack's canonical orthography only; scripts and
+  flavours are derived through the pack (ADR 0003/0042).
+- Everything is constructor-injected; nothing imports a global singleton
+  (apps resolve their instance once, at a single entry point).
 - Every feature is independently toggleable (ADR 0024/0025).
 
 ## Workflow rules

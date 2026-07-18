@@ -221,4 +221,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | refactor: fold the transliteration engine into the isv pack | 1–1.5 | Orthography engine and its five suites moved to packs/isv/src/transliteration.ts as unpublished pack internals — no package left for engine code to import; tech specs realigned; merged pack holds 100% branch and 97.8% mutation |
 
+| 2026-07-18 | docs: record the platform split and the pack seam | 1.5–2 | ADR 0041 (one engine, many language apps) and ADR 0042 (LanguagePack seam with the never-names-a-language acceptance standard) plus registry rows, root CONTEXT.md glossary, README retitled to glotty with a products section, CLAUDE.md realigned |
+
 **Running total: 221.2–281.7 h**
