@@ -13,6 +13,7 @@
   "check": "Check",
   "clozeLabel": "Type the missing word — any script, accents optional",
   "codeLicense": "Code: AGPL-3.0-only",
+  "commonWords": "Common words",
   "contentLicense": "Content: CC BY-SA 4.0",
   "continueButton": "Continue",
   "contribute": "Contribute",
@@ -56,8 +57,10 @@
   "noDrafts": "No drafts are waiting for review.",
   "notCanonical": "Use canonical etymological Latin — letters like ě, ę, ų, å are welcome.",
   "nothingDue": "Nothing is due right now. Come back later.",
+  "nothingWeak": "No weak words yet — keep learning.",
   "openNumbers": "Open numbers",
   "password": "Password",
+  "practiceTitle": "Practice",
   "progressFollows": "Your progress now follows you across devices.",
   "record": "Record",
   "recordingFailed": "The recording could not be saved.",
@@ -97,5 +100,6 @@
   "unreachable": "The server is unreachable — try again in a moment.",
   "unreachableNow": "The server is unreachable right now.",
   "usersUnavailable": "The user list is unavailable — are you signed in as an admin?",
+  "weakItems": "Weak words",
   "welcome": "Dobro došli."
 }

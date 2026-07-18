@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { App } from './App';
@@ -136,6 +136,59 @@ describe('account entry', () => {
     expect(
       await screen.findByRole('button', { name: 'Create account' }),
     ).toBeDefined();
+  });
+});
+
+describe('practice hub', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('opens weak-word practice and returns home', async () => {
+    stubOfflineApi();
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole('button', { name: 'Weak words' }));
+    expect(await screen.findByText(/No weak words yet/)).toBeDefined();
+    await user.click(screen.getByRole('button', { name: '← Back' }));
+    expect(
+      await screen.findByRole('button', { name: 'Start learning' }),
+    ).toBeDefined();
+  });
+
+  it('runs common-word practice over the frequency list', async () => {
+    const items = [
+      {
+        id: 'aaaaaaaa-0000-4000-8000-000000000001',
+        kind: 'word',
+        text: 'voda',
+        translations: [{ lang: 'en', text: 'water' }],
+      },
+      {
+        id: 'aaaaaaaa-0000-4000-8000-000000000002',
+        kind: 'word',
+        text: 'hlěb',
+        translations: [{ lang: 'en', text: 'bread' }],
+      },
+    ];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: URL | RequestInfo) => {
+        const url = input instanceof Request ? input.url : String(input);
+        const body = url.includes('/items')
+          ? { items }
+          : url.includes('/meta')
+            ? { brand: { shortName: 'Govori', fullName: 'Govori' } }
+            : null;
+        return Promise.resolve(
+          new Response(JSON.stringify(body), { status: body ? 200 : 404 }),
+        );
+      }),
+    );
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole('button', { name: 'Common words' }));
+    expect(await screen.findByRole('heading', { name: 'voda' })).toBeDefined();
   });
 });
 

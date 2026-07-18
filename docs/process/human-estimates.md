@@ -181,4 +181,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | refactor: extract the exercise session from the lesson view | 1–1.5 | Session component owning rotation, grading, and cards over a ready pool; lesson view reduced to loading, dialogue, and handoff — groundwork for the practice hub |
 
+| 2026-07-17 | feat: practise weak and common words from the home screen | 2.5–3 | Lapse-ranked weakestItemIds over the local log, practice view running sessions over the worst ten or the frequency top twenty, home practice nav, empty/unreachable states, catalog keys |
+
 **Running total: 198.7–252.2 h**

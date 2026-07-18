@@ -60,6 +60,23 @@ export function mergeEvents(incoming: readonly ReviewEvent[]): number {
 }
 
 /**
+ * The items that trip this learner up: ranked by how many times each
+ * was graded 'again', worst first; ties keep first-lapsed order.
+ */
+export function weakestItemIds(limit = 10): string[] {
+  const lapses = new Map<string, number>();
+  for (const event of loadEvents()) {
+    if (event.grade === 'again') {
+      lapses.set(event.itemId, (lapses.get(event.itemId) ?? 0) + 1);
+    }
+  }
+  return [...lapses.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([itemId]) => itemId);
+}
+
+/**
  * Personal, private momentum (ADR 0032): consecutive UTC days with at
  * least one review, ending today or yesterday — so a streak is never
  * lost before the day is over.

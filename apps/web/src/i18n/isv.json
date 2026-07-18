@@ -13,6 +13,7 @@
   "check": "Prověri",
   "clozeLabel": "Napiši nedostajuče slovo — ljuboje pismo, akcenty neobvezny",
   "codeLicense": "Kod: AGPL-3.0-only",
+  "commonWords": "Čęsta slova",
   "contentLicense": "Sodržanje: CC BY-SA 4.0",
   "continueButton": "Dalje",
   "contribute": "Prispěj",
@@ -56,8 +57,10 @@
   "noDrafts": "Nijedin nacrt ne čeka pregleda.",
   "notCanonical": "Piši v kanoničnoj etimologičnoj latinici — bukvy kako ě, ę, ų, å sut dobrodošle.",
   "nothingDue": "Ničto ne čeka sejčas. Vrati se pozdněje.",
+  "nothingWeak": "Ješče ne jest slabyh slov — prodolžaj učenje.",
   "openNumbers": "Otvorjena čisla",
   "password": "Parola",
+  "practiceTitle": "Praktika",
   "progressFollows": "Tvoj progres sejčas idet s toboju prěko uredjenj.",
   "record": "Zapiši",
   "recordingFailed": "Zapis ne mogl byti shranjeny.",
@@ -97,5 +100,6 @@
   "unreachable": "Server jest nedostupny — probuj znova za moment.",
   "unreachableNow": "Server sejčas jest nedostupny.",
   "usersUnavailable": "Spis uživateljev jest nedostupny — jesi li vpisany kako administrator?",
+  "weakItems": "Slaba slova",
   "welcome": "Dobro došli."
 }

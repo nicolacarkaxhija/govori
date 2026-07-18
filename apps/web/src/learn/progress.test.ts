@@ -5,6 +5,7 @@ import {
   nextItemId,
   recordReview,
   streakDays,
+  weakestItemIds,
 } from './progress';
 
 // Local-first progress (ADR 0022/0030): an append-only event log in
@@ -77,6 +78,33 @@ describe('mergeEvents', () => {
     ]);
     // FIRST was reviewed on another device; the unseen item comes first.
     expect(nextItemId(ITEMS, '2026-07-16T11:00:00.000Z')).toBe(SECOND);
+  });
+});
+
+describe('weakestItemIds', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('ranks items by how often they lapsed, worst first', () => {
+    recordReview(SECOND, 'again', '2026-07-16T10:00:00.000Z');
+    recordReview(FIRST, 'again', '2026-07-16T10:01:00.000Z');
+    recordReview(FIRST, 'again', '2026-07-16T10:02:00.000Z');
+    recordReview(SECOND, 'good', '2026-07-16T10:03:00.000Z');
+    expect(weakestItemIds()).toEqual([FIRST, SECOND]);
+  });
+
+  it('ignores items that never lapsed', () => {
+    recordReview(FIRST, 'good', '2026-07-16T10:00:00.000Z');
+    recordReview(SECOND, 'hard', '2026-07-16T10:01:00.000Z');
+    expect(weakestItemIds()).toEqual([]);
+  });
+
+  it('caps the list at the requested size', () => {
+    recordReview(FIRST, 'again', '2026-07-16T10:00:00.000Z');
+    recordReview(FIRST, 'again', '2026-07-16T10:01:00.000Z');
+    recordReview(SECOND, 'again', '2026-07-16T10:02:00.000Z');
+    expect(weakestItemIds(1)).toEqual([FIRST]);
   });
 });
 

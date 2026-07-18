@@ -6,6 +6,7 @@ import { useScript } from './learn/useScript';
 import { LEARN_LANGUAGES, useLearnLanguage } from './learn/useLearnLanguage';
 import { LessonView } from './learn/LessonView';
 import { CourseView } from './learn/CourseView';
+import { PracticeView } from './practice/PracticeView';
 import { AccountView } from './account/AccountView';
 import { StatsView } from './stats/StatsView';
 import { ReviewView } from './review/ReviewView';
@@ -45,6 +46,8 @@ function AppShell({
     | { name: 'review' }
     | { name: 'users' }
     | { name: 'contribute' }
+    | { name: 'weak' }
+    | { name: 'common' }
   >({ name: 'home' });
 
   useEffect(() => {
@@ -128,6 +131,29 @@ function AppShell({
           >
             {t('startLearning')}
           </button>
+          <nav className="practice" aria-label={t('practiceTitle')}>
+            <p className="practice-title">{t('practiceTitle')}</p>
+            <div className="practice-links">
+              <button
+                type="button"
+                className="quiet"
+                onClick={() => {
+                  setView({ name: 'weak' });
+                }}
+              >
+                {t('weakItems')}
+              </button>
+              <button
+                type="button"
+                className="quiet"
+                onClick={() => {
+                  setView({ name: 'common' });
+                }}
+              >
+                {t('commonWords')}
+              </button>
+            </div>
+          </nav>
         </main>
       ) : view.name === 'course' ? (
         <CourseView
@@ -170,6 +196,15 @@ function AppShell({
           script={script}
           onExit={() => {
             setView({ name: 'account' });
+          }}
+        />
+      ) : view.name === 'weak' || view.name === 'common' ? (
+        <PracticeView
+          source={view.name}
+          script={script}
+          learnLang={learnLang}
+          onExit={() => {
+            setView({ name: 'home' });
           }}
         />
       ) : view.name === 'lesson' ? (
