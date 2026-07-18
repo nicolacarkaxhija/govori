@@ -233,4 +233,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | feat: register fol in the app shells | 1–1.5 | fol/sq lines in both instance registries with the workspace deps, api registry suite proving fol resolves to the sq pack and bootless boots still fail naming both ids; full api (98.3/92.2) and web (92.7/88.4) suites green, VITE_INSTANCE=fol build stamps the Fol brand into index.html and the PWA manifest |
 
+| 2026-07-18 | docs: charter the fol instance | 0.5–1 | ADR 0044 recording Fol's chartered decisions — diaspora-first audience, Standard canon with Gheg contrastive notes, kaikki/Tatoeba CC sources with GPL-as-tool, audio dark with a pre-committed flip, Fol/Alba/Alo naming poll, freemium reserved to Fol's own charter — plus registry row |
+
 **Running total: 221.2–281.7 h**
