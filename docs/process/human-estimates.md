@@ -191,4 +191,4 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: recognize the reviewer role across the app | 1–1.5 | Role enums widened on session/directory/role-change clients, drafts queue opened to reviewers while user management stays admin-only, three-way role picker replacing the flip button, catalog keys |
 
-**Running total: 198.7–252.2 h**
+**Running total: 218.7–278.2 h**
