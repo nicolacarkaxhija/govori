@@ -8,6 +8,7 @@ import { LessonView } from './learn/LessonView';
 import { CourseView } from './learn/CourseView';
 import { PracticeView } from './practice/PracticeView';
 import { SpeedReviewView } from './practice/SpeedReviewView';
+import { JournalView } from './journal/JournalView';
 import { AccountView } from './account/AccountView';
 import { StatsView } from './stats/StatsView';
 import { ReviewView } from './review/ReviewView';
@@ -57,6 +58,7 @@ function AppShell({
     | { name: 'weak' }
     | { name: 'common' }
     | { name: 'speed' }
+    | { name: 'journal' }
     | { name: 'vote' }
   >({ name: 'home' });
 
@@ -173,6 +175,15 @@ function AppShell({
               >
                 {t('commonWords')}
               </button>
+              <button
+                type="button"
+                className="quiet"
+                onClick={() => {
+                  setView({ name: 'journal' });
+                }}
+              >
+                {t('journalTitle')}
+              </button>
             </div>
           </nav>
         </main>
@@ -231,6 +242,14 @@ function AppShell({
         />
       ) : view.name === 'speed' ? (
         <SpeedReviewView
+          script={script}
+          learnLang={learnLang}
+          onExit={() => {
+            setView({ name: 'home' });
+          }}
+        />
+      ) : view.name === 'journal' ? (
+        <JournalView
           script={script}
           learnLang={learnLang}
           onExit={() => {

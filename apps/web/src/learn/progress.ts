@@ -46,6 +46,23 @@ export function nextItemId(
 }
 
 /**
+ * Due items from the pool, earliest due first, with unseen items filling
+ * the tail — the suggestion source for the journal (ADR 0045).
+ */
+export function dueItemIds(
+  pool: readonly string[],
+  limit = 3,
+  now = new Date().toISOString(),
+): string[] {
+  const state = replay(loadEvents());
+  const due = selectDue(state, now)
+    .filter((schedule) => pool.includes(schedule.itemId))
+    .map((schedule) => schedule.itemId);
+  const unseen = pool.filter((id) => !state.has(id));
+  return [...due, ...unseen].slice(0, limit);
+}
+
+/**
  * Pull side of sync (ADR 0030): union server events into the local log by
  * event id — same set-union semantics the server applies on push. Returns
  * how many events were new to this device.

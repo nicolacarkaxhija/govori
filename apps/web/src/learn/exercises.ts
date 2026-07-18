@@ -294,9 +294,30 @@ export function buildProduction(
 }
 
 /**
+ * The ids of `words` whose stem appears among the text's tokens — the
+ * same loose stem/containment the cloze round matches with (ADR 0045).
+ * Shared by the production check and the journal's word detection.
+ */
+export function matchedWordIds(
+  pack: ExercisePack,
+  text: string,
+  words: readonly ProductionWord[],
+): string[] {
+  const tokens = [...text.matchAll(/[\p{L}́]+/gu)].map((hit) =>
+    pack.normalize(hit[0]),
+  );
+  return words
+    .filter((word) => {
+      const stem = pack.stem(word.text);
+      return tokens.some((token) => token.startsWith(stem));
+    })
+    .map((word) => word.itemId);
+}
+
+/**
  * A production answer passes when the whole sentence is canonical and
- * every prompted word appears, matched by the same loose stem/containment
- * the cloze round uses (ADR 0045). Empty input never passes.
+ * every prompted word appears, matched by stem (ADR 0045). Empty input
+ * never passes.
  */
 export function checkProduction(
   pack: ExercisePack,
@@ -306,13 +327,7 @@ export function checkProduction(
   if (!pack.validateCanonical(text.trim())) {
     return false;
   }
-  const tokens = [...text.matchAll(/[\p{L}́]+/gu)].map((hit) =>
-    pack.normalize(hit[0]),
-  );
-  return words.every((word) => {
-    const stem = pack.stem(word.text);
-    return tokens.some((token) => token.startsWith(stem));
-  });
+  return matchedWordIds(pack, text, words).length === words.length;
 }
 
 export type ExerciseMode =

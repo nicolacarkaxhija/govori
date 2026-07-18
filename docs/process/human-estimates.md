@@ -242,4 +242,6 @@ developer working alone. Appended in the same commit it describes.
 | 2026-07-18 | docs: draft the launch outreach letters | 0.5–1 | Committee letter, founding-reviewer and bilingual founding-voter invites, sending checklist — stage-1 of the marketing ladder |
 | 2026-07-18 | feat: add a free-production exercise round | 2–3 | ProductionCard where the learner writes an original sentence using 2–3 due pool words; pure buildProduction picker and checkProduction (canonical + stem-containment of every word) tested against the isv pack; planNextMode gains one production round per session after morphology, wired through the Session with per-word grading; optional signed-in submit-to-review via contribute; six catalog keys across both instances' seven catalogs |
 
+| 2026-07-18 | feat: add a micro-journal with word crediting | 2–3 | Home-reachable JournalView: a daily prompt rotating by UTC day from a catalog-keyed list, a target-language textarea, and three due-word suggestion chips; on save (localStorage, one entry per day) any suggested word stem-detected in the text records a 'good' SRS review via a shared matchedWordIds helper and a new dueItemIds selector; pure journal module and view tested; ten catalog keys across both instances' seven catalogs |
+
 **Running total: 257.1–329.7 h**
