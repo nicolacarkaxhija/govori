@@ -14,6 +14,7 @@ import { DialogueCard } from './DialogueCard';
 import { ExerciseCard } from './ExerciseCard';
 import { ListeningCard } from './ListeningCard';
 import { MatchingCard } from './MatchingCard';
+import { ScriptCard } from './ScriptCard';
 import {
   buildAssembly,
   buildCloze,
@@ -92,6 +93,7 @@ export function LessonView({
   const [cloze, setCloze] = useState<Cloze | null>(null);
   const [assembly, setAssembly] = useState<Assembly | null>(null);
   const [sentenceRounds, setSentenceRounds] = useState(0);
+  const [scriptRounds, setScriptRounds] = useState(0);
 
   // A cloze needs a sentence sharing a word with this pool; try a few.
   const makeCloze = (): Cloze | null => {
@@ -124,6 +126,7 @@ export function LessonView({
       hasAssembly: builtAssembly !== null,
       audioOn,
       sentenceRounds,
+      scriptRounds,
     });
     setCloze(next === 'cloze' ? builtCloze : null);
     setAssembly(next === 'assembly' ? builtAssembly : null);
@@ -158,6 +161,13 @@ export function LessonView({
     setAnswered((count) => count + 1);
     setSentenceRounds((count) => count + 1);
     proceed(nextMode('assembly'));
+  };
+
+  const gradeScript = (item: LearnItem) => (value: Grade) => {
+    recordReview(item.id, value);
+    setAnswered((count) => count + 1);
+    setScriptRounds((count) => count + 1);
+    proceed(nextMode('script'));
   };
 
   const gradeMany = (results: { itemId: string; grade: Grade }[]) => {
@@ -237,6 +247,14 @@ export function LessonView({
             onGrade={gradeAssembly(assembly)}
           />
         )}
+      {phase.name === 'exercise' && intro === null && mode === 'script' && (
+        <ScriptCard
+          key={'script' + phase.item.id + String(answered)}
+          item={phase.item}
+          script={script}
+          onGrade={gradeScript(phase.item)}
+        />
+      )}
       {phase.name === 'exercise' && intro === null && mode === 'listening' && (
         <ListeningCard
           key={'listening' + phase.item.id + String(answered)}

@@ -223,7 +223,8 @@ export type ExerciseMode =
   | 'assembly'
   | 'listening'
   | 'reverseChoices'
-  | 'reverseTyped';
+  | 'reverseTyped'
+  | 'script';
 
 export interface RoundContext {
   poolSize: number;
@@ -232,12 +233,15 @@ export interface RoundContext {
   audioOn: boolean;
   /** Sentence-based rounds already played; alternates cloze/assembly. */
   sentenceRounds: number;
+  /** Script drills already played; one per lesson is plenty (ADR 0003). */
+  scriptRounds: number;
 }
 
 /**
  * One place decides how exercise types rotate (ADR 0005): recognition,
- * production, matching, a sentence round, then the reverse direction,
- * with listening joining once community audio is live (ADR 0004).
+ * production, matching, a sentence round, one script drill, then the
+ * reverse direction, with listening joining once community audio is
+ * live (ADR 0004).
  */
 export function planNextMode(
   current: ExerciseMode,
@@ -263,6 +267,12 @@ export function planNextMode(
   }
   if (current === 'reverseTyped') {
     return 'choices';
+  }
+  if (
+    (current === 'cloze' || current === 'assembly') &&
+    context.scriptRounds === 0
+  ) {
+    return 'script';
   }
   if (current !== 'listening' && context.audioOn) {
     return 'listening';

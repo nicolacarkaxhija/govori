@@ -366,6 +366,61 @@ describe('LessonView reverse rotation', () => {
   });
 });
 
+describe('LessonView script round', () => {
+  const threeItems: LearnItem[] = [
+    ...items,
+    {
+      id: 'bbbbbbbb-0000-4000-8000-000000000003',
+      kind: 'word',
+      text: 'sněg',
+      translations: [{ lang: 'en', text: 'snow' }],
+    },
+  ];
+
+  beforeEach(() => {
+    localStorage.clear();
+    fetchLessonMock.mockReset().mockResolvedValue({
+      title: 'Lekcija',
+      items: threeItems,
+    });
+    fetchSentencesMock.mockReset().mockResolvedValue([
+      {
+        id: 'bbbbbbbb-0000-4000-8000-000000000009',
+        kind: 'sentence',
+        text: 'Ja pijų vodų.',
+        translations: [{ lang: 'en', text: 'I drink water.' }],
+      },
+    ]);
+    fetchFlagsMock.mockReset().mockResolvedValue({});
+    fetchRecordingsMock.mockReset().mockResolvedValue([]);
+  });
+
+  it('deals a script drill after the first sentence round', async () => {
+    const user = userEvent.setup();
+    render(
+      <LessonView
+        lessonId="cccccccc-0000-4000-8000-000000000001"
+        script="latin"
+        onExit={vi.fn()}
+      />,
+    );
+    // choices → typed → cloze → script.
+    await user.click(await screen.findByRole('button', { name: 'water' }));
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.type(screen.getByLabelText(/Type it in Interslavic/), 'x');
+    await user.click(screen.getByRole('button', { name: 'Check' }));
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.type(screen.getByLabelText(/Type the missing word/), 'vodu');
+    await user.click(screen.getByRole('button', { name: 'Check' }));
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+
+    expect(await screen.findByText('Script practice')).toBeDefined();
+    await user.type(screen.getByLabelText('Type it in Cyrillic'), 'снєг');
+    await user.click(screen.getByRole('button', { name: 'Check' }));
+    expect(screen.getByText(/Pravilno/)).toBeDefined();
+  });
+});
+
 describe('LessonView assembly round', () => {
   const threeItems: LearnItem[] = [
     ...items,

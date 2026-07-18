@@ -177,4 +177,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: surface contrastive notes in exercise feedback | 1–1.5 | Optional notes on the learn-item schema, language-matched hint under the feedback line with quiet fallback, schema roundtrip and card visibility tests |
 
+| 2026-07-17 | feat: add a script drill to the lesson rotation | 2–2.5 | Latin↔Cyrillic transcription card with normalize-tolerant checking, one-per-lesson planner slot after the first sentence round, catalog keys, planner and UI rotation tests |
+
 **Running total: 198.7–252.2 h**

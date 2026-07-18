@@ -323,6 +323,7 @@ describe('planNextMode', () => {
     hasAssembly: true,
     audioOn: false,
     sentenceRounds: 0,
+    scriptRounds: 1,
   };
 
   it('walks recognition into production', () => {
@@ -362,6 +363,18 @@ describe('planNextMode', () => {
     const dry = { ...base, hasCloze: false, hasAssembly: false };
     expect(planNextMode('typed', dry)).toBe('reverseChoices');
     expect(planNextMode('matching', dry)).toBe('reverseChoices');
+  });
+
+  it('deals one script round after the first sentence round', () => {
+    expect(planNextMode('cloze', { ...base, scriptRounds: 0 })).toBe('script');
+    expect(planNextMode('assembly', { ...base, scriptRounds: 0 })).toBe(
+      'script',
+    );
+    expect(planNextMode('cloze', base)).toBe('reverseChoices');
+    expect(planNextMode('script', base)).toBe('reverseChoices');
+    expect(planNextMode('script', { ...base, audioOn: true })).toBe(
+      'listening',
+    );
   });
 
   it('slots listening before the reverse pass when audio is live', () => {
