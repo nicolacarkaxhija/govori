@@ -5,6 +5,8 @@ import { isvPack } from './index.js';
 describe('isvPack', () => {
   it('identifies itself as the isv pack', () => {
     expect(isvPack.id).toBe('isv');
+    expect(isvPack.bcp47).toBe('isv');
+    expect(isvPack.orthographyName).toBe('canonical etymological Latin');
   });
 
   it('validates canonical etymological Latin and rejects the rest', () => {

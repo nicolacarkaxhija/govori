@@ -17,6 +17,14 @@ export interface ScriptVariant {
 export interface LanguagePack {
   /** Stable pack id, e.g. `isv`; instances reference packs by this id. */
   readonly id: string;
+  /** BCP 47 tag of the language being taught; drives `lang` markup. */
+  readonly bcp47: string;
+  /**
+   * Human-readable name of the canonical orthography, e.g. "canonical
+   * etymological Latin". The pack owns its terminology — engine code
+   * composes messages around this name but never invents one.
+   */
+  readonly orthographyName: string;
   /** True when `text` is valid canonical orthography for this language. */
   validateCanonical(text: string): boolean;
   /**
@@ -28,6 +36,28 @@ export interface LanguagePack {
   stem(word: string): string;
   /** Writing systems, in display order; the first one is the default. */
   readonly scripts: readonly ScriptVariant[];
+}
+
+/**
+ * One deployable product over the engine (ADR 0029): a language pack
+ * plus everything brand- and audience-specific. Instances are config —
+ * the engine never falls back to one; builds without an instance fail.
+ */
+export interface InstanceConfig {
+  /** Stable instance id, e.g. `govori`; selects deployment artifacts. */
+  readonly id: string;
+  readonly brand: {
+    readonly shortName: string;
+    readonly fullName: string;
+  };
+  /** The language pack this instance teaches, by pack id. */
+  readonly packId: string;
+  /** UI languages offered, in display order; the first anchors fallback. */
+  readonly uiLanguages: readonly string[];
+  /** Translation language shown when an item lacks the learner's own. */
+  readonly fallbackTranslationLang: string;
+  /** UI message catalogs, keyed by uiLanguage then message key. */
+  readonly catalogs: Readonly<Record<string, Readonly<Record<string, string>>>>;
 }
 
 /** Renders `text` in the given script, or unchanged when the id is unknown. */

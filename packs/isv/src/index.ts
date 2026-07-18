@@ -30,6 +30,8 @@ function scriptVariant(
  */
 export const isvPack: LanguagePack = {
   id: 'isv',
+  bcp47: 'isv',
+  orthographyName: 'canonical etymological Latin',
   validateCanonical: isCanonical,
   normalize,
   stem,

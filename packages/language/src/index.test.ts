@@ -20,6 +20,8 @@ const quoted = {
 function makePack(scripts: LanguagePack['scripts']): LanguagePack {
   return {
     id: 'fake',
+    bcp47: 'zxx',
+    orthographyName: 'fake canonical spelling',
     validateCanonical: (text) => text.length > 0,
     normalize: (text) => text.toLowerCase(),
     stem: (word) => word.slice(0, 3),

@@ -203,4 +203,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | refactor: decouple content schemas from interslavic orthography | 2.5–3 | makeContentSchemas factory binding parsers to an injected canonical validator, shared parserFor with unchanged ArtifactError semantics, deprecated ISV-bound forge wrappers in their own module to break the import cycle, mutation suite hardened 76→98 |
 
+| 2026-07-18 | feat: name language identity in the pack contract | 0.5–1 | bcp47 and orthographyName on LanguagePack so engine code never hardcodes a language, InstanceConfig contract (brand, packId, uiLanguages, fallback language, catalogs), isv pack fields |
+
 **Running total: 221.2–281.7 h**
