@@ -1,6 +1,14 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { App } from './App';
+
+beforeEach(() => {
+  localStorage.setItem('govori.onboarded', '1');
+});
+
+afterEach(() => {
+  localStorage.clear();
+});
 
 // A build of an instance whose pack writes exactly one script: the
 // script toggle must disappear entirely (ADR 0029 — the engine offers

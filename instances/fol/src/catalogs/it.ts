@@ -94,6 +94,10 @@ export const it = {
     "Usa l'ortografia standard dell'albanese — lettere come ë e ç sono benvenute.",
   nothingDue: 'Niente da ripassare adesso. Torna più tardi.',
   nothingWeak: 'Ancora nessuna parola debole — continua a imparare.',
+  onboardLanguage: 'Che lingua parli già?',
+  onboardNote:
+    'Nessun account necessario — i tuoi progressi restano su questo dispositivo.',
+  onboardTitle: 'Benvenuto',
   openNumbers: 'Numeri aperti',
   password: 'Password',
   planPickUnit: 'Unità di focus',
@@ -150,6 +154,7 @@ export const it = {
   taskReviewWeak: 'Ripassa le tue parole deboli',
   taskReviews: 'Rispondi a {count} ripassi',
   taskStudyUnit: 'Studia l’unità {unit}',
+  tasksCompleted: '{count} attività completate',
   timeUp: 'Tempo scaduto.',
   toggleTheme: 'Cambia tema',
   translationLabel: 'Traduzione inglese',

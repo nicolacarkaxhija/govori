@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { instance } from './instance';
-import { fetchMeta } from './api/client';
+import { fetchMe, fetchMeta } from './api/client';
 import { useTheme } from './hooks/useTheme';
 import { useScript } from './learn/useScript';
 import { LEARN_LANGUAGES, useLearnLanguage } from './learn/useLearnLanguage';
@@ -11,6 +11,7 @@ import { SpeedReviewView } from './practice/SpeedReviewView';
 import { JournalView } from './journal/JournalView';
 import { GoalChips } from './goals/GoalChips';
 import { WeeklyPlanView } from './plan/WeeklyPlanView';
+import { Onboarding } from './onboarding/Onboarding';
 import { AccountView } from './account/AccountView';
 import { StatsView } from './stats/StatsView';
 import { ReviewView } from './review/ReviewView';
@@ -48,6 +49,10 @@ function AppShell({
   const { learnLang, setLearnLang } = useLearnLanguage();
   const [shortName, setShortName] = useState<string>(instance.brand.shortName);
   const [fullName, setFullName] = useState<string>(instance.brand.fullName);
+  const [signedIn, setSignedIn] = useState(false);
+  const [onboarded, setOnboarded] = useState(
+    () => localStorage.getItem(`${instance.id}.onboarded`) !== null,
+  );
   const [view, setView] = useState<
     | { name: 'home' }
     | { name: 'course' }
@@ -83,6 +88,31 @@ function AppShell({
   useEffect(() => {
     document.title = fullName;
   }, [fullName]);
+
+  useEffect(() => {
+    let active = true;
+    void fetchMe().then((me) => {
+      if (active) {
+        setSignedIn(me !== null);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (!onboarded) {
+    return (
+      <Onboarding
+        learnLang={learnLang}
+        setLearnLang={setLearnLang}
+        onDone={() => {
+          localStorage.setItem(`${instance.id}.onboarded`, '1');
+          setOnboarded(true);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="shell">
@@ -318,24 +348,28 @@ function AppShell({
             </option>
           ))}
         </select>
-        <button
-          type="button"
-          className="footer-link"
-          onClick={() => {
-            setView({ name: 'contribute' });
-          }}
-        >
-          {t('contribute')}
-        </button>
-        <button
-          type="button"
-          className="footer-link"
-          onClick={() => {
-            setView({ name: 'vote' });
-          }}
-        >
-          {t('communityReview')}
-        </button>
+        {signedIn && (
+          <button
+            type="button"
+            className="footer-link"
+            onClick={() => {
+              setView({ name: 'contribute' });
+            }}
+          >
+            {t('contribute')}
+          </button>
+        )}
+        {signedIn && (
+          <button
+            type="button"
+            className="footer-link"
+            onClick={() => {
+              setView({ name: 'vote' });
+            }}
+          >
+            {t('communityReview')}
+          </button>
+        )}
         <button
           type="button"
           className="footer-link"

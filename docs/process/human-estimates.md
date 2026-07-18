@@ -250,4 +250,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | docs: record the production-first exercise expansion | 0.5–1 | ADR 0045 recording the design of the free-production round, micro-journal, weekly goal chips, and weekly plan — how each rides the pack seam and the offline-first review log without naming a language or touching the sync schema — plus its registry row |
 
+| 2026-07-19 | feat: polish the first run and signed-out shell | 2–2.5 | Two-step first-visit onboarding (pick translation language via the shared preference, then a no-account-needed note) gated on a per-instance flag; Contribute and Community-review footer links hidden from signed-out users via a fetchMe check; session summaries now state tasks completed; existing App suites reworked for the gate and the signed-out footer; four catalog keys across both instances' seven catalogs |
+
 **Running total: 257.1–329.7 h**

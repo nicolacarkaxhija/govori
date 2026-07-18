@@ -22,6 +22,12 @@ function stubOfflineApi(): void {
   );
 }
 
+// Onboarding is a first-run gate (ADR 0045); these suites exercise the
+// returning-user shell, so mark onboarding done before each render.
+beforeEach(() => {
+  localStorage.setItem('govori.onboarded', '1');
+});
+
 afterEach(() => {
   localStorage.clear();
   document.documentElement.removeAttribute('data-theme');
@@ -142,6 +148,7 @@ describe('account entry', () => {
 describe('practice hub', () => {
   beforeEach(() => {
     localStorage.clear();
+    localStorage.setItem('govori.onboarded', '1');
   });
 
   it('opens weak-word practice and returns home', async () => {
@@ -222,9 +229,10 @@ describe('practice hub', () => {
 describe('community review entry', () => {
   beforeEach(() => {
     localStorage.clear();
+    localStorage.setItem('govori.onboarded', '1');
   });
 
-  it('opens the voting queue from the footer and offers sign-in', async () => {
+  it('hides the contribute and community links from signed-out users', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue(
@@ -233,14 +241,60 @@ describe('community review entry', () => {
         }),
       ),
     );
+    render(<App />);
+    await screen.findByRole('button', { name: 'Start learning' });
+    expect(
+      screen.queryByRole('button', { name: 'Community review' }),
+    ).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Contribute' })).toBeNull();
+  });
+
+  it('opens the voting queue from the footer once signed in', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: URL | RequestInfo) => {
+        const url = input instanceof Request ? input.url : String(input);
+        if (url.includes('/me')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                user: { id: 'u1', email: 'a@b.co', role: 'learner' },
+              }),
+              { status: 200 },
+            ),
+          );
+        }
+        return Promise.resolve(
+          new Response(JSON.stringify({ message: 'sign in' }), { status: 401 }),
+        );
+      }),
+    );
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole('button', { name: 'Community review' }));
+    const link = await screen.findByRole('button', {
+      name: 'Community review',
+    });
+    await user.click(link);
     expect(await screen.findByText('Sign in to vote.')).toBeDefined();
-    await user.click(screen.getByRole('button', { name: 'Sign in' }));
+  });
+});
+
+describe('first-run onboarding', () => {
+  beforeEach(() => {
+    localStorage.removeItem('govori.onboarded');
+  });
+
+  it('gates the first visit and lands home once completed', async () => {
+    stubOfflineApi();
+    const user = userEvent.setup();
+    render(<App />);
+    expect(await screen.findByText('Welcome')).toBeDefined();
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.click(screen.getByRole('button', { name: 'Start learning' }));
     expect(
-      await screen.findByRole('button', { name: 'Create account' }),
+      await screen.findByRole('button', { name: 'Start learning' }),
     ).toBeDefined();
+    expect(localStorage.getItem('govori.onboarded')).toBe('1');
   });
 });
 

@@ -206,6 +206,9 @@ export function Session({
           <div className="stitch" aria-hidden="true" />
           <h2>{t('allDone')}</h2>
           <p>{t('nothingDue')}</p>
+          <p className="lesson-summary">
+            {t('tasksCompleted', { count: answered })}
+          </p>
           {streakDays() > 0 && (
             <p className="hero-streak">
               {t('streak', { count: streakDays() })}
