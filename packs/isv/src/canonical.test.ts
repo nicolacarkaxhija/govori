@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isCanonical } from './index.js';
+import { isCanonical } from './transliteration.js';
 
 // Canonical item text is etymological Latin (ADR 0003): standard +
 // etymological letters, combining-acute d́/t́, whitespace, digits, and

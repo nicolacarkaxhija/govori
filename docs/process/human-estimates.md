@@ -219,4 +219,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | feat: require an explicit instance to boot the api | 2–2.5 | Shared fail-fast resolveInstance in the contract package (tested to 100/97.7 mutation), api registry keyed by GLOTTY_INSTANCE, brand injected into config from the instance with no engine default, import CLI resolves the same way, compose fully instance-parametrized with per-instance db and builds, e2e bootstrap updated |
 
+| 2026-07-18 | refactor: fold the transliteration engine into the isv pack | 1–1.5 | Orthography engine and its five suites moved to packs/isv/src/transliteration.ts as unpublished pack internals — no package left for engine code to import; tech specs realigned; merged pack holds 100% branch and 97.8% mutation |
+
 **Running total: 221.2–281.7 h**

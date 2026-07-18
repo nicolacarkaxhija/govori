@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { normalize } from './index.js';
+import { normalize } from './transliteration.js';
 
 // normalize() folds any accepted way of writing an answer — Cyrillic,
 // etymological Latin, standard Latin, or bare-ASCII approximations —

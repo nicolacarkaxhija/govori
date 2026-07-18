@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import fc from 'fast-check';
-import { normalize, transliterate } from './index.js';
+import { normalize, transliterate } from './transliteration.js';
 
 // Property tests: invariants that must hold for every representable input,
 // not just curated examples.

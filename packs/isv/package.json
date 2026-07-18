@@ -22,8 +22,7 @@
     "mutation": "stryker run"
   },
   "dependencies": {
-    "@glotty/language": "workspace:*",
-    "@glotty/transliteration-isv": "workspace:*"
+    "@glotty/language": "workspace:*"
   },
   "devDependencies": {
     "@stryker-mutator/core": "catalog:",

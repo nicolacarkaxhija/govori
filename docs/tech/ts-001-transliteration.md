@@ -6,8 +6,10 @@ depends-on: [adr-0003]
 
 # Transliteration engine
 
-Package: `packs/transliteration-isv` (`@glotty/transliteration-isv`). Pure domain
-code, no dependencies.
+Module: `packs/isv/src/transliteration.ts` — internals of the Interslavic
+language pack (`@glotty/pack-isv`). Pure domain code, no dependencies.
+Engine packages and apps never import it directly; everything reaches it
+through the pack's `LanguagePack` surface (ADR 0029).
 
 ## Public seam
 

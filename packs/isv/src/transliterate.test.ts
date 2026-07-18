@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { transliterate } from './index.js';
+import { transliterate } from './transliteration.js';
 
 // Expected values are taken from the official Interslavic orthography
 // correspondence tables (interslavic.fun/learn/orthography), not computed.

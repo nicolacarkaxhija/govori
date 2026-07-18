@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { transliterate } from './index.js';
+import { transliterate } from './transliteration.js';
 
 // Oracle fixtures: Schleicher's fable in Interslavic, taken from the test
 // snapshots of the MIT-licensed community library

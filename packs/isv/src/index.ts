@@ -4,7 +4,7 @@ import {
   normalize,
   transliterate,
   type TransliterateOptions,
-} from '@glotty/transliteration-isv';
+} from './transliteration.js';
 
 /**
  * Loose stem: enough of a headword to recognize its inflected forms.
