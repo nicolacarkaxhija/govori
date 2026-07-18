@@ -9,6 +9,7 @@ import { CourseView } from './learn/CourseView';
 import { PracticeView } from './practice/PracticeView';
 import { SpeedReviewView } from './practice/SpeedReviewView';
 import { JournalView } from './journal/JournalView';
+import { GoalChips } from './goals/GoalChips';
 import { AccountView } from './account/AccountView';
 import { StatsView } from './stats/StatsView';
 import { ReviewView } from './review/ReviewView';
@@ -145,6 +146,7 @@ function AppShell({
           >
             {t('startLearning')}
           </button>
+          <GoalChips />
           <nav className="practice" aria-label={t('practiceTitle')}>
             <p className="practice-title">{t('practiceTitle')}</p>
             <div className="practice-links">

@@ -244,4 +244,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | feat: add a micro-journal with word crediting | 2–3 | Home-reachable JournalView: a daily prompt rotating by UTC day from a catalog-keyed list, a target-language textarea, and three due-word suggestion chips; on save (localStorage, one entry per day) any suggested word stem-detected in the text records a 'good' SRS review via a shared matchedWordIds helper and a new dueItemIds selector; pure journal module and view tested; ten catalog keys across both instances' seven catalogs |
 
+| 2026-07-18 | feat: add weekly goal chips to the home screen | 1.5–2 | Pure weeklyGoals over the review log and journal days — reviews answered, journal entries, distinct active days this week, each a task count with a Monday-anchored week window; goalFraction/goalMet helpers; GoalChips home widget with progress bars, unit- and render-tested; five catalog keys across both instances' seven catalogs |
+
 **Running total: 257.1–329.7 h**
