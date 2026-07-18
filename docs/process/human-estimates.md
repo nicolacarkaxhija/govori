@@ -183,4 +183,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-17 | feat: practise weak and common words from the home screen | 2.5–3 | Lapse-ranked weakestItemIds over the local log, practice view running sessions over the worst ten or the frequency top twenty, home practice nav, empty/unreachable states, catalog keys |
 
+| 2026-07-17 | feat: add a timed speed review over matching boards | 2.5–3 | 30-second countdown with reduced-motion-aware bar, boards-cleared score over normally recorded grades, fake-timer suite incl. diagnosing the testing-library jest-global timer bridge |
+
 **Running total: 198.7–252.2 h**

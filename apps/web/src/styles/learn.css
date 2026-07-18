@@ -567,6 +567,31 @@ button:active {
   gap: var(--space-sm);
 }
 
+.speed-timer {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+.speed-bar {
+  height: 0.4rem;
+  border-radius: var(--radius-md);
+  background: var(--color-border);
+  overflow: hidden;
+}
+
+.speed-bar-fill {
+  height: 100%;
+  background: var(--color-primary);
+  transition: width 1s linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .speed-bar-fill {
+    transition: none;
+  }
+}
+
 .dialogue {
   list-style: none;
   padding: 0;

@@ -7,6 +7,7 @@ import { LEARN_LANGUAGES, useLearnLanguage } from './learn/useLearnLanguage';
 import { LessonView } from './learn/LessonView';
 import { CourseView } from './learn/CourseView';
 import { PracticeView } from './practice/PracticeView';
+import { SpeedReviewView } from './practice/SpeedReviewView';
 import { AccountView } from './account/AccountView';
 import { StatsView } from './stats/StatsView';
 import { ReviewView } from './review/ReviewView';
@@ -48,6 +49,7 @@ function AppShell({
     | { name: 'contribute' }
     | { name: 'weak' }
     | { name: 'common' }
+    | { name: 'speed' }
   >({ name: 'home' });
 
   useEffect(() => {
@@ -138,6 +140,15 @@ function AppShell({
                 type="button"
                 className="quiet"
                 onClick={() => {
+                  setView({ name: 'speed' });
+                }}
+              >
+                {t('speedReview')}
+              </button>
+              <button
+                type="button"
+                className="quiet"
+                onClick={() => {
                   setView({ name: 'weak' });
                 }}
               >
@@ -196,6 +207,14 @@ function AppShell({
           script={script}
           onExit={() => {
             setView({ name: 'account' });
+          }}
+        />
+      ) : view.name === 'speed' ? (
+        <SpeedReviewView
+          script={script}
+          learnLang={learnLang}
+          onExit={() => {
+            setView({ name: 'home' });
           }}
         />
       ) : view.name === 'weak' || view.name === 'common' ? (

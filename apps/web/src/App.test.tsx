@@ -156,6 +156,33 @@ describe('practice hub', () => {
     ).toBeDefined();
   });
 
+  it('starts a speed review from the home screen', async () => {
+    const items = ['voda', 'hlěb', 'mlěko', 'sųd'].map((text, index) => ({
+      id: `aaaaaaaa-0000-4000-8000-00000000001${String(index)}`,
+      kind: 'word',
+      text,
+      translations: [{ lang: 'en', text: `t-${text}` }],
+    }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: URL | RequestInfo) => {
+        const url = input instanceof Request ? input.url : String(input);
+        const body = url.includes('/items')
+          ? { items }
+          : url.includes('/meta')
+            ? { brand: { shortName: 'Govori', fullName: 'Govori' } }
+            : null;
+        return Promise.resolve(
+          new Response(JSON.stringify(body), { status: body ? 200 : 404 }),
+        );
+      }),
+    );
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole('button', { name: 'Speed review' }));
+    expect(await screen.findByText('30 s left')).toBeDefined();
+  });
+
   it('runs common-word practice over the frequency list', async () => {
     const items = [
       {
