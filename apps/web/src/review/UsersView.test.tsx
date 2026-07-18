@@ -31,16 +31,28 @@ describe('UsersView', () => {
     expect(await screen.findByText(/unavailable/)).toBeDefined();
   });
 
-  it('promotes a learner and reflects the new role', async () => {
+  it('promotes a learner through the role picker', async () => {
     const user = userEvent.setup();
     fetchUsersMock.mockResolvedValue([row]);
     setRoleMock.mockResolvedValue(true);
     render(<UsersView onExit={vi.fn()} />);
     expect(await screen.findByText(/ovca@example.com/)).toBeDefined();
-    await user.click(screen.getByRole('button', { name: 'Make admin' }));
+    const picker = screen.getByRole('combobox', { name: 'Role' });
+    await user.selectOptions(picker, 'admin');
     expect(setRoleMock).toHaveBeenCalledWith('u2', 'admin');
     expect(await screen.findByText(/— admin/)).toBeDefined();
-    expect(screen.getByRole('button', { name: 'Make learner' })).toBeDefined();
+  });
+
+  it('offers the reviewer role in the picker', async () => {
+    const user = userEvent.setup();
+    fetchUsersMock.mockResolvedValue([row]);
+    setRoleMock.mockResolvedValue(true);
+    render(<UsersView onExit={vi.fn()} />);
+    await screen.findByText(/ovca@example.com/);
+    const picker = screen.getByRole('combobox', { name: 'Role' });
+    await user.selectOptions(picker, 'reviewer');
+    expect(setRoleMock).toHaveBeenCalledWith('u2', 'reviewer');
+    expect(await screen.findByText(/— reviewer/)).toBeDefined();
   });
 
   it('keeps the role when the server refuses', async () => {
@@ -49,7 +61,11 @@ describe('UsersView', () => {
     setRoleMock.mockResolvedValue(false);
     render(<UsersView onExit={vi.fn()} />);
     await screen.findByText(/ovca@example.com/);
-    await user.click(screen.getByRole('button', { name: 'Make admin' }));
+    const picker = screen.getByRole('combobox', { name: 'Role' });
+    await user.selectOptions(picker, 'admin');
     expect(screen.getByText(/— learner/)).toBeDefined();
+    expect(
+      screen.getByRole('option', { name: 'Learner', selected: true }),
+    ).toBeDefined();
   });
 });

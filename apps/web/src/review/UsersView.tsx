@@ -32,11 +32,10 @@ export function UsersView({ onExit }: UsersViewProps) {
     };
   }, []);
 
-  const flip = async (row: UserRow) => {
-    if (phase.name !== 'listing') {
+  const assign = async (row: UserRow, next: UserRow['role']) => {
+    if (phase.name !== 'listing' || next === row.role) {
       return;
     }
-    const next = row.role === 'admin' ? 'learner' : 'admin';
     const ok = await setUserRole(row.id, next);
     if (ok) {
       setPhase({
@@ -71,13 +70,25 @@ export function UsersView({ onExit }: UsersViewProps) {
                 {row.email} — {row.role}
               </p>
               <div className="review-actions">
-                <button
-                  type="button"
-                  className="choice"
-                  onClick={() => void flip(row)}
+                <select
+                  className="footer-select"
+                  aria-label={t('roleLabel')}
+                  value={row.role}
+                  onChange={(event) => {
+                    const { value } = event.target;
+                    if (
+                      value === 'learner' ||
+                      value === 'reviewer' ||
+                      value === 'admin'
+                    ) {
+                      void assign(row, value);
+                    }
+                  }}
                 >
-                  {row.role === 'admin' ? t('makeLearner') : t('makeAdmin')}
-                </button>
+                  <option value="learner">{t('roleLearner')}</option>
+                  <option value="reviewer">{t('roleReviewer')}</option>
+                  <option value="admin">{t('roleAdmin')}</option>
+                </select>
               </div>
             </li>
           ))}

@@ -178,3 +178,26 @@ describe('AccountView pull-merge', () => {
     );
   });
 });
+
+describe('AccountView reviewer entry', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    for (const mock of Object.values(client)) {
+      mock.mockReset();
+    }
+    client.fetchReviews.mockResolvedValue([]);
+  });
+
+  it('gives reviewers the drafts queue but not user management', async () => {
+    client.fetchMe.mockResolvedValue({
+      user: { id: 'u1', email: 'ovca@example.com', role: 'reviewer' },
+    });
+    render(
+      <AccountView onExit={vi.fn()} onReview={vi.fn()} onUsers={vi.fn()} />,
+    );
+    expect(
+      await screen.findByRole('button', { name: 'Review drafts' }),
+    ).toBeDefined();
+    expect(screen.queryByRole('button', { name: 'Manage users' })).toBeNull();
+  });
+});

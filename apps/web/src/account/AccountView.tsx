@@ -164,14 +164,17 @@ export function AccountView({ onExit, onReview, onUsers }: AccountViewProps) {
             </p>
           )}
           <p className="account-note">{t('progressFollows')}</p>
-          {session.me.user.role === 'admin' && (
+          {(session.me.user.role === 'admin' ||
+            session.me.user.role === 'reviewer') && (
             <div className="review-actions">
               <button type="button" className="continue" onClick={onReview}>
                 {t('reviewDrafts')}
               </button>
-              <button type="button" className="continue" onClick={onUsers}>
-                {t('manageUsers')}
-              </button>
+              {session.me.user.role === 'admin' && (
+                <button type="button" className="continue" onClick={onUsers}>
+                  {t('manageUsers')}
+                </button>
+              )}
             </div>
           )}
           <button type="button" className="quiet" onClick={() => void leave()}>

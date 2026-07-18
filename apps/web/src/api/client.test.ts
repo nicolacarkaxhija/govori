@@ -120,6 +120,49 @@ describe('fetchCourse and fetchLesson', () => {
   });
 });
 
+describe('reviewer role on sessions and the directory', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.unstubAllGlobals();
+  });
+
+  it('fetchMe accepts a reviewer session', async () => {
+    const { fetchMe } = await import('./client');
+    const me = {
+      user: { id: 'u1', email: 'ovca@example.com', role: 'reviewer' },
+    };
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue(new Response(JSON.stringify(me), { status: 200 })),
+    );
+    expect(await fetchMe()).toEqual(me);
+  });
+
+  it('fetchUsers accepts reviewer rows', async () => {
+    const { fetchUsers } = await import('./client');
+    const users = [
+      {
+        id: 'u2',
+        email: 'vlk@example.com',
+        name: 'Vlk',
+        role: 'reviewer',
+        createdAt: '2026-07-17T10:00:00.000Z',
+      },
+    ];
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ users }), { status: 200 }),
+        ),
+    );
+    expect(await fetchUsers()).toEqual(users);
+  });
+});
+
 describe('community voting clients', () => {
   beforeEach(() => {
     localStorage.clear();

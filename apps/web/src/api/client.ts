@@ -166,7 +166,7 @@ const meSchema = z.object({
   user: z.object({
     id: z.string(),
     email: z.string(),
-    role: z.enum(['learner', 'admin']),
+    role: z.enum(['learner', 'reviewer', 'admin']),
   }),
 });
 
@@ -340,7 +340,7 @@ const usersSchema = z.object({
       id: z.string(),
       email: z.string(),
       name: z.string(),
-      role: z.enum(['learner', 'admin']),
+      role: z.enum(['learner', 'reviewer', 'admin']),
       createdAt: z.string(),
     }),
   ),
@@ -367,7 +367,7 @@ export async function fetchUsers(): Promise<UserRow[] | null> {
 /** Admin-only: promotes or demotes; true when the change landed. */
 export async function setUserRole(
   id: string,
-  role: 'learner' | 'admin',
+  role: 'learner' | 'reviewer' | 'admin',
 ): Promise<boolean> {
   try {
     const response = await fetch(
