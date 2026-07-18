@@ -1,13 +1,18 @@
 # Deployment
 
-One Compose stack: Postgres, the api, and Caddy serving the PWA while
-proxying api paths — one origin, no CORS in production (ADR 0027).
+One Compose stack **per instance** (ADR 0029): Postgres, the api, and
+Caddy serving the PWA while proxying api paths — one origin, no CORS in
+production (ADR 0027). `GLOTTY_INSTANCE` names the product the stack
+runs (e.g. `govori`); the project name, database, api process, and web
+build all follow it, so instances run side by side from the same compose
+file with separate `.env` files. There is no default instance — an
+unset `GLOTTY_INSTANCE` refuses to boot.
 
 ## First deploy
 
 ```sh
 cd deploy
-cp .env.example .env      # fill POSTGRES_PASSWORD, AUTH_SECRET, PUBLIC_URL
+cp .env.example .env      # fill GLOTTY_INSTANCE, POSTGRES_PASSWORD, AUTH_SECRET, PUBLIC_URL
 docker compose -f compose.prod.yml up -d --build
 ```
 
@@ -27,6 +32,7 @@ block to the Caddyfile.
 
 | Variable                   | Meaning                                                       |
 | -------------------------- | ------------------------------------------------------------- |
+| `GLOTTY_INSTANCE`          | Instance id this stack runs, e.g. `govori` (required)         |
 | `POSTGRES_PASSWORD`        | Database password (required)                                  |
 | `AUTH_SECRET`              | ≥32-char secret for session signing (required)                |
 | `PUBLIC_URL`               | Public origin, e.g. `https://govori.example`                  |

@@ -83,6 +83,9 @@ importers:
       '@glotty/content':
         specifier: workspace:*
         version: link:../../packages/content
+      '@glotty/instance-govori':
+        specifier: workspace:*
+        version: link:../../instances/govori
       '@glotty/language':
         specifier: workspace:*
         version: link:../../packages/language

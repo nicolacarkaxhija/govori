@@ -69,6 +69,42 @@ export interface InstanceConfig {
   readonly catalogs: Readonly<Record<string, Readonly<Record<string, string>>>>;
 }
 
+/** What a composition root enumerates: its instances and their packs. */
+export interface InstanceRegistry {
+  readonly instances: Readonly<Record<string, InstanceConfig>>;
+  readonly packs: Readonly<Record<string, LanguagePack>>;
+}
+
+export interface ResolvedInstance {
+  readonly instance: InstanceConfig;
+  readonly pack: LanguagePack;
+}
+
+/**
+ * Fail-fast instance resolution (ADR 0029): the engine has no default
+ * product. An unset or unknown id aborts with the configuring variable's
+ * name so the operator knows exactly what to set.
+ */
+export function resolveInstance(
+  registry: InstanceRegistry,
+  id: string | undefined,
+  envVarName: string,
+): ResolvedInstance {
+  const known = Object.keys(registry.instances).join(', ');
+  if (id === undefined || id === '') {
+    throw new Error(`${envVarName} is not set; known instances: ${known}`);
+  }
+  const instance = registry.instances[id];
+  if (instance === undefined) {
+    throw new Error(`unknown instance '${id}'; known instances: ${known}`);
+  }
+  const pack = registry.packs[instance.packId];
+  if (pack === undefined) {
+    throw new Error(`instance '${id}' names unknown pack '${instance.packId}'`);
+  }
+  return { instance, pack };
+}
+
 /** Renders `text` in the given script, or unchanged when the id is unknown. */
 export function renderIn(
   pack: LanguagePack,

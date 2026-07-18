@@ -217,4 +217,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | refactor: rename the config env prefix to glotty | 0.5 | GOVORI_→GLOTTY_ across the api config seam, compose, e2e bootstrap, config-package samples, and the tech specs |
 
+| 2026-07-18 | feat: require an explicit instance to boot the api | 2–2.5 | Shared fail-fast resolveInstance in the contract package (tested to 100/97.7 mutation), api registry keyed by GLOTTY_INSTANCE, brand injected into config from the instance with no engine default, import CLI resolves the same way, compose fully instance-parametrized with per-instance db and builds, e2e bootstrap updated |
+
 **Running total: 221.2–281.7 h**

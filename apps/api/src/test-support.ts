@@ -1,8 +1,12 @@
 import { makeContentSchemas, type ContentSchemas } from '@glotty/content';
+import { govoriInstance } from '@glotty/instance-govori';
 import { isvPack } from '@glotty/pack-isv';
 import type { AppDependencies } from './app.js';
 import type { Auth } from './auth/auth.js';
 import { loadConfig } from './config.js';
+
+// Suites run against the govori instance as their concrete fixture; the
+// engine under test still receives everything through the seams.
 
 /** Artifact schemas bound to the suite's fixture pack (isv test data). */
 export const testSchemas: ContentSchemas = makeContentSchemas((text) =>
@@ -18,7 +22,7 @@ export function makeTestDeps(
   env: Readonly<Record<string, string | undefined>> = {},
 ): AppDependencies {
   return {
-    config: loadConfig(env),
+    config: loadConfig(env, govoriInstance.brand),
     pack: isvPack,
     items: {
       findById: () => Promise.resolve(undefined),

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { govoriInstance } from '@glotty/instance-govori';
 import { buildApp, toWebRequest } from './app.js';
 import type { Auth } from './auth/auth.js';
 import { loadConfig } from './config.js';
@@ -83,7 +84,7 @@ describe('cors', () => {
 });
 
 describe('toWebRequest', () => {
-  const config = loadConfig({});
+  const config = loadConfig({}, govoriInstance.brand);
 
   it('appends every value of repeated headers', () => {
     const request = toWebRequest(config, {

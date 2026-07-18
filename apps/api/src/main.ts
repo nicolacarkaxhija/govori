@@ -1,6 +1,6 @@
-import { isvPack } from '@glotty/pack-isv';
 import { buildApp } from './app.js';
 import { loadConfig } from './config.js';
+import { resolveApiInstance } from './instances.js';
 import { createDb } from './db/client.js';
 import { runMigrations } from './db/migrate.js';
 import { DrizzleItemRepository } from './content/drizzle-item-repository.js';
@@ -18,13 +18,15 @@ import { DrizzleMorphologyRepository } from './morphology/drizzle-morphology-rep
 import { DrizzleExport } from './export/drizzle-export.js';
 
 // Composition root: the only place that touches process state (ADR 0024).
-const config = loadConfig(process.env);
+// The instance is a required input — there is no default product (ADR 0029).
+const { instance, pack } = resolveApiInstance(process.env.GLOTTY_INSTANCE);
+const config = loadConfig(process.env, instance.brand);
 const db = createDb(config.db.url);
 await runMigrations(db);
 const itemRepository = new DrizzleItemRepository(db);
 const app = buildApp({
   config,
-  pack: isvPack,
+  pack,
   items: itemRepository,
   flagStates: new DrizzleFlagStore(db),
   auth: createAuth(db, {

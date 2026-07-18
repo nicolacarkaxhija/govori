@@ -1,4 +1,8 @@
-import type { InstanceConfig, LanguagePack } from '@glotty/language';
+import {
+  resolveInstance as resolveFromRegistry,
+  type InstanceRegistry,
+  type ResolvedInstance,
+} from '@glotty/language';
 import { govoriInstance } from '@glotty/instance-govori';
 import { isvPack } from '@glotty/pack-isv';
 
@@ -9,12 +13,9 @@ import { isvPack } from '@glotty/pack-isv';
  * an explicit id. There is no default: a build without VITE_INSTANCE
  * must fail, never quietly become some product.
  */
-const instances: Readonly<Record<string, InstanceConfig>> = {
-  govori: govoriInstance,
-};
-
-const packs: Readonly<Record<string, LanguagePack>> = {
-  isv: isvPack,
+const registry: InstanceRegistry = {
+  instances: { govori: govoriInstance },
+  packs: { isv: isvPack },
 };
 
 /**
@@ -24,24 +25,7 @@ const packs: Readonly<Record<string, LanguagePack>> = {
  */
 export type { MessageKey } from '@glotty/instance-govori';
 
-export interface ResolvedInstance {
-  instance: InstanceConfig;
-  pack: LanguagePack;
-}
-
 /** Fails fast: an unset or unknown instance id must never boot. */
 export function resolveInstance(id: string | undefined): ResolvedInstance {
-  const known = Object.keys(instances).join(', ');
-  if (id === undefined || id === '') {
-    throw new Error(`VITE_INSTANCE is not set; known instances: ${known}`);
-  }
-  const instance = instances[id];
-  if (instance === undefined) {
-    throw new Error(`unknown instance '${id}'; known instances: ${known}`);
-  }
-  const pack = packs[instance.packId];
-  if (pack === undefined) {
-    throw new Error(`instance '${id}' names unknown pack '${instance.packId}'`);
-  }
-  return { instance, pack };
+  return resolveFromRegistry(registry, id, 'VITE_INSTANCE');
 }

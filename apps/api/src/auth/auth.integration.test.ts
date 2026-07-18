@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { govoriInstance } from '@glotty/instance-govori';
 import {
   PostgreSqlContainer,
   type StartedPostgreSqlContainer,
@@ -29,7 +30,7 @@ afterAll(async () => {
 });
 
 function realApp() {
-  const config = loadConfig({});
+  const config = loadConfig({}, govoriInstance.brand);
   return buildApp(
     makeTestDeps({
       config,

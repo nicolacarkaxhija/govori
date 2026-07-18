@@ -3,6 +3,8 @@ import {
   hasScriptChoice,
   nextScript,
   renderIn,
+  resolveInstance,
+  type InstanceConfig,
   type LanguagePack,
 } from './index.js';
 
@@ -63,5 +65,53 @@ describe('nextScript', () => {
 
   it('is undefined for a pack without scripts', () => {
     expect(nextScript(makePack([]), 'upper')).toBeUndefined();
+  });
+});
+
+describe('resolveInstance', () => {
+  const pack = makePack([upper]);
+  const fake: InstanceConfig = {
+    id: 'fakeapp',
+    brand: {
+      shortName: 'Fake',
+      fullName: 'Fake — App',
+      description: 'A test instance.',
+    },
+    packId: 'fake',
+    uiLanguages: ['en'],
+    fallbackTranslationLang: 'en',
+    learnLanguages: [{ code: 'en', name: 'English' }],
+    catalogs: { en: { check: 'Check' } },
+  };
+  const registry = { instances: { fakeapp: fake }, packs: { fake: pack } };
+
+  it('resolves a known instance with its pack', () => {
+    const resolved = resolveInstance(registry, 'fakeapp', 'THE_VAR');
+    expect(resolved.instance.id).toBe('fakeapp');
+    expect(resolved.pack.id).toBe('fake');
+  });
+
+  it('fails fast when the id is unset, naming the variable', () => {
+    for (const id of [undefined, '']) {
+      expect(() => resolveInstance(registry, id, 'THE_VAR')).toThrow(
+        /THE_VAR is not set; known instances: fakeapp/,
+      );
+    }
+  });
+
+  it('fails fast on an unknown instance id', () => {
+    expect(() => resolveInstance(registry, 'nope', 'THE_VAR')).toThrow(
+      /unknown instance 'nope'; known instances: fakeapp/,
+    );
+  });
+
+  it('fails fast when the instance names an unknown pack', () => {
+    const broken = {
+      instances: { fakeapp: { ...fake, packId: 'ghost' } },
+      packs: registry.packs,
+    };
+    expect(() => resolveInstance(broken, 'fakeapp', 'THE_VAR')).toThrow(
+      /instance 'fakeapp' names unknown pack 'ghost'/,
+    );
   });
 });

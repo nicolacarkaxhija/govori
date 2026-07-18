@@ -35,23 +35,26 @@ const defaults = {
     baseUrl: 'http://localhost:3000',
     corsOrigins: 'http://localhost:5173,http://localhost:53200',
   },
-  brand: {
-    shortName: 'Govori',
-    fullName: 'Govori — Interslavic Learning App',
-  },
   db: {
-    url: 'postgres://govori:govori@localhost:5432/govori',
+    url: 'postgres://glotty:glotty@localhost:5432/glotty',
   },
   auth: {
     // Development-only fallback; production deploys override via env.
-    secret: 'govori-dev-secret-never-use-in-production!',
+    secret: 'glotty-dev-secret-never-use-in-production!',
   },
 };
 
 /**
- * Composition-root helper: defaults overridden by `GLOTTY_`-prefixed
+ * Composition-root helper: instance branding first (the engine has no
+ * brand of its own, ADR 0029), then defaults, then `GLOTTY_`-prefixed
  * environment variables. Fails fast on anything invalid.
  */
-export function loadConfig(env: Readonly<Record<string, string | undefined>>) {
-  return buildConfig(configSchema, [defaults, envSource(env, 'GLOTTY_')]);
+export function loadConfig(
+  env: Readonly<Record<string, string | undefined>>,
+  brand: { shortName: string; fullName: string },
+) {
+  return buildConfig(configSchema, [
+    { ...defaults, brand },
+    envSource(env, 'GLOTTY_'),
+  ]);
 }

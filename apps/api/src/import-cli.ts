@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { makeContentSchemas } from '@glotty/content';
-import { isvPack } from '@glotty/pack-isv';
 import { loadConfig } from './config.js';
+import { resolveApiInstance } from './instances.js';
 import { createDb } from './db/client.js';
 import { runMigrations } from './db/migrate.js';
 import { DrizzleItemRepository } from './content/drizzle-item-repository.js';
@@ -30,7 +30,8 @@ if (path === undefined) {
   process.exit(1);
 }
 
-const config = loadConfig(process.env);
+const { instance, pack } = resolveApiInstance(process.env.GLOTTY_INSTANCE);
+const config = loadConfig(process.env, instance.brand);
 const db = createDb(config.db.url);
 await runMigrations(db);
 
@@ -39,7 +40,7 @@ const {
   parseContentArtifact,
   parseCurriculumArtifact,
   parseMorphologyArtifact,
-} = makeContentSchemas((text) => isvPack.validateCanonical(text));
+} = makeContentSchemas((text) => pack.validateCanonical(text));
 
 const raw: unknown = JSON.parse(await readFile(path, 'utf-8'));
 const itemRepository = new DrizzleItemRepository(db);
