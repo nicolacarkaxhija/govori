@@ -194,4 +194,6 @@ developer working alone. Appended in the same commit it describes.
 | 2026-07-18 | feat: drill inflected word forms in the rotation | 1.5–2 | Forms client, a typed-drill card over five curated paradigm slots with graceful bow-out, one rotation slot per session, planner tests reconciled |
 | 2026-07-18 | feat: state the content license on the contribute form | 0.5 | CC BY-SA 4.0 notice in both languages ahead of publicizing the open export |
 
-**Running total: 220.7–280.7 h**
+| 2026-07-18 | feat: enforce mobile Lighthouse gates and charter the SEO posture | 0.5–1 | Performance/best-practices/SEO categories armed as blocking at 0.9 on mobile emulation; ADR 0043 pins SEO to prerendered product shells over the open artifacts |
+
+**Running total: 221.2–281.7 h**
