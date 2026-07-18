@@ -229,4 +229,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-18 | feat: add the standard albanian language pack | 2–2.5 | @glotty/pack-sq: canonical validator mirroring the proven forge orthography (36-letter alphabet as a 27-character class), NFD-fold normalize, min-3 stem, single identity Latin script with hasScriptChoice false; four suites incl. fast-check invariants, 100% branch, 97.1 mutation |
 
+| 2026-07-18 | feat: add the fol instance | 3–4 | @glotty/instance-fol: Fol branding over the sq pack, six-language learner roster, five full UI catalogs (en key inventory + native-care sq, draft de/it/tr flagged for Weblate refinement), parity/sorted/non-empty gate parametrized over all five |
+
 **Running total: 221.2–281.7 h**
