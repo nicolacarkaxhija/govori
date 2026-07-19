@@ -12,11 +12,12 @@ describe('resolveApiInstance', () => {
     expect(directions.map((entry) => entry.pack.id)).toEqual(['isv']);
   });
 
-  it('boots fol with the sq direction over the sq pack', () => {
+  it('boots fol two-way: albanian, then english for albanian speakers', () => {
     const { instance, directions } = resolveApiInstance('fol');
     expect(instance.id).toBe('fol');
     expect(instance.brand.shortName).toBe('Fol');
-    expect(directions.map((entry) => entry.pack.id)).toContain('sq');
+    expect(directions.map((entry) => entry.direction.id)).toEqual(['sq', 'en']);
+    expect(directions.map((entry) => entry.pack.id)).toEqual(['sq', 'en']);
   });
 
   it('refuses to boot without an instance, naming both known ids', () => {

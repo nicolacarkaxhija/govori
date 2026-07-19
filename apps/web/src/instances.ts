@@ -5,6 +5,7 @@ import {
 } from '@glotty/language';
 import { folInstance } from '@glotty/instance-fol';
 import { govoriInstance } from '@glotty/instance-govori';
+import { enPack } from '@glotty/pack-en';
 import { isvPack } from '@glotty/pack-isv';
 import { sqPack } from '@glotty/pack-sq';
 
@@ -17,7 +18,7 @@ import { sqPack } from '@glotty/pack-sq';
  */
 const registry: InstanceRegistry = {
   instances: { govori: govoriInstance, fol: folInstance },
-  packs: { isv: isvPack, sq: sqPack },
+  packs: { en: enPack, isv: isvPack, sq: sqPack },
 };
 
 /**

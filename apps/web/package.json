@@ -21,6 +21,7 @@
     "@glotty/instance-fol": "workspace:*",
     "@glotty/instance-govori": "workspace:*",
     "@glotty/language": "workspace:*",
+    "@glotty/pack-en": "workspace:*",
     "@glotty/pack-isv": "workspace:*",
     "@glotty/pack-sq": "workspace:*",
     "@glotty/srs": "workspace:*",

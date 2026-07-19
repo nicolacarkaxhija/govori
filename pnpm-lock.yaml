@@ -92,6 +92,9 @@ importers:
       '@glotty/language':
         specifier: workspace:*
         version: link:../../packages/language
+      '@glotty/pack-en':
+        specifier: workspace:*
+        version: link:../../packs/en
       '@glotty/pack-isv':
         specifier: workspace:*
         version: link:../../packs/isv
@@ -156,6 +159,9 @@ importers:
       '@glotty/language':
         specifier: workspace:*
         version: link:../../packages/language
+      '@glotty/pack-en':
+        specifier: workspace:*
+        version: link:../../packs/en
       '@glotty/pack-isv':
         specifier: workspace:*
         version: link:../../packs/isv

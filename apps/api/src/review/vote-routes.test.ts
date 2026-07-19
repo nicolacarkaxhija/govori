@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Item } from '@glotty/content';
 import { resolveInstance, type ResolvedInstance } from '@glotty/language';
 import { folInstance } from '@glotty/instance-fol';
+import { enPack } from '@glotty/pack-en';
 import { sqPack } from '@glotty/pack-sq';
 import { buildApp } from '../app.js';
 import type { Auth } from '../auth/auth.js';
@@ -10,7 +11,7 @@ import { makeTestDeps } from '../test-support.js';
 
 /** The fol fixture resolved whole, so its direction thresholds apply. */
 const folResolved: ResolvedInstance = resolveInstance(
-  { instances: { fol: folInstance }, packs: { sq: sqPack } },
+  { instances: { fol: folInstance }, packs: { en: enPack, sq: sqPack } },
   'fol',
   'TEST_INSTANCE',
 );

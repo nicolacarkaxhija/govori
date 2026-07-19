@@ -28,8 +28,9 @@ export const folInstance: InstanceConfig = {
       'Learn Albanian (shqip) free: a community-driven course with real dictionary vocabulary, spaced repetition, and standard Albanian with Gheg variant notes.',
   },
   /**
-   * Learning directions (ADR 0046): Albanian first; an English
-   * direction for Albanian speakers is chartered to join it here.
+   * Learning directions (ADR 0046): Albanian first — the product's
+   * primary — and English for Albanian speakers beside it, with
+   * Albanian as its translation fallback.
    */
   directions: [
     {
@@ -40,6 +41,14 @@ export const folInstance: InstanceConfig = {
       /** A wider diaspora audience warrants a higher bar: five net upvotes. */
       communityPublishNetVotes: 5,
     },
+    {
+      id: 'en',
+      packId: 'en',
+      label: 'English',
+      fallbackTranslationLang: 'sq',
+      /** The same diaspora community reviews both pools. */
+      communityPublishNetVotes: 5,
+    },
   ],
   uiLanguages: ['en', 'sq', 'de', 'it', 'tr'],
   /**
@@ -48,6 +57,7 @@ export const folInstance: InstanceConfig = {
    */
   learnLanguages: [
     { code: 'en', name: 'English' },
+    { code: 'sq', name: 'Shqip' },
     { code: 'de', name: 'Deutsch' },
     { code: 'it', name: 'Italiano' },
     { code: 'tr', name: 'Türkçe' },

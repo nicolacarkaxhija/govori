@@ -44,10 +44,21 @@ describe('fol catalogs', () => {
     }
   });
 
-  it('declares directions whose fallbacks ride the offered rosters', () => {
+  it('declares both directions whose fallbacks ride the offered rosters', () => {
+    // Albanian first (the product's primary), English for Albanian
+    // speakers beside it (ADR 0046).
     expect(folInstance.directions.map((direction) => direction.packId)).toEqual(
-      ['sq'],
+      ['sq', 'en'],
     );
+    expect(
+      folInstance.directions.map(
+        (direction) => direction.fallbackTranslationLang,
+      ),
+    ).toEqual(['en', 'sq']);
+    expect(folInstance.directions.map((direction) => direction.label)).toEqual([
+      'Shqip',
+      'English',
+    ]);
     for (const direction of folInstance.directions) {
       expect(folInstance.uiLanguages).toContain(
         direction.fallbackTranslationLang,
