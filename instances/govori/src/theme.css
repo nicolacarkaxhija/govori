@@ -1,75 +1,127 @@
 /**
- * Govori's visual identity (ADR 0029/0042): the engine ships no palette,
- * so this instance owns the full custom-property contract the engine's
- * base/learn stylesheets consume. Light is the `:root` default; dark
- * arrives via `prefers-color-scheme` and is forced by `[data-theme]`,
- * whose higher specificity always beats the media query.
+ * Govori's visual identity — Glassmorphism · Frost. Icy blue panes over a
+ * soft gradient, blurred translucent surfaces, luminous hairline borders.
+ * The engine ships no palette (ADR 0042): this instance owns the full
+ * custom-property contract the base/learn stylesheets consume. Light is the
+ * `:root` default; dark arrives via `prefers-color-scheme` and is forced by
+ * `[data-theme]`, whose higher specificity always wins over the media query.
+ * The primary stays a true red in both modes (brief constraint) — never a
+ * pink in the dark.
  */
 :root {
   /* Structure — mode-independent. */
-  --font-sans:
-    system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --font-display: var(--font-sans);
-  --radius-md: 0.5rem;
+  --font-sans: system-ui, 'Segoe UI', Roboto, 'DejaVu Sans', sans-serif;
+  --font-display:
+    'Helvetica Neue', Helvetica, Arial, 'Liberation Sans', sans-serif;
+  --radius-md: 18px;
   --space-sm: 0.5rem;
   --space-md: 1rem;
   --space-lg: 2rem;
-  --card-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+
+  /* Frost surfaces: translucent, blurred, floated on a soft shadow. */
+  --card-bg: var(--color-surface);
+  --card-border: 1px solid var(--color-border);
+  --card-blur: blur(14px);
+  --card-shadow: 0 8px 32px rgb(0 0 0 / 10%);
+
+  /* The frosted canvas: an icy radial bloom over a cool linear wash. */
+  --app-bg-image:
+    radial-gradient(120% 90% at 12% 0%, var(--g1) 0%, transparent 62%),
+    linear-gradient(160deg, var(--g2) 0%, var(--color-bg) 100%);
 
   /* Palette — light. */
-  --color-bg: #faf6f4;
-  --color-surface: #ffffff;
-  --color-text: #1a1a1a;
-  --color-text-muted: #5a5a5a;
-  --color-primary: #c41e3a;
-  --color-primary-hover: #a5182f;
-  --color-primary-soft: color-mix(in srgb, #c41e3a 9%, transparent);
+  --color-bg: #e9f1f8;
+  --color-surface: rgb(255 255 255 / 60%);
+  --color-text: #14202c;
+  --color-text-muted: #4d6172;
+  --color-primary: #ab2330;
+  --color-primary-hover: color-mix(in srgb, #ab2330 82%, #16090b);
+  --color-primary-soft: color-mix(in srgb, #ab2330 9%, transparent);
   --color-on-primary: #ffffff;
-  --color-border: #e7ded9;
+  --color-border: rgb(255 255 255 / 70%);
   --color-correct: #2e7d4f;
   --color-correct-soft: color-mix(in srgb, #2e7d4f 16%, transparent);
+  --control-bg: rgb(255 255 255 / 38%);
+  --control-border: rgb(255 255 255 / 55%);
+  --g1: #dbeafa;
+  --g2: #f2f8ff;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-bg: #171412;
-    --color-surface: #211c1a;
-    --color-text: #f5efec;
-    --color-text-muted: #c9beb8;
-    --color-primary: #ff6b81;
-    --color-primary-hover: #ff8494;
-    --color-primary-soft: #ff6b811f;
-    --color-on-primary: #2a0a10;
-    --color-border: #362e2b;
-    --color-correct: #6fbf8f;
-    --color-correct-soft: #6fbf8f1f;
+    --color-bg: #0d1622;
+    --color-surface: rgb(23 34 51 / 60%);
+    --color-text: #e9f0f7;
+    --color-text-muted: #96a7ba;
+    --color-primary: #ff5062;
+    --color-primary-hover: color-mix(in srgb, #ff5062 82%, #ffffff);
+    --color-primary-soft: color-mix(in srgb, #ff5062 18%, transparent);
+    --color-on-primary: #26090d;
+    --color-border: rgb(255 255 255 / 16%);
+    --color-correct: #7ec49a;
+    --color-correct-soft: color-mix(in srgb, #7ec49a 16%, transparent);
+    --control-bg: rgb(255 255 255 / 7%);
+    --control-border: rgb(255 255 255 / 14%);
+    --g1: #12233a;
+    --g2: #0b1119;
   }
 }
 
 :root[data-theme='light'] {
-  --color-bg: #faf6f4;
-  --color-surface: #ffffff;
-  --color-text: #1a1a1a;
-  --color-text-muted: #5a5a5a;
-  --color-primary: #c41e3a;
-  --color-primary-hover: #a5182f;
-  --color-primary-soft: color-mix(in srgb, #c41e3a 9%, transparent);
+  --color-bg: #e9f1f8;
+  --color-surface: rgb(255 255 255 / 60%);
+  --color-text: #14202c;
+  --color-text-muted: #4d6172;
+  --color-primary: #ab2330;
+  --color-primary-hover: color-mix(in srgb, #ab2330 82%, #16090b);
+  --color-primary-soft: color-mix(in srgb, #ab2330 9%, transparent);
   --color-on-primary: #ffffff;
-  --color-border: #e7ded9;
+  --color-border: rgb(255 255 255 / 70%);
   --color-correct: #2e7d4f;
   --color-correct-soft: color-mix(in srgb, #2e7d4f 16%, transparent);
+  --control-bg: rgb(255 255 255 / 38%);
+  --control-border: rgb(255 255 255 / 55%);
+  --g1: #dbeafa;
+  --g2: #f2f8ff;
 }
 
 :root[data-theme='dark'] {
-  --color-bg: #171412;
-  --color-surface: #211c1a;
-  --color-text: #f5efec;
-  --color-text-muted: #c9beb8;
-  --color-primary: #ff6b81;
-  --color-primary-hover: #ff8494;
-  --color-primary-soft: #ff6b811f;
-  --color-on-primary: #2a0a10;
-  --color-border: #362e2b;
-  --color-correct: #6fbf8f;
-  --color-correct-soft: #6fbf8f1f;
+  --color-bg: #0d1622;
+  --color-surface: rgb(23 34 51 / 60%);
+  --color-text: #e9f0f7;
+  --color-text-muted: #96a7ba;
+  --color-primary: #ff5062;
+  --color-primary-hover: color-mix(in srgb, #ff5062 82%, #ffffff);
+  --color-primary-soft: color-mix(in srgb, #ff5062 18%, transparent);
+  --color-on-primary: #26090d;
+  --color-border: rgb(255 255 255 / 16%);
+  --color-correct: #7ec49a;
+  --color-correct-soft: color-mix(in srgb, #7ec49a 16%, transparent);
+  --control-bg: rgb(255 255 255 / 7%);
+  --control-border: rgb(255 255 255 / 14%);
+  --g1: #12233a;
+  --g2: #0b1119;
+}
+
+/* The stitch divider, sealed under glass: the thread inside a frosted pill. */
+.stitch {
+  --stitch-c: var(--color-primary);
+  width: 12rem;
+  height: 1.6rem;
+  border-radius: 999px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background-image:
+    conic-gradient(from 45deg, var(--stitch-c) 0 25%, transparent 0),
+    conic-gradient(from 225deg, var(--stitch-c) 0 25%, transparent 0);
+  background-size:
+    0.7rem 0.7rem,
+    0.7rem 0.7rem;
+  background-position:
+    0.35rem 50%,
+    0.35rem 50%;
+  background-repeat: repeat-x, repeat-x;
+  opacity: 1;
 }

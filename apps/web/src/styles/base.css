@@ -18,6 +18,10 @@ body {
   line-height: 1.5;
   color: var(--color-text);
   background-color: var(--color-bg);
+  /* The instance may paint a canvas behind the flat colour (e.g. Frost's
+     gradient); families that do not simply resolve to `none`. */
+  background-image: var(--app-bg-image, none);
+  background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
 }
 
