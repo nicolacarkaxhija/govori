@@ -28,24 +28,37 @@ describe('useTheme', () => {
     expect(document.documentElement.dataset.theme).toBeUndefined();
   });
 
-  it('toggles and persists an explicit choice that overrides the system', () => {
+  it('persists an explicit choice that overrides the system', () => {
     const { result } = renderHook(() => useTheme());
     act(() => {
-      result.current.toggle();
+      result.current.setChoice('dark');
     });
+    expect(result.current.choice).toBe('dark');
     expect(result.current.theme).toBe('dark');
     expect(document.documentElement.dataset.theme).toBe('dark');
     expect(localStorage.getItem('govori-theme')).toBe('dark');
     act(() => {
-      result.current.toggle();
+      result.current.setChoice('light');
     });
     expect(result.current.theme).toBe('light');
     expect(document.documentElement.dataset.theme).toBe('light');
   });
 
+  it('clears the override when the choice returns to system', () => {
+    localStorage.setItem('govori-theme', 'dark');
+    const { result } = renderHook(() => useTheme());
+    act(() => {
+      result.current.setChoice('system');
+    });
+    expect(result.current.choice).toBe('system');
+    expect(document.documentElement.dataset.theme).toBeUndefined();
+    expect(localStorage.getItem('govori-theme')).toBeNull();
+  });
+
   it('restores a stored choice on mount', () => {
     localStorage.setItem('govori-theme', 'dark');
     const { result } = renderHook(() => useTheme());
+    expect(result.current.choice).toBe('dark');
     expect(result.current.theme).toBe('dark');
     expect(document.documentElement.dataset.theme).toBe('dark');
   });

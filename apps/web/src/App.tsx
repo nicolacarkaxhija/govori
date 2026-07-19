@@ -4,7 +4,7 @@ import { fetchMe, fetchMeta } from './api/client';
 import { useTheme } from './hooks/useTheme';
 import { useDirection } from './learn/useDirection';
 import { useScript } from './learn/useScript';
-import { LEARN_LANGUAGES, useLearnLanguage } from './learn/useLearnLanguage';
+import { useLearnLanguage } from './learn/useLearnLanguage';
 import { LessonView } from './learn/LessonView';
 import { CourseView } from './learn/CourseView';
 import { PracticeView } from './practice/PracticeView';
@@ -15,6 +15,7 @@ import { WeeklyPlanView } from './plan/WeeklyPlanView';
 import { Onboarding } from './onboarding/Onboarding';
 import { GrowingCourseBanner } from './home/GrowingCourseBanner';
 import { AccountView } from './account/AccountView';
+import { SettingsView } from './settings/SettingsView';
 import { StatsView } from './stats/StatsView';
 import { ReviewView } from './review/ReviewView';
 import { UsersView } from './review/UsersView';
@@ -24,23 +25,33 @@ import { LanguageProvider, useLanguage, useT } from './i18n';
 import { streakDays } from './learn/progress';
 
 export function App() {
-  const { language, toggle: toggleLanguage, next } = useLanguage();
+  const {
+    language,
+    set: setUiLanguage,
+    languages: uiLanguages,
+  } = useLanguage();
   return (
     <LanguageProvider language={language}>
-      <AppShell onToggleLanguage={toggleLanguage} nextLanguage={next} />
+      <AppShell
+        language={language}
+        setUiLanguage={setUiLanguage}
+        uiLanguages={uiLanguages}
+      />
     </LanguageProvider>
   );
 }
 
 function AppShell({
-  onToggleLanguage,
-  nextLanguage,
+  language,
+  setUiLanguage,
+  uiLanguages,
 }: {
-  onToggleLanguage: () => void;
-  nextLanguage: string;
+  language: string;
+  setUiLanguage: (language: string) => void;
+  uiLanguages: readonly string[];
 }) {
   const t = useT();
-  const { theme, toggle } = useTheme();
+  const { choice: themeChoice, setChoice: setThemeChoice } = useTheme();
   const {
     directionId,
     cycle: cycleDirection,
@@ -50,10 +61,9 @@ function AppShell({
   } = useDirection();
   const {
     script,
-    toggle: toggleScript,
+    select: selectScript,
+    scripts,
     hasChoice: hasScriptChoice,
-    currentLabel,
-    nextLabel,
   } = useScript(directionId);
   const { learnLang, setLearnLang } = useLearnLanguage(directionId);
   const [shortName, setShortName] = useState<string>(instance.brand.shortName);
@@ -68,6 +78,7 @@ function AppShell({
     | { name: 'lesson'; lessonId: string }
     | { name: 'stats' }
     | { name: 'account' }
+    | { name: 'settings' }
     | { name: 'review' }
     | { name: 'users' }
     | { name: 'contribute' }
@@ -141,14 +152,6 @@ function AppShell({
           >
             {t('account')}
           </button>
-          <button
-            type="button"
-            className="quiet"
-            onClick={onToggleLanguage}
-            aria-label={t('languageSwitch')}
-          >
-            {nextLanguage.toUpperCase()}
-          </button>
           {hasDirectionChoice && (
             <button
               type="button"
@@ -159,24 +162,6 @@ function AppShell({
               {`${directionLabel} → ${nextDirectionLabel ?? ''}`}
             </button>
           )}
-          {hasScriptChoice && (
-            <button
-              type="button"
-              className="quiet"
-              onClick={toggleScript}
-              aria-label={t('switchScript')}
-            >
-              {`${currentLabel ?? ''} → ${nextLabel ?? ''}`}
-            </button>
-          )}
-          <button
-            type="button"
-            className="quiet"
-            onClick={toggle}
-            aria-label={t('toggleTheme')}
-          >
-            {theme === 'dark' ? '☼' : '☾'}
-          </button>
         </div>
       </header>
 
@@ -277,6 +262,23 @@ function AppShell({
             setView({ name: 'users' });
           }}
         />
+      ) : view.name === 'settings' ? (
+        <SettingsView
+          onExit={() => {
+            setView({ name: 'home' });
+          }}
+          themeChoice={themeChoice}
+          onThemeChoice={setThemeChoice}
+          uiLanguage={language}
+          uiLanguages={uiLanguages}
+          onUiLanguage={setUiLanguage}
+          learnLang={learnLang}
+          onLearnLang={setLearnLang}
+          hasScriptChoice={hasScriptChoice}
+          script={script}
+          scripts={scripts}
+          onScript={selectScript}
+        />
       ) : view.name === 'contribute' ? (
         <ContributeView
           onExit={() => {
@@ -360,20 +362,16 @@ function AppShell({
       <footer className="footer">
         <p>{t('codeLicense')}</p>
         <p>{t('contentLicense')}</p>
-        <select
-          className="footer-select"
-          aria-label={t('translationLanguage')}
-          value={learnLang}
-          onChange={(event) => {
-            setLearnLang(event.target.value);
+        <button
+          type="button"
+          className="footer-link"
+          aria-label={t('settings')}
+          onClick={() => {
+            setView({ name: 'settings' });
           }}
         >
-          {LEARN_LANGUAGES.map((entry) => (
-            <option key={entry.code} value={entry.code}>
-              {entry.name}
-            </option>
-          ))}
-        </select>
+          {`⚙ ${t('settings')}`}
+        </button>
         {signedIn && (
           <button
             type="button"

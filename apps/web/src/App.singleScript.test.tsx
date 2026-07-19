@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { App } from './App';
 
 beforeEach(() => {
@@ -10,8 +11,8 @@ afterEach(() => {
   localStorage.clear();
 });
 
-// A build of an instance whose pack writes exactly one script: the
-// script toggle must disappear entirely (ADR 0029 — the engine offers
+// A build of an instance whose pack writes exactly one script: Settings
+// must offer no display-script choice (ADR 0029 — the engine offers
 // choices only when the pack actually has them).
 vi.mock('./instance', async () => {
   const { renderIn } = await import('@glotty/language');
@@ -32,19 +33,28 @@ vi.mock('./instance', async () => {
 });
 
 describe('single-script pack', () => {
-  it('renders no script toggle', async () => {
+  it('offers no display-script choice in settings', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(() => Promise.reject(new Error('offline'))),
     );
+    const user = userEvent.setup();
     render(<App />);
+    // One declared direction: no switcher in the top bar (ADR 0046).
     expect(
-      await screen.findByRole('button', { name: 'Switch language' }),
+      await screen.findByRole('button', { name: 'Start learning' }),
     ).toBeDefined();
-    expect(screen.queryByRole('button', { name: 'Switch script' })).toBeNull();
-    // One declared direction: no switcher either (ADR 0046).
     expect(
       screen.queryByRole('button', { name: 'Switch learning direction' }),
+    ).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Settings' }));
+    // Interface and translation languages are always offered; the script
+    // choice is not, because the pack writes a single script.
+    expect(
+      screen.getByRole('combobox', { name: 'Interface language' }),
+    ).toBeDefined();
+    expect(
+      screen.queryByRole('combobox', { name: 'Display script' }),
     ).toBeNull();
   });
 });

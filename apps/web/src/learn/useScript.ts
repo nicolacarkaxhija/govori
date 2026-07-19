@@ -34,9 +34,17 @@ export function useScript(directionId?: string) {
       return next;
     });
   }, []);
+  const select = useCallback((id: string) => {
+    if (activePack().scripts.some((entry) => entry.id === id)) {
+      localStorage.setItem(STORAGE_KEY, id);
+      setScript(id);
+    }
+  }, []);
   return {
     script,
     toggle,
+    select,
+    scripts: activePack().scripts,
     hasChoice: hasScriptChoice(activePack()),
     currentLabel: activePack().scripts.find((entry) => entry.id === script)
       ?.label,

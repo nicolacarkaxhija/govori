@@ -75,18 +75,25 @@ describe('two-direction shell', () => {
       name: 'Switch learning direction',
     });
     expect(switcher.textContent).toBe('Medžuslovjansky → Shqip');
-    // The isv pack writes two scripts, so the script toggle rides along.
+    // The isv pack writes two scripts, so Settings offers the script choice.
+    await user.click(screen.getByRole('button', { name: 'Settings' }));
     expect(
-      screen.queryByRole('button', { name: 'Switch script' }),
-    ).not.toBeNull();
+      screen.getByRole('combobox', { name: 'Display script' }),
+    ).toBeDefined();
+    await user.click(screen.getByRole('button', { name: '← Back' }));
 
-    await user.click(switcher);
+    await user.click(
+      screen.getByRole('button', { name: 'Switch learning direction' }),
+    );
     expect(state.sets).toEqual(['sq']);
     const switched = await screen.findByRole('button', {
       name: 'Switch learning direction',
     });
     expect(switched.textContent).toBe('Shqip → Medžuslovjansky');
     // The sq pack writes a single script: no script choice remains.
-    expect(screen.queryByRole('button', { name: 'Switch script' })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Settings' }));
+    expect(
+      screen.queryByRole('combobox', { name: 'Display script' }),
+    ).toBeNull();
   });
 });

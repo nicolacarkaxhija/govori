@@ -490,6 +490,34 @@ button:active {
   color: var(--color-primary);
 }
 
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+  max-width: 24rem;
+  align-self: center;
+  width: 100%;
+}
+
+.settings-title {
+  font-weight: 600;
+  font-size: 1.8rem;
+  color: var(--color-text);
+  text-align: center;
+}
+
+.settings .field select {
+  font: inherit;
+  font-size: 1rem;
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
 .matching {
   display: grid;
   grid-template-columns: 1fr 1fr;

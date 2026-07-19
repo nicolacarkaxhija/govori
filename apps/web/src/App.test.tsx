@@ -51,12 +51,15 @@ describe('App', () => {
     expect(await screen.findByRole('heading', { name: 'Besěda' })).toBeTruthy();
   });
 
-  it('toggles the colour theme and persists the choice', async () => {
+  it('sets an explicit colour theme from settings and persists it', async () => {
     stubOfflineApi();
     const user = userEvent.setup();
     render(<App />);
-    const button = screen.getByRole('button', { name: /theme/i });
-    await user.click(button);
+    await user.click(await screen.findByRole('button', { name: 'Settings' }));
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Theme' }),
+      'dark',
+    );
     expect(document.documentElement.dataset.theme).toBe('dark');
     expect(localStorage.getItem('govori-theme')).toBe('dark');
   });
@@ -300,10 +303,11 @@ describe('first-run onboarding', () => {
 });
 
 describe('learning language picker', () => {
-  it('persists the chosen translation language from the footer', async () => {
+  it('persists the chosen translation language from settings', async () => {
     stubOfflineApi();
     const user = userEvent.setup();
     render(<App />);
+    await user.click(await screen.findByRole('button', { name: 'Settings' }));
     const picker = screen.getByRole('combobox', {
       name: 'Translation language',
     });
@@ -316,15 +320,17 @@ describe('learning language picker', () => {
 });
 
 describe('ui language', () => {
-  it('toggles between English and Interslavic', async () => {
+  it('switches the interface language from settings', async () => {
     stubOfflineApi();
     const user = userEvent.setup();
     render(<App />);
-    expect(screen.getByText('Learn Interslavic')).toBeDefined();
-    await user.click(screen.getByRole('button', { name: 'Switch language' }));
-    expect(screen.getByText('Uči se medžuslovjansky')).toBeDefined();
+    await user.click(await screen.findByRole('button', { name: 'Settings' }));
+    expect(screen.getByRole('heading', { name: 'Settings' })).toBeDefined();
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Interface language' }),
+      'isv',
+    );
     expect(localStorage.getItem('govori.lang')).toBe('isv');
-    await user.click(screen.getByRole('button', { name: 'Prěključi jezyk' }));
-    expect(screen.getByText('Learn Interslavic')).toBeDefined();
+    expect(screen.getByRole('heading', { name: 'Nastrojenja' })).toBeDefined();
   });
 });

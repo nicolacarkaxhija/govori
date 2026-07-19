@@ -46,7 +46,11 @@ function following(current: Language): Language {
   return uiLanguages[(index + 1) % uiLanguages.length] ?? current;
 }
 
-/** UI-language preference: cycles the instance's languages, persisted. */
+/**
+ * UI-language preference, persisted. `toggle` cycles (kept for the
+ * onboarding/return paths); `set` picks one directly for the Settings
+ * dropdown; `languages` is the instance's offered roster.
+ */
 export function useLanguage() {
   const [language, setLanguage] = useState<Language>(stored);
   const toggle = useCallback(() => {
@@ -56,7 +60,19 @@ export function useLanguage() {
       return next;
     });
   }, []);
-  return { language, toggle, next: following(language) };
+  const set = useCallback((next: Language) => {
+    if (uiLanguages.includes(next)) {
+      localStorage.setItem(STORAGE_KEY, next);
+      setLanguage(next);
+    }
+  }, []);
+  return {
+    language,
+    toggle,
+    set,
+    next: following(language),
+    languages: uiLanguages,
+  };
 }
 
 const LanguageContext = createContext<Language>(uiLanguages[0] ?? 'und');
