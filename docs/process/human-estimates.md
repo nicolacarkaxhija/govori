@@ -289,6 +289,8 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-19 | feat: add the entitlements domain package | 1–1.5 | New @glotty/entitlements pure domain (ADR 0047/0050): Entitlement {userId, sku, grantedAt, source: purchase\|founder\|contribution}, resolve() as timeless set membership (lifetime unlocks never expire), and the permissive-by-default content gate — free when content carries no premiumSku, entitled/locked when it does; full domain gate config, 100% branch and 100% mutation |
 
+| 2026-07-19 | feat: persist and gate entitlements in the api | 2.5–3 | entitlements table (migration 0014, generated clean, PK per user+SKU), EntitlementStore port + Drizzle adapter (server-stamped idempotent grant, oldest-first list); GET /me/entitlements and admin-only POST /admin/entitlements (founder/manual grant, no payment rails); ContentGate wired into buildApp and the live /items/:id path, permissive by default — free when no premiumSku (every item today), 402 when content declares a SKU the viewer lacks; content-gate unit tests cover free/locked/entitled, route tests cover the seam both ways, real-Postgres grant/list/idempotence |
+
 **Running total: 198.7-252.2 h**
 
 **Running total: 257.7–330.3 h**

@@ -26,6 +26,7 @@ import { DrizzleAccount } from '../account/drizzle-account.js';
 import { DrizzleMorphologyRepository } from '../morphology/drizzle-morphology-repository.js';
 import { importMorphologyArtifact } from '../morphology/import-morphology.js';
 import { DrizzleExport } from '../export/drizzle-export.js';
+import { DrizzleEntitlements } from '../entitlements/drizzle-entitlements.js';
 
 let container: StartedPostgreSqlContainer;
 let db: Db;
@@ -573,6 +574,45 @@ describe('dataset manifests honour the deletion tombstone', () => {
     // ...but the version it already shipped in stays non-recallable.
     expect(await store.getManifest('ds-v1')).toContain(withdrawnId);
     expect(await store.getManifest('unshipped')).toBeUndefined();
+  });
+});
+
+describe('DrizzleEntitlements', () => {
+  it('grants, lists oldest-first, and re-grants idempotently', async () => {
+    const store = new DrizzleEntitlements(db);
+    const first = await store.grant({
+      userId: 'u-buyer',
+      sku: 'fol/en/a1',
+      source: 'founder',
+    });
+    expect(first).toMatchObject({
+      userId: 'u-buyer',
+      sku: 'fol/en/a1',
+      source: 'founder',
+    });
+    expect(typeof first.grantedAt).toBe('string');
+    await store.grant({
+      userId: 'u-buyer',
+      sku: 'fol/en/a2',
+      source: 'purchase',
+    });
+    const held = await store.listForUser('u-buyer');
+    expect(held.map((entitlement) => entitlement.sku)).toEqual([
+      'fol/en/a1',
+      'fol/en/a2',
+    ]);
+    // A second grant of the same SKU refreshes it in place, never duplicates.
+    await store.grant({
+      userId: 'u-buyer',
+      sku: 'fol/en/a1',
+      source: 'purchase',
+    });
+    const regranted = await store.listForUser('u-buyer');
+    expect(regranted).toHaveLength(2);
+    expect(
+      regranted.find((entitlement) => entitlement.sku === 'fol/en/a1')?.source,
+    ).toBe('purchase');
+    expect(await store.listForUser('u-nobody')).toEqual([]);
   });
 });
 

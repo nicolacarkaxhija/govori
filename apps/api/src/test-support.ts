@@ -96,6 +96,11 @@ export function makeTestDeps(
       curriculumUnits: () => Promise.resolve([]),
       morphologyEntries: () => Promise.resolve([]),
     },
+    entitlements: {
+      grant: (input) =>
+        Promise.resolve({ ...input, grantedAt: '2026-07-19T00:00:00.000Z' }),
+      listForUser: () => Promise.resolve([]),
+    },
     ...overrides,
   };
 }

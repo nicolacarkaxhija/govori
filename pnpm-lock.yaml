@@ -83,6 +83,9 @@ importers:
       '@glotty/content':
         specifier: workspace:*
         version: link:../../packages/content
+      '@glotty/entitlements':
+        specifier: workspace:*
+        version: link:../../packages/entitlements
       '@glotty/instance-fol':
         specifier: workspace:*
         version: link:../../instances/fol

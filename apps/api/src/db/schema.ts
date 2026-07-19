@@ -372,3 +372,23 @@ export const datasetManifests = pgTable('dataset_manifests', {
     .notNull()
     .defaultNow(),
 });
+
+/**
+ * Per-SKU lifetime unlocks (ADR 0047/0050). One row per user per SKU — a
+ * lifetime unlock never expires, so there is no validity window to store.
+ * Grants come only from the admin/founder path today; no payment rails yet.
+ */
+export const entitlements = pgTable(
+  'entitlements',
+  {
+    userId: text('user_id').notNull(),
+    sku: text('sku').notNull(),
+    source: text('source', {
+      enum: ['purchase', 'founder', 'contribution'],
+    }).notNull(),
+    grantedAt: timestamp('granted_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.sku] })],
+);

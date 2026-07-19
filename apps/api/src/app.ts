@@ -35,6 +35,8 @@ import type { RecordingStore } from './audio/ports.js';
 import { speakerPseudonym } from './audio/speaker-pseudonym.js';
 import type { MorphologyQueries } from './morphology/ports.js';
 import type { ExportQueries } from './export/ports.js';
+import type { EntitlementStore } from './entitlements/ports.js';
+import { ContentGate } from './entitlements/content-gate.js';
 
 export interface AppDependencies {
   config: ApiConfig;
@@ -68,6 +70,9 @@ export interface AppDependencies {
   morphology: MorphologyQueries;
   /** Bulk reads behind the public open-data export (ADR 0007/0010). */
   openData: ExportQueries;
+  /** Lifetime per-SKU entitlements (ADR 0047/0050); the founder/admin grant
+   * path and the read behind the content gate. */
+  entitlements: EntitlementStore;
 }
 
 /** Bridges Fastify's raw request to the Web Request better-auth consumes. */
@@ -133,8 +138,13 @@ export function buildApp({
   recordings,
   morphology,
   openData,
+  entitlements,
 }: AppDependencies) {
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
+  // The content gate over the entitlement ledger (ADR 0047/0050). Permissive
+  // by default: it only consults the ledger for content that declares a SKU,
+  // and nothing does yet, so it stays inert.
+  const contentGate = new ContentGate(entitlements);
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
 
@@ -377,6 +387,79 @@ export function buildApp({
         }
         await account.deleteAccount(sessionResult.user.id);
         return reply.status(204).send(null);
+      },
+    );
+
+    // A viewer's own lifetime entitlements (ADR 0047/0050). Read-only; the
+    // founder/admin grant path is the only writer for now.
+    const EntitlementSchema = z.object({
+      userId: z.string(),
+      sku: z.string(),
+      grantedAt: z.iso.datetime(),
+      source: z.enum(['purchase', 'founder', 'contribution']),
+    });
+
+    routes.get(
+      '/me/entitlements',
+      {
+        schema: {
+          response: {
+            200: z.object({ entitlements: z.array(EntitlementSchema) }),
+            401: z.object({ message: z.string() }),
+          },
+        },
+      },
+      async (request, reply) => {
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        return {
+          entitlements: await entitlements.listForUser(sessionResult.user.id),
+        };
+      },
+    );
+
+    // The founder/manual grant path (ADR 0047/0050): admin-only, no payment
+    // rails. This is how founding users and seed-ring teachers get premium.
+    routes.post(
+      '/admin/entitlements',
+      {
+        schema: {
+          body: z.object({
+            userId: z.string().min(1),
+            sku: z.string().trim().min(1).max(80),
+            source: z.enum(['purchase', 'founder', 'contribution']),
+          }),
+          response: {
+            200: EntitlementSchema,
+            401: z.object({ message: z.string() }),
+            403: z.object({ message: z.string() }),
+          },
+        },
+      },
+      async (request, reply) => {
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        const role = await userRoles.getRole(sessionResult.user.id);
+        if (role !== 'admin') {
+          return reply.status(403).send({ message: 'admin role required' });
+        }
+        return entitlements.grant(request.body);
       },
     );
 
@@ -1298,13 +1381,39 @@ export function buildApp({
       {
         schema: {
           params: z.object({ id: z.uuid() }),
-          response: { 200: RenderedItemSchema, 404: NotFoundSchema },
+          response: {
+            200: RenderedItemSchema,
+            402: NotFoundSchema,
+            404: NotFoundSchema,
+          },
         },
       },
       async (request, reply) => {
         const found = await items.findById(request.params.id);
         if (found === undefined) {
           return reply.status(404).send({ message: 'item not found' });
+        }
+        // The content gate (ADR 0047/0050) runs on the live serving path but
+        // stays permissive: it only locks content that declares a premiumSku,
+        // and no item carries one today, so every read passes as free.
+        const session = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        // premiumSku is not on the item schema yet; read it defensively so
+        // the gate is ready the day content starts carrying one.
+        const premiumSku =
+          'premiumSku' in found.item
+            ? (found.item.premiumSku as string | null)
+            : null;
+        const decision = await contentGate.decide(session?.user.id ?? null, {
+          premiumSku,
+        });
+        if (!decision.allowed) {
+          return reply.status(402).send({ message: 'premium content' });
         }
         // Renderings come from the owning direction's pack (ADR 0046);
         // an item stranded outside the declared roster renders nothing.
