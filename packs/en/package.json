@@ -1,0 +1,32 @@
+{
+  "name": "@glotty/pack-en",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-only",
+  "description": "The basic-Latin English language pack: canonical validation, normalization, stemming, and the single Latin script",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint src",
+    "test": "vitest run --coverage",
+    "mutation": "stryker run"
+  },
+  "dependencies": {
+    "@glotty/language": "workspace:*"
+  },
+  "devDependencies": {
+    "@stryker-mutator/core": "catalog:",
+    "@stryker-mutator/vitest-runner": "catalog:",
+    "fast-check": "catalog:"
+  }
+}

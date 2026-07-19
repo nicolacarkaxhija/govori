@@ -257,15 +257,11 @@ developer working alone. Appended in the same commit it describes.
 | 2026-07-19 | fix: require a translation before submitting a produced sentence | 0.3 | The free-production submit posted an empty gloss the API's validation always rejects; a required translation input closes the loop |
 
 | 2026-07-19 | docs: charter freemium with a free-core covenant | 1–1.5 | ADR 0047: provenance-split free/paid boundary, core-course-free guarantee, preview labels and founder grandfathering, per-level lifetime unlocks with published declining price bands, no subscriptions, ADR 0016 left intact — plus registry row |
-
 | 2026-07-19 | docs: charter the community audio program | 1–1.5 | ADR 0048: two-tier collection (casual for premium time, studio under contract), ADR-0040 vote validation, three separate consent grants with no single-speaker cloning, labeled synthetic-voice fallback, data-ready storage schema, public revenue accounting, lawyer review gate — plus registry row |
-
 | 2026-07-19 | docs: charter the paid-track analytics posture | 0.5–1 | ADR 0049: analytics-you-can-see — flag-gated, self-hosted, first-party per-user analytics on the paid track only, every signal powering a user-visible feature, opt-out and disclosed at purchase; free tier keeps the ADR 0023 zero-tracking promise; no third parties ever — plus registry row |
-
 | 2026-07-19 | docs: add the Fol competitive landscape | 1.5–2 | Marketing reference: absent majors, specialist-field weakness table, diaspora market figures, unserved intersection, three positioning claims, Ling threat model, tutor-bench and grammar-quality notes — plus marketing registry row |
-
 | 2026-07-19 | docs: add the language expansion roadmap | 1.5–2 | Marketing reference: ranked next-pack table (BCMS/Armenian/Bulgarian/Macedonian top, Kazakh/Georgian rising), blocked list with the thin-data playbook, license-triaged source-stack tiers, OCS and Arbëresh halo projects, and the dead-language/conlang/dialect exotic tracks — plus marketing registry row |
-
 | 2026-07-19 | fix: walk the lesson e2e flows past the new onboarding | 0.3 | Fresh browser contexts now meet the first-run screen; lesson specs seed a returning learner and onboarding gains its own walkthrough spec |
+| 2026-07-19 | feat: add the basic-latin english language pack | 2–2.5 | @glotty/pack-en mirroring the sq pack's shape: 26-letter + apostrophe canonical validator, punctuation-stripping NFD-fold normalize (dont ≡ don't), min-3 loose stem, single identity Latin script; four suites incl. fast-check invariants, 100% branch, 97.4 mutation |
 
 **Running total: 257.7–330.3 h**
