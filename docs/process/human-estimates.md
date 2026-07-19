@@ -278,4 +278,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-19 | test: harden the language suite against static mutants | 0.5 | Stryker over the direction-aware resolveInstance sat at 86.9: describe-scope fixtures made its mutants static and a one-entry registry hid the list separator; fixtures are now built lazily per test, the registry names two instances, and the error assertions pin exact messages — 84/84 mutants killed, score 100 |
 
+| 2026-07-19 | feat: move the palette into a per-instance theming seam | 1.5–2 | The engine ships no palette (ADR 0042): tokens.css deleted, the full custom-property contract (colour set light+dark via prefers-color-scheme and the [data-theme] override, plus --font/--radius/--space and a --card-shadow structural token) relocated into instances/<id>/src/theme.css, exported as ./theme.css and imported by name through a VITE_INSTANCE-resolved vite alias; a grep guard test proves no engine stylesheet declares a colour literal; govori and fol builds both bundle their own theme |
+
 **Running total: 257.7–330.3 h**

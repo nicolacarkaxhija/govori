@@ -1,0 +1,75 @@
+/**
+ * Fol's visual identity (ADR 0029/0042): the engine ships no palette,
+ * so this instance owns the full custom-property contract the engine's
+ * base/learn stylesheets consume. Light is the `:root` default; dark
+ * arrives via `prefers-color-scheme` and is forced by `[data-theme]`,
+ * whose higher specificity always beats the media query.
+ */
+:root {
+  /* Structure — mode-independent. */
+  --font-sans:
+    system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-display: var(--font-sans);
+  --radius-md: 0.5rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 2rem;
+  --card-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+
+  /* Palette — light. */
+  --color-bg: #faf6f4;
+  --color-surface: #ffffff;
+  --color-text: #1a1a1a;
+  --color-text-muted: #5a5a5a;
+  --color-primary: #c41e3a;
+  --color-primary-hover: #a5182f;
+  --color-primary-soft: color-mix(in srgb, #c41e3a 9%, transparent);
+  --color-on-primary: #ffffff;
+  --color-border: #e7ded9;
+  --color-correct: #2e7d4f;
+  --color-correct-soft: color-mix(in srgb, #2e7d4f 16%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #171412;
+    --color-surface: #211c1a;
+    --color-text: #f5efec;
+    --color-text-muted: #c9beb8;
+    --color-primary: #ff6b81;
+    --color-primary-hover: #ff8494;
+    --color-primary-soft: #ff6b811f;
+    --color-on-primary: #2a0a10;
+    --color-border: #362e2b;
+    --color-correct: #6fbf8f;
+    --color-correct-soft: #6fbf8f1f;
+  }
+}
+
+:root[data-theme='light'] {
+  --color-bg: #faf6f4;
+  --color-surface: #ffffff;
+  --color-text: #1a1a1a;
+  --color-text-muted: #5a5a5a;
+  --color-primary: #c41e3a;
+  --color-primary-hover: #a5182f;
+  --color-primary-soft: color-mix(in srgb, #c41e3a 9%, transparent);
+  --color-on-primary: #ffffff;
+  --color-border: #e7ded9;
+  --color-correct: #2e7d4f;
+  --color-correct-soft: color-mix(in srgb, #2e7d4f 16%, transparent);
+}
+
+:root[data-theme='dark'] {
+  --color-bg: #171412;
+  --color-surface: #211c1a;
+  --color-text: #f5efec;
+  --color-text-muted: #c9beb8;
+  --color-primary: #ff6b81;
+  --color-primary-hover: #ff8494;
+  --color-primary-soft: #ff6b811f;
+  --color-on-primary: #2a0a10;
+  --color-border: #362e2b;
+  --color-correct: #6fbf8f;
+  --color-correct-soft: #6fbf8f1f;
+}

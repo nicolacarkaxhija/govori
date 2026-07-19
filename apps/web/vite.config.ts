@@ -24,6 +24,14 @@ function instanceHtml(): Plugin {
 }
 
 export default defineConfig({
+  // The engine ships no palette (ADR 0042): the active instance's theme is
+  // resolved through the same VITE_INSTANCE seam as its config and imported
+  // by name (`@instance/theme.css`) from `main.tsx`.
+  resolve: {
+    alias: {
+      '@instance/theme.css': `@glotty/instance-${instance.id}/theme.css`,
+    },
+  },
   plugins: [
     react(),
     instanceHtml(),
