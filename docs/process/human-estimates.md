@@ -264,4 +264,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-19 | docs: add the Fol competitive landscape | 1.5–2 | Marketing reference: absent majors, specialist-field weakness table, diaspora market figures, unserved intersection, three positioning claims, Ling threat model, tutor-bench and grammar-quality notes — plus marketing registry row |
 
+| 2026-07-19 | docs: add the language expansion roadmap | 1.5–2 | Marketing reference: ranked next-pack table (BCMS/Armenian/Bulgarian/Macedonian top, Kazakh/Georgian rising), blocked list with the thin-data playbook, license-triaged source-stack tiers, OCS and Arbëresh halo projects, and the dead-language/conlang/dialect exotic tracks — plus marketing registry row |
+
 **Running total: 257.4–330.0 h**
