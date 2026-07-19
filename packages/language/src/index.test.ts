@@ -97,8 +97,10 @@ const fake: InstanceConfig = {
   learnLanguages: [{ code: 'en', name: 'English' }],
   catalogs: { en: { check: 'Check' } },
 };
+// Two known instances, so the "known instances" listing must join with
+// a separator — a one-entry list cannot tell ', ' from ''.
 const registry = {
-  instances: { fakeapp: fake },
+  instances: { fakeapp: fake, otherapp: { ...fake, id: 'otherapp' } },
   packs: { fake: pack, other: otherPack },
 };
 
@@ -127,14 +129,14 @@ describe('resolveInstance', () => {
   it('fails fast when the id is unset, naming the variable', () => {
     for (const id of [undefined, '']) {
       expect(() => resolveInstance(registry, id, 'THE_VAR')).toThrow(
-        /THE_VAR is not set; known instances: fakeapp/,
+        'THE_VAR is not set; known instances: fakeapp, otherapp',
       );
     }
   });
 
   it('fails fast on an unknown instance id', () => {
     expect(() => resolveInstance(registry, 'nope', 'THE_VAR')).toThrow(
-      /unknown instance 'nope'; known instances: fakeapp/,
+      "unknown instance 'nope'; known instances: fakeapp, otherapp",
     );
   });
 
@@ -172,18 +174,21 @@ describe('resolveInstance', () => {
 });
 
 describe('resolveDirection', () => {
-  const oneWay = resolveInstance(registry, 'fakeapp', 'THE_VAR');
-  const twoWay = resolveInstance(
-    {
-      instances: { fakeapp: { ...fake, directions: [forth, back] } },
-      packs: registry.packs,
-    },
-    'fakeapp',
-    'THE_VAR',
-  );
+  // Built lazily inside each test: fixtures resolved at collection time
+  // would turn every resolveInstance mutant static and unattributable.
+  const oneWay = () => resolveInstance(registry, 'fakeapp', 'THE_VAR');
+  const twoWay = () =>
+    resolveInstance(
+      {
+        instances: { fakeapp: { ...fake, directions: [forth, back] } },
+        packs: registry.packs,
+      },
+      'fakeapp',
+      'THE_VAR',
+    );
 
   it('resolves a named direction with its pack', () => {
-    const resolved = resolveDirection(twoWay, 'back');
+    const resolved = resolveDirection(twoWay(), 'back');
     expect(resolved.direction.id).toBe('back');
     expect(resolved.pack.id).toBe('other');
   });
@@ -192,21 +197,21 @@ describe('resolveDirection', () => {
     // Not a default: the one declared direction is the only answer the
     // config permits, so omission loses no information (ADR 0046).
     for (const id of [undefined, '']) {
-      expect(resolveDirection(oneWay, id).direction.id).toBe('forth');
+      expect(resolveDirection(oneWay(), id).direction.id).toBe('forth');
     }
   });
 
   it('demands an id as soon as a second direction exists', () => {
     for (const id of [undefined, '']) {
-      expect(() => resolveDirection(twoWay, id)).toThrow(
-        /direction is required; known directions: forth, back/,
+      expect(() => resolveDirection(twoWay(), id)).toThrow(
+        'direction is required; known directions: forth, back',
       );
     }
   });
 
   it('rejects an unknown direction id', () => {
-    expect(() => resolveDirection(twoWay, 'sideways')).toThrow(
-      /unknown direction 'sideways'; known directions: forth, back/,
+    expect(() => resolveDirection(twoWay(), 'sideways')).toThrow(
+      "unknown direction 'sideways'; known directions: forth, back",
     );
   });
 

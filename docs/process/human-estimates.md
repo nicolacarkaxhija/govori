@@ -276,4 +276,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-19 | docs: record multi-direction instances | 0.5–1 | ADR 0046 recording the Direction concept, the omission-is-total (never default) rule for CLI and routes, the nullable-column + boot-backfill migration design and why static SQL cannot carry the direction, the per-direction publish threshold, the web switcher's config-owned primary, and why the SRS log needs no direction namespacing; registry row and a Direction entry in the CONTEXT.md glossary |
 
+| 2026-07-19 | test: harden the language suite against static mutants | 0.5 | Stryker over the direction-aware resolveInstance sat at 86.9: describe-scope fixtures made its mutants static and a one-entry registry hid the list separator; fixtures are now built lazily per test, the registry names two instances, and the error assertions pin exact messages — 84/84 mutants killed, score 100 |
+
 **Running total: 257.7–330.3 h**
