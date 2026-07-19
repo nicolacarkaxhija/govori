@@ -260,4 +260,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-19 | docs: charter the community audio program | 1–1.5 | ADR 0048: two-tier collection (casual for premium time, studio under contract), ADR-0040 vote validation, three separate consent grants with no single-speaker cloning, labeled synthetic-voice fallback, data-ready storage schema, public revenue accounting, lawyer review gate — plus registry row |
 
+| 2026-07-19 | docs: charter the paid-track analytics posture | 0.5–1 | ADR 0049: analytics-you-can-see — flag-gated, self-hosted, first-party per-user analytics on the paid track only, every signal powering a user-visible feature, opt-out and disclosed at purchase; free tier keeps the ADR 0023 zero-tracking promise; no third parties ever — plus registry row |
+
 **Running total: 257.4–330.0 h**
