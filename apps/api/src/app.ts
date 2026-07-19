@@ -32,6 +32,7 @@ import type { AccountRights } from './account/ports.js';
 import type { ReviewQueue, VoteStore } from './review/ports.js';
 import type { UserDirectory } from './auth/ports.js';
 import type { RecordingStore } from './audio/ports.js';
+import { speakerPseudonym } from './audio/speaker-pseudonym.js';
 import type { MorphologyQueries } from './morphology/ports.js';
 import type { ExportQueries } from './export/ports.js';
 
@@ -543,8 +544,11 @@ export function buildApp({
       },
     );
 
-    // Community audio (ADR 0004): fully built, dark until the flag flips.
-    // Recordings publish without review (ADR 0008); accents stay diverse.
+    // Community audio program (ADR 0004/0048): fully built, dark until the
+    // flag flips. A clip carries dataset-grade metadata from day one — a
+    // pseudonymous speaker id, the three independently opt-in consent grants,
+    // an accent tag, and client-estimated device metadata — and enters the
+    // community-vote validation path (ADR 0040) as pending.
     routes.post(
       '/items/:id/audio',
       {
@@ -554,9 +558,24 @@ export function buildApp({
             mime: z.enum(['audio/webm', 'audio/ogg', 'audio/mpeg']),
             /** ~1 MiB of audio once decoded — cost caution (ADR 0004). */
             data: z.base64().min(1).max(1_400_000),
+            /** Contributor-declared accent/dialect; omitted when undeclared. */
+            accentTag: z.string().trim().min(1).max(80).optional(),
+            device: z.object({
+              sampleRate: z.number().int().positive().optional(),
+              durationMs: z.number().int().positive().max(600_000),
+            }),
+            consent: z.object({
+              version: z.string().trim().min(1).max(40),
+              /** App-use license: required to contribute at all (ADR 0048). */
+              app: z.literal(true),
+              /** Commercial dataset pool and model training: opt-in, off by default. */
+              dataset: z.boolean().default(false),
+              training: z.boolean().default(false),
+            }),
           }),
           response: {
             201: z.object({ id: z.uuid() }),
+            400: z.object({ message: z.string() }),
             401: z.object({ message: z.string() }),
             404: z.object({ message: z.string() }),
           },
@@ -586,9 +605,24 @@ export function buildApp({
         await recordings.add({
           id,
           itemId: found.item.id,
+          // The clip inherits the direction of the item it voices (ADR 0046).
+          direction: found.direction,
           mime: request.body.mime,
           contributorId: sessionResult.user.id,
+          speakerPseudonym: speakerPseudonym(sessionResult.user.id),
+          accentTag: request.body.accentTag ?? null,
           bytes: Buffer.from(request.body.data, 'base64'),
+          deviceMeta: {
+            ...(request.body.device.sampleRate === undefined
+              ? {}
+              : { sampleRate: request.body.device.sampleRate }),
+            mime: request.body.mime,
+            durationMs: request.body.device.durationMs,
+          },
+          consentVersion: request.body.consent.version,
+          consentApp: request.body.consent.app,
+          consentDataset: request.body.consent.dataset,
+          consentTraining: request.body.consent.training,
         });
         return reply.status(201).send({ id });
       },
@@ -642,6 +676,127 @@ export function buildApp({
         return reply
           .header('content-type', recording.mime)
           .send(Buffer.from(recording.bytes));
+      },
+    );
+
+    // Recording validation reuses the community-vote machinery (ADR 0048/
+    // 0040): a signed-in learner votes a pending clip up or down, and the
+    // same per-direction net threshold that publishes text verifies the
+    // clip — flipping its status and crediting the contributor premium time.
+    routes.post(
+      '/audio/:id/vote',
+      {
+        schema: {
+          params: z.object({ id: z.uuid() }),
+          body: z.object({ up: z.boolean() }),
+          response: {
+            200: z.object({
+              upvotes: z.number(),
+              downvotes: z.number(),
+              status: z.enum(['pending', 'verified', 'rejected']),
+            }),
+            401: z.object({ message: z.string() }),
+            404: NotFoundSchema,
+          },
+        },
+      },
+      async (request, reply) => {
+        const flags = await effectiveFlags('anonymous');
+        if (flags.audio !== true) {
+          return reply.status(404).send({ message: 'not found' });
+        }
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        const recording = await recordings.findById(request.params.id);
+        if (recording?.deletedAt !== null) {
+          return reply.status(404).send({ message: 'unknown recording' });
+        }
+        const tally = await recordings.castVote(
+          request.params.id,
+          sessionResult.user.id,
+          request.body.up,
+        );
+        // The bar belongs to the clip's own direction (ADR 0046); a clip
+        // stranded outside the roster never auto-verifies.
+        const owningDirection = directions.find(
+          (entry) => entry.direction.id === recording.direction,
+        );
+        let status = recording.status;
+        if (
+          status === 'pending' &&
+          owningDirection !== undefined &&
+          tally.upvotes - tally.downvotes >=
+            owningDirection.direction.communityPublishNetVotes
+        ) {
+          // verify flips exactly once and credits; a second voter racing to
+          // the threshold gets undefined and never double-credits.
+          const credited = await recordings.verify(request.params.id);
+          if (credited !== undefined) {
+            status = 'verified';
+          }
+        }
+        return { ...tally, status };
+      },
+    );
+
+    // A contributor's own audio (ADR 0048): their clips with the consents
+    // each carries, and their casual-tier premium-time ledger.
+    routes.get(
+      '/audio/mine',
+      {
+        schema: {
+          response: {
+            200: z.object({
+              recordings: z.array(
+                z.object({
+                  id: z.uuid(),
+                  itemId: z.uuid(),
+                  status: z.enum(['pending', 'verified', 'rejected']),
+                  accentTag: z.string().nullable(),
+                  consentVersion: z.string(),
+                  consentApp: z.boolean(),
+                  consentDataset: z.boolean(),
+                  consentTraining: z.boolean(),
+                  createdAt: z.iso.datetime(),
+                }),
+              ),
+              credit: z
+                .object({
+                  secondsValidated: z.number(),
+                  premiumDaysGranted: z.number(),
+                  grantedAt: z.iso.datetime(),
+                })
+                .nullable(),
+            }),
+            401: z.object({ message: z.string() }),
+            404: NotFoundSchema,
+          },
+        },
+      },
+      async (request, reply) => {
+        const flags = await effectiveFlags('anonymous');
+        if (flags.audio !== true) {
+          return reply.status(404).send({ message: 'not found' });
+        }
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        return recordings.mine(sessionResult.user.id);
       },
     );
 

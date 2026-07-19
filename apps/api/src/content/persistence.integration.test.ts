@@ -415,30 +415,35 @@ describe('DrizzleFlagStore', () => {
 });
 
 describe('DrizzleRecordingStore', () => {
-  it('roundtrips audio bytes and lists per item in insertion order', async () => {
+  const itemId = '3e2d8f0a-4b1c-4f6e-9a7d-1c2b3a4d5e6f';
+  const clip = (
+    overrides: Partial<Parameters<DrizzleRecordingStore['add']>[0]> = {},
+  ): Parameters<DrizzleRecordingStore['add']>[0] => ({
+    id: 'aa0b1c2d-3e4f-4a5b-8c6d-7e8f9a0b1c2d',
+    itemId,
+    direction: 'isv',
+    contributorId: 'u-accent-a',
+    speakerPseudonym: 'spk_a',
+    accentTag: 'south',
+    mime: 'audio/webm',
+    bytes: new Uint8Array([0x1a, 0x45, 0xdf, 0xa3, 0x00, 0xff]),
+    deviceMeta: { mime: 'audio/webm', durationMs: 130_000 },
+    consentVersion: 'v1',
+    consentApp: true,
+    consentDataset: false,
+    consentTraining: false,
+    ...overrides,
+  });
+
+  it('stores dataset-grade metadata and serves bytes back', async () => {
     const store = new DrizzleRecordingStore(db);
-    const itemId = '3e2d8f0a-4b1c-4f6e-9a7d-1c2b3a4d5e6f';
-    const first = {
-      id: 'aa0b1c2d-3e4f-4a5b-8c6d-7e8f9a0b1c2d',
-      itemId,
-      contributorId: 'u-accent-a',
-      mime: 'audio/webm',
-      bytes: new Uint8Array([0x1a, 0x45, 0xdf, 0xa3, 0x00, 0xff]),
-    };
-    await store.add(first);
-    await store.add({
-      ...first,
-      id: 'bb0b1c2d-3e4f-4a5b-8c6d-7e8f9a0b1c2d',
-      contributorId: 'u-accent-b',
-      mime: 'audio/ogg',
-    });
-    const listed = await store.listForItem(itemId);
-    expect(listed.map((row) => row.mime)).toEqual(['audio/webm', 'audio/ogg']);
-    expect(listed.map((row) => row.contributorId)).toEqual([
-      'u-accent-a',
-      'u-accent-b',
-    ]);
-    const served = await store.get(first.id);
+    await store.add(clip());
+    const record = await store.findById(clip().id);
+    expect(record?.status).toBe('pending');
+    expect(record?.direction).toBe('isv');
+    expect(record?.contributorId).toBe('u-accent-a');
+    expect(record?.deletedAt).toBeNull();
+    const served = await store.get(clip().id);
     expect(served?.mime).toBe('audio/webm');
     expect([...(served?.bytes ?? [])]).toEqual([
       0x1a, 0x45, 0xdf, 0xa3, 0x00, 0xff,
@@ -446,9 +451,79 @@ describe('DrizzleRecordingStore', () => {
     expect(await store.get('00000000-0000-4000-8000-00000000beef')).toBe(
       undefined,
     );
+    expect(await store.findById('00000000-0000-4000-8000-00000000beef')).toBe(
+      undefined,
+    );
+  });
+
+  it('lists only verified, non-tombstoned clips per item', async () => {
+    const store = new DrizzleRecordingStore(db);
+    // A fresh item so the pool is clean for this assertion.
+    const otherItem = '3e2d8f0a-4b1c-4f6e-9a7d-1c2b3a4d5e6f';
+    await store.add(
+      clip({ id: 'cc0b1c2d-3e4f-4a5b-8c6d-7e8f9a0b1c2d', itemId: otherItem }),
+    );
+    // Pending: not yet public.
+    expect(
+      (await store.listForItem(otherItem)).some(
+        (row) => row.id === 'cc0b1c2d-3e4f-4a5b-8c6d-7e8f9a0b1c2d',
+      ),
+    ).toBe(false);
+    // Three up-votes verify it.
+    for (const voter of ['v1', 'v2', 'v3']) {
+      await store.castVote('cc0b1c2d-3e4f-4a5b-8c6d-7e8f9a0b1c2d', voter, true);
+    }
+    const credit = await store.verify('cc0b1c2d-3e4f-4a5b-8c6d-7e8f9a0b1c2d');
+    expect(credit).toMatchObject({
+      secondsValidated: 130,
+      premiumDaysGranted: 7,
+    });
+    expect(typeof credit?.grantedAt).toBe('string');
+    const listed = await store.listForItem(otherItem);
+    expect(
+      listed.some((row) => row.id === 'cc0b1c2d-3e4f-4a5b-8c6d-7e8f9a0b1c2d'),
+    ).toBe(true);
     expect(
       await store.listForItem('00000000-0000-4000-8000-00000000dead'),
     ).toEqual([]);
+  });
+
+  it('verifies once, tallies votes, and never double-credits', async () => {
+    const store = new DrizzleRecordingStore(db);
+    const id = 'dd0b1c2d-3e4f-4a5b-8c6d-7e8f9a0b1c2d';
+    await store.add(clip({ id, contributorId: 'u-credit' }));
+    expect(await store.castVote(id, 'a', true)).toEqual({
+      upvotes: 1,
+      downvotes: 0,
+    });
+    // A change of heart replaces the ballot, never doubles it.
+    expect(await store.castVote(id, 'a', false)).toEqual({
+      upvotes: 0,
+      downvotes: 1,
+    });
+    expect(await store.castVote(id, 'a', true)).toEqual({
+      upvotes: 1,
+      downvotes: 0,
+    });
+    const first = await store.verify(id);
+    expect(first?.premiumDaysGranted).toBe(7);
+    // A second verify is a no-op: the row is no longer pending.
+    expect(await store.verify(id)).toBeUndefined();
+    // A second clip from the same contributor accrues onto the ledger.
+    const second = 'ee0b1c2d-3e4f-4a5b-8c6d-7e8f9a0b1c2d';
+    await store.add(clip({ id: second, contributorId: 'u-credit' }));
+    const grew = await store.verify(second);
+    expect(grew).toMatchObject({
+      secondsValidated: 260,
+      premiumDaysGranted: 14,
+    });
+    const mine = await store.mine('u-credit');
+    expect(mine.credit).toMatchObject({
+      secondsValidated: 260,
+      premiumDaysGranted: 14,
+    });
+    expect(mine.recordings.map((row) => row.id)).toContain(id);
+    expect(mine.recordings[0]?.consentApp).toBe(true);
   });
 });
 

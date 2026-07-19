@@ -1,6 +1,7 @@
 import {
   boolean,
   customType,
+  integer,
   jsonb,
   pgTable,
   primaryKey,
@@ -16,6 +17,7 @@ import type {
   PartOfSpeech,
   Provenance,
 } from '@glotty/content';
+import type { DeviceMeta } from '../audio/ports.js';
 
 /** The content atom (ADR 0002/0003); text is canonical in its pack. */
 export const items = pgTable('items', {
@@ -284,15 +286,88 @@ const bytea = customType<{ data: Uint8Array; driverData: Uint8Array }>({
   dataType: () => 'bytea',
 });
 
-/** Community recordings: many per item, published unreviewed (ADR 0004/0008). */
+/**
+ * Community recordings, carried at dataset grade from day one (ADR 0048) so
+ * activating the audio program needs no migration. Many per item; validated
+ * through the community-vote path (ADR 0040) before they serve publicly.
+ */
 export const recordings = pgTable('recordings', {
   id: uuid('id').primaryKey(),
   itemId: uuid('item_id')
     .notNull()
     .references(() => items.id, { onDelete: 'cascade' }),
+  /**
+   * The learning direction this clip belongs to (ADR 0046); see items.
+   * Nullable for the migration window, treated as absent once backfilled.
+   */
+  direction: text('direction'),
   contributorId: text('contributor_id').notNull(),
+  /** Stable pseudonymous speaker id (ADR 0048): derived per user, never the
+   * user id, so a dataset can group a speaker without carrying their identity. */
+  speakerPseudonym: text('speaker_pseudonym').notNull(),
+  /** Contributor-declared accent/dialect tag; null when undeclared. */
+  accentTag: text('accent_tag'),
   mime: text('mime').notNull(),
   bytes: bytea('bytes').notNull(),
+  /** Client-estimated capture metadata: sample rate, mime, duration (ADR 0048). */
+  deviceMeta: jsonb('device_meta').$type<DeviceMeta>().notNull(),
+  /** Versioned consent record (ADR 0048): the three grants are independently
+   * opt-in; app-use is required to contribute, dataset and training default off. */
+  consentVersion: text('consent_version').notNull(),
+  consentApp: boolean('consent_app').notNull(),
+  consentDataset: boolean('consent_dataset').notNull().default(false),
+  consentTraining: boolean('consent_training').notNull().default(false),
+  /** Community-vote validation state (ADR 0048/0040). */
+  status: text('status', { enum: ['pending', 'verified', 'rejected'] })
+    .notNull()
+    .default('pending'),
+  /** Deletion tombstone (ADR 0010/0048): set on erasure. The row is retained
+   * but excluded from future dataset builds; shipped versions stay non-recallable. */
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/** One community vote per learner per recording (ADR 0048); mirrors review_votes. */
+export const recordingVotes = pgTable(
+  'recording_votes',
+  {
+    recordingId: uuid('recording_id')
+      .notNull()
+      .references(() => recordings.id, { onDelete: 'cascade' }),
+    voterId: text('voter_id').notNull(),
+    up: boolean('up').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [primaryKey({ columns: [table.recordingId, table.voterId] })],
+);
+
+/**
+ * The casual-tier premium-time ledger (ADR 0048): one row per contributor,
+ * accruing community-validated seconds into granted premium days. The grant
+ * rule (seconds per grant, days per grant) lives in credit-policy.ts.
+ */
+export const audioCredits = pgTable('audio_credits', {
+  userId: text('user_id').primaryKey(),
+  secondsValidated: integer('seconds_validated').notNull().default(0),
+  premiumDaysGranted: integer('premium_days_granted').notNull().default(0),
+  grantedAt: timestamp('granted_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/**
+ * A dataset build's frozen membership (ADR 0048): the recording ids a version
+ * shipped with. Snapshotting proves the tombstone contract — a withdrawn
+ * recording drops from future builds, but the version it already shipped in
+ * stays non-recallable.
+ */
+export const datasetManifests = pgTable('dataset_manifests', {
+  version: text('version').primaryKey(),
+  recordingIds: jsonb('recording_ids').$type<string[]>().notNull(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),

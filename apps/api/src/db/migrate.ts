@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { isNull } from 'drizzle-orm';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import type { Db } from './client.js';
-import { items, reviewQueue, units } from './schema.js';
+import { items, recordings, reviewQueue, units } from './schema.js';
 
 const migrationsFolder = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -41,4 +41,8 @@ export async function backfillDirections(
     .update(reviewQueue)
     .set({ direction: directionId })
     .where(isNull(reviewQueue.direction));
+  await db
+    .update(recordings)
+    .set({ direction: directionId })
+    .where(isNull(recordings.direction));
 }
