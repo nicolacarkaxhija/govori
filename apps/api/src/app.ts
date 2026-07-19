@@ -137,21 +137,52 @@ export function buildApp({
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
 
-  // The sole direction, totally resolved from config (ADR 0046) — the
-  // engine still never defaults: a second direction makes this throw
-  // until the routes learn to ask.
-  const { direction, pack } = resolveDirection(
-    { instance, directions },
-    undefined,
-  );
+  /**
+   * Per-request direction resolution (ADR 0046). Total for a
+   * single-direction instance with an omitted id — that is config, not
+   * a default — and an explicit 400 with the known ids otherwise.
+   */
+  function directionFor(
+    id: string | undefined,
+  ):
+    { ok: true; resolved: ResolvedDirection } | { ok: false; message: string } {
+    try {
+      return {
+        ok: true,
+        resolved: resolveDirection({ instance, directions }, id),
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        message: error instanceof Error ? error.message : 'invalid direction',
+      };
+    }
+  }
 
-  // Artifact schemas bound to this instance's language (ADR 0029).
+  // Response schemas validate stored content, which any of the hosted
+  // directions may own — so their canonical check is the union of the
+  // packs' (ADR 0046). Request-side validation stays per direction.
   const {
     ItemSchema,
     ContentArtifactSchema,
     CurriculumArtifactSchema,
     MorphologyArtifactSchema,
-  } = makeContentSchemas((text) => pack.validateCanonical(text));
+  } = makeContentSchemas((text) =>
+    directions.some((entry) => entry.pack.validateCanonical(text)),
+  );
+
+  // Contribution schemas bound to one direction's pack each (ADR 0029).
+  const contributionSchemas = new Map(
+    directions.map((entry) => [
+      entry.direction.id,
+      {
+        orthographyName: entry.pack.orthographyName,
+        ItemSchema: makeContentSchemas((text) =>
+          entry.pack.validateCanonical(text),
+        ).ItemSchema,
+      },
+    ]),
+  );
 
   const RenderedItemSchema = z.object({
     item: ItemSchema,
@@ -352,6 +383,7 @@ export function buildApp({
       '/stats',
       {
         schema: {
+          querystring: z.object({ direction: z.string().min(1).optional() }),
           response: {
             200: z.object({
               items: z.number(),
@@ -359,10 +391,17 @@ export function buildApp({
               reviews: z.number(),
               learners: z.number(),
             }),
+            400: z.object({ message: z.string() }),
           },
         },
       },
-      () => stats.counts(direction.id),
+      async (request, reply) => {
+        const asked = directionFor(request.query.direction);
+        if (!asked.ok) {
+          return reply.status(400).send({ message: asked.message });
+        }
+        return stats.counts(asked.resolved.direction.id);
+      },
     );
 
     routes.get(
@@ -434,6 +473,8 @@ export function buildApp({
       {
         schema: {
           body: z.object({
+            /** Required as soon as the instance hosts two directions. */
+            direction: z.string().min(1).optional(),
             kind: z.enum(['word', 'phrase', 'sentence']),
             text: z.string().trim().min(1).max(500),
             translations: z
@@ -464,9 +505,20 @@ export function buildApp({
         if (sessionResult === null) {
           return reply.status(401).send({ message: 'not signed in' });
         }
+        const asked = directionFor(request.body.direction);
+        if (!asked.ok) {
+          return reply.status(400).send({ message: asked.message });
+        }
+        const forDirection = contributionSchemas.get(
+          asked.resolved.direction.id,
+        );
+        if (forDirection === undefined) {
+          return reply.status(400).send({ message: 'invalid direction' });
+        }
         // Contributions are open to every learner (ADR 0009); they enter
-        // the same review queue AI drafts do (ADR 0038).
-        const candidate = ItemSchema.safeParse({
+        // the same review queue AI drafts do (ADR 0038), each validated
+        // against its own direction's orthography (ADR 0046).
+        const candidate = forDirection.ItemSchema.safeParse({
           id: crypto.randomUUID(),
           kind: request.body.kind,
           text: request.body.text,
@@ -480,10 +532,13 @@ export function buildApp({
         if (!candidate.success) {
           return reply.status(400).send({
             // The pack owns its orthography's name (ADR 0029).
-            message: `the text must be written in ${pack.orthographyName}`,
+            message: `the text must be written in ${forDirection.orthographyName}`,
           });
         }
-        await reviewQueue.addPending([candidate.data], direction.id);
+        await reviewQueue.addPending(
+          [candidate.data],
+          asked.resolved.direction.id,
+        );
         return reply.status(202).send({ status: 'pending-review' });
       },
     );
@@ -699,8 +754,8 @@ export function buildApp({
         if (sessionResult === null) {
           return reply.status(401).send({ message: 'not signed in' });
         }
-        const pendingItem = await reviewQueue.findPending(request.params.id);
-        if (pendingItem === undefined) {
+        const pendingEntry = await reviewQueue.findPending(request.params.id);
+        if (pendingEntry === undefined) {
           return reply.status(404).send({ message: 'no pending entry' });
         }
         const tally = await votes.castVote(
@@ -708,9 +763,15 @@ export function buildApp({
           sessionResult.user.id,
           request.body.up,
         );
+        // The threshold belongs to the draft's own direction (ADR 0040/
+        // 0046); a draft stranded outside the roster never auto-publishes.
+        const owningDirection = directions.find(
+          (entry) => entry.direction.id === pendingEntry.direction,
+        );
         if (
+          owningDirection !== undefined &&
           tally.upvotes - tally.downvotes >=
-          direction.communityPublishNetVotes
+            owningDirection.direction.communityPublishNetVotes
         ) {
           // Publishing mirrors a reviewer approval (ADR 0040); a decide
           // that comes back empty means someone else got there first.
@@ -936,6 +997,7 @@ export function buildApp({
       '/course',
       {
         schema: {
+          querystring: z.object({ direction: z.string().min(1).optional() }),
           response: {
             200: z.object({
               units: z.array(
@@ -952,10 +1014,17 @@ export function buildApp({
                 }),
               ),
             }),
+            400: z.object({ message: z.string() }),
           },
         },
       },
-      async () => ({ units: await course.overview(direction.id) }),
+      async (request, reply) => {
+        const asked = directionFor(request.query.direction);
+        if (!asked.ok) {
+          return reply.status(400).send({ message: asked.message });
+        }
+        return { units: await course.overview(asked.resolved.direction.id) };
+      },
     );
 
     routes.get(
@@ -963,6 +1032,7 @@ export function buildApp({
       {
         schema: {
           params: z.object({ id: z.uuid() }),
+          querystring: z.object({ direction: z.string().min(1).optional() }),
           response: {
             200: z.object({
               title: z.string(),
@@ -981,14 +1051,19 @@ export function buildApp({
                 })
                 .optional(),
             }),
+            400: z.object({ message: z.string() }),
             404: NotFoundSchema,
           },
         },
       },
       async (request, reply) => {
+        const asked = directionFor(request.query.direction);
+        if (!asked.ok) {
+          return reply.status(400).send({ message: asked.message });
+        }
         const lesson = await course.lessonItems(
           request.params.id,
-          direction.id,
+          asked.resolved.direction.id,
         );
         if (lesson === undefined) {
           return reply.status(404).send({ message: 'lesson not found' });
@@ -1002,16 +1077,22 @@ export function buildApp({
       {
         schema: {
           params: z.object({ id: z.uuid() }),
+          querystring: z.object({ direction: z.string().min(1).optional() }),
           response: {
             200: z.object({ sentences: z.array(ItemSchema) }),
+            400: z.object({ message: z.string() }),
             404: NotFoundSchema,
           },
         },
       },
       async (request, reply) => {
+        const asked = directionFor(request.query.direction);
+        if (!asked.ok) {
+          return reply.status(400).send({ message: asked.message });
+        }
         const lesson = await course.lessonItems(
           request.params.id,
-          direction.id,
+          asked.resolved.direction.id,
         );
         if (lesson === undefined) {
           return reply.status(404).send({ message: 'lesson not found' });
@@ -1019,7 +1100,7 @@ export function buildApp({
         const words = lesson.items.map((item) => item.text);
         return {
           sentences: await items.findSentencesContaining(
-            direction.id,
+            asked.resolved.direction.id,
             words,
             20,
           ),
@@ -1032,19 +1113,29 @@ export function buildApp({
       {
         schema: {
           querystring: z.object({
+            direction: z.string().min(1).optional(),
             limit: z.coerce.number().int().min(1).max(100).default(20),
             offset: z.coerce.number().int().min(0).default(0),
           }),
-          response: { 200: z.object({ items: z.array(ItemSchema) }) },
+          response: {
+            200: z.object({ items: z.array(ItemSchema) }),
+            400: z.object({ message: z.string() }),
+          },
         },
       },
-      async (request) => ({
-        items: await items.list(
-          direction.id,
-          request.query.limit,
-          request.query.offset,
-        ),
-      }),
+      async (request, reply) => {
+        const asked = directionFor(request.query.direction);
+        if (!asked.ok) {
+          return reply.status(400).send({ message: asked.message });
+        }
+        return {
+          items: await items.list(
+            asked.resolved.direction.id,
+            request.query.limit,
+            request.query.offset,
+          ),
+        };
+      },
     );
 
     routes.get(
@@ -1120,14 +1211,20 @@ export function buildApp({
       '/export/content',
       {
         schema: {
+          querystring: z.object({ direction: z.string().min(1).optional() }),
           response: {
             200: exportResponse(ContentArtifactSchema),
+            400: z.object({ message: z.string() }),
             404: NotFoundSchema,
           },
         },
       },
-      async (_request, reply) => {
-        const exported = await openData.allItems(direction.id);
+      async (request, reply) => {
+        const asked = directionFor(request.query.direction);
+        if (!asked.ok) {
+          return reply.status(400).send({ message: asked.message });
+        }
+        const exported = await openData.allItems(asked.resolved.direction.id);
         if (exported.length === 0) {
           return reply
             .status(404)
@@ -1144,14 +1241,22 @@ export function buildApp({
       '/export/curriculum',
       {
         schema: {
+          querystring: z.object({ direction: z.string().min(1).optional() }),
           response: {
             200: exportResponse(CurriculumArtifactSchema),
+            400: z.object({ message: z.string() }),
             404: NotFoundSchema,
           },
         },
       },
-      async (_request, reply) => {
-        const exported = await openData.curriculumUnits(direction.id);
+      async (request, reply) => {
+        const asked = directionFor(request.query.direction);
+        if (!asked.ok) {
+          return reply.status(400).send({ message: asked.message });
+        }
+        const exported = await openData.curriculumUnits(
+          asked.resolved.direction.id,
+        );
         if (exported.length === 0) {
           return reply
             .status(404)
@@ -1168,14 +1273,22 @@ export function buildApp({
       '/export/morphology',
       {
         schema: {
+          querystring: z.object({ direction: z.string().min(1).optional() }),
           response: {
             200: exportResponse(MorphologyArtifactSchema),
+            400: z.object({ message: z.string() }),
             404: NotFoundSchema,
           },
         },
       },
-      async (_request, reply) => {
-        const exported = await openData.morphologyEntries(direction.id);
+      async (request, reply) => {
+        const asked = directionFor(request.query.direction);
+        if (!asked.ok) {
+          return reply.status(400).send({ message: asked.message });
+        }
+        const exported = await openData.morphologyEntries(
+          asked.resolved.direction.id,
+        );
         if (exported.length === 0) {
           return reply
             .status(404)
