@@ -24,7 +24,7 @@ describe('AssemblyCard', () => {
     await user.click(within(bank).getByRole('button', { name: 'je' }));
     await user.click(within(bank).getByRole('button', { name: 'čista.' }));
     await user.click(screen.getByRole('button', { name: 'Check' }));
-    expect(screen.getByText(/Pravilno/)).toBeDefined();
+    expect(screen.getByText(/Correct/)).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(onGrade).toHaveBeenCalledWith('good');
   });

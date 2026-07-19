@@ -44,6 +44,27 @@ describe('fol catalogs', () => {
     }
   });
 
+  // Purity: a catalog speaks its own UI language. The feedback toasts were
+  // seeded with the Albanian originals across every catalog; only the
+  // Albanian (sq) catalog should still carry them.
+  it('renders feedback in each catalog own language, not albanian flavour', () => {
+    const albanian = folInstance.catalogs.sq;
+    const flavourKeys = [
+      'allDone',
+      'allReviewed',
+      'correct',
+      'incorrect',
+      'welcome',
+    ] as const;
+    for (const language of folInstance.uiLanguages) {
+      if (language === 'sq') continue;
+      const catalog = folInstance.catalogs[language];
+      for (const key of flavourKeys) {
+        expect(catalog?.[key], `${language}.${key}`).not.toBe(albanian?.[key]);
+      }
+    }
+  });
+
   it('declares both directions whose fallbacks ride the offered rosters', () => {
     // Albanian first (the product's primary), English for Albanian
     // speakers beside it (ADR 0046).

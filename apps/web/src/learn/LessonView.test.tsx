@@ -70,7 +70,7 @@ describe('LessonView', () => {
     expect(await screen.findByRole('heading', { name: 'voda' })).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'water' }));
     await user.click(screen.getByRole('button', { name: 'Continue' }));
-    expect(await screen.findByText(/Vse gotovo/)).toBeDefined();
+    expect(await screen.findByText(/All done/)).toBeDefined();
     expect(screen.getByText('1 answered')).toBeDefined();
     expect(screen.getByText('1-day streak')).toBeDefined();
   });
@@ -122,7 +122,7 @@ describe('LessonView cloze rotation', () => {
     expect(screen.getByText('I drink water.')).toBeDefined();
     await user.type(screen.getByLabelText(/Type the missing word/), 'vodu');
     await user.click(screen.getByRole('button', { name: 'Check' }));
-    expect(screen.getByText(/Pravilno/)).toBeDefined();
+    expect(screen.getByText(/Correct/)).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(screen.getByText('3 answered')).toBeDefined();
   });
@@ -206,7 +206,7 @@ describe('LessonView dialogue reordering', () => {
     await user.click(screen.getByRole('button', { name: /Dobry denj/ }));
     await user.click(screen.getByRole('button', { name: /Kako se maješ/ }));
     await user.click(screen.getByRole('button', { name: 'Check' }));
-    expect(screen.getByText(/Pravilno/)).toBeDefined();
+    expect(screen.getByText(/Correct/)).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     // The credited first item is scheduled away; the session moves on.
     expect(await screen.findByRole('heading', { name: 'hlěb' })).toBeDefined();
@@ -471,7 +471,7 @@ describe('LessonView script round', () => {
     expect(await screen.findByText('Script practice')).toBeDefined();
     await user.type(screen.getByLabelText('Type it in Жж'), 'снєг');
     await user.click(screen.getByRole('button', { name: 'Check' }));
-    expect(screen.getByText(/Pravilno/)).toBeDefined();
+    expect(screen.getByText(/Correct/)).toBeDefined();
   });
 });
 

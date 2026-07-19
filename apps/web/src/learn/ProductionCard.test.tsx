@@ -51,7 +51,7 @@ describe('ProductionCard', () => {
     );
     await user.type(screen.getByLabelText(/Write a sentence/), 'voda i hlěb');
     await user.click(screen.getByRole('button', { name: 'Check' }));
-    expect(screen.getByText(/Pravilno/)).toBeDefined();
+    expect(screen.getByText(/Correct/)).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'Got it' }));
     expect(onGrade).toHaveBeenCalledWith('good');
   });

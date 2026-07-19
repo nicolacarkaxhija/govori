@@ -81,7 +81,7 @@ describe('ExerciseCard', () => {
       />,
     );
     await user.click(screen.getByRole('button', { name: 'water' }));
-    expect(screen.getByText(/Ne sovsěm/)).toBeDefined();
+    expect(screen.getByText(/Not quite/)).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(onGrade).toHaveBeenCalledWith('again');
   });
@@ -100,7 +100,7 @@ describe('ExerciseCard', () => {
     );
     await user.click(screen.getByRole('button', { name: 'bread' }));
     await user.click(screen.getByRole('button', { name: 'water' }));
-    expect(screen.getAllByText(/Pravilno/)).toHaveLength(1);
+    expect(screen.getAllByText(/Correct/)).toHaveLength(1);
   });
 
   it('accepts tolerant typed answers', async () => {
@@ -117,7 +117,7 @@ describe('ExerciseCard', () => {
     );
     await user.type(screen.getByLabelText(/Type it in Interslavic/), 'hleb');
     await user.click(screen.getByRole('button', { name: 'Check' }));
-    expect(screen.getByText(/Pravilno/)).toBeDefined();
+    expect(screen.getByText(/Correct/)).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(onGrade).toHaveBeenCalledWith('good');
   });
@@ -170,7 +170,7 @@ describe('ExerciseCard reverse direction', () => {
       />,
     );
     await user.click(screen.getByRole('button', { name: 'hlěb' }));
-    expect(screen.getByText(/Pravilno/)).toBeDefined();
+    expect(screen.getByText(/Correct/)).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(onGrade).toHaveBeenCalledWith('good');
   });
@@ -188,7 +188,7 @@ describe('ExerciseCard reverse direction', () => {
       />,
     );
     await user.click(screen.getByRole('button', { name: 'voda' }));
-    expect(screen.getByText(/Ne sovsěm/)).toBeDefined();
+    expect(screen.getByText(/Not quite/)).toBeDefined();
     expect(screen.getByText('bread')).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(onGrade).toHaveBeenCalledWith('again');
@@ -209,7 +209,7 @@ describe('ExerciseCard reverse direction', () => {
     expect(screen.getByRole('heading', { name: 'bread' })).toBeDefined();
     await user.type(screen.getByLabelText(/Type it in Interslavic/), 'хлєб');
     await user.click(screen.getByRole('button', { name: 'Check' }));
-    expect(screen.getByText(/Pravilno/)).toBeDefined();
+    expect(screen.getByText(/Correct/)).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(onGrade).toHaveBeenCalledWith('good');
   });
@@ -263,7 +263,7 @@ describe('ExerciseCard learner language', () => {
     expect(screen.getByRole('button', { name: 'woda' })).toBeDefined();
     expect(screen.getByRole('button', { name: 'milk' })).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'chleb' }));
-    expect(screen.getByText(/Pravilno/)).toBeDefined();
+    expect(screen.getByText(/Correct/)).toBeDefined();
     expect(screen.getByText(/= chleb/)).toBeDefined();
   });
 

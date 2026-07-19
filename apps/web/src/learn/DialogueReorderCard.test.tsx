@@ -47,7 +47,7 @@ describe('DialogueReorderCard', () => {
     await user.click(screen.getByRole('button', { name: /Kako se maješ/ }));
     await user.click(screen.getByRole('button', { name: /Dobro, hvala/ }));
     await user.click(screen.getByRole('button', { name: 'Check' }));
-    expect(screen.getByText(/Pravilno/)).toBeDefined();
+    expect(screen.getByText(/Correct/)).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(onDone).toHaveBeenCalledWith(true);
   });
@@ -82,7 +82,7 @@ describe('DialogueReorderCard', () => {
     await user.click(screen.getByRole('button', { name: /Dobry denj/ }));
     await user.click(screen.getByRole('button', { name: /Dobro, hvala/ }));
     await user.click(screen.getByRole('button', { name: 'Check' }));
-    expect(screen.getByText(/Ne sovsěm/)).toBeDefined();
+    expect(screen.getByText(/Not quite/)).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(onDone).toHaveBeenCalledWith(false);
   });

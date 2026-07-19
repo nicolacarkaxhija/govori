@@ -34,7 +34,7 @@ describe('ScriptCard', () => {
     render(<ScriptCard item={item} script="latin" onGrade={onGrade} />);
     await user.type(screen.getByLabelText('Type it in Жж'), 'хлєб');
     await user.click(screen.getByRole('button', { name: 'Check' }));
-    expect(screen.getByText(/Pravilno/)).toBeDefined();
+    expect(screen.getByText(/Correct/)).toBeDefined();
     expect(screen.getByText(/хлєб/)).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(onGrade).toHaveBeenCalledWith('good');
@@ -45,7 +45,7 @@ describe('ScriptCard', () => {
     render(<ScriptCard item={item} script="latin" onGrade={vi.fn()} />);
     await user.type(screen.getByLabelText('Type it in Жж'), 'hleb');
     await user.click(screen.getByRole('button', { name: 'Check' }));
-    expect(screen.getByText(/Pravilno/)).toBeDefined();
+    expect(screen.getByText(/Correct/)).toBeDefined();
   });
 
   it('grades a wrong word as again', async () => {
@@ -54,7 +54,7 @@ describe('ScriptCard', () => {
     render(<ScriptCard item={item} script="latin" onGrade={onGrade} />);
     await user.type(screen.getByLabelText('Type it in Жж'), 'вода');
     await user.click(screen.getByRole('button', { name: 'Check' }));
-    expect(screen.getByText(/Ne sovsěm/)).toBeDefined();
+    expect(screen.getByText(/Not quite/)).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(onGrade).toHaveBeenCalledWith('again');
   });

@@ -39,7 +39,7 @@ describe('ReviewView', () => {
     expect(screen.getByText('I drink water.')).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'Approve' }));
     expect(decideMock).toHaveBeenCalledWith(draft.id, 'approve');
-    expect(await screen.findByText(/Vse pregledano/)).toBeDefined();
+    expect(await screen.findByText(/All reviewed/)).toBeDefined();
     expect(screen.getByText('1 decided')).toBeDefined();
   });
 
@@ -51,7 +51,7 @@ describe('ReviewView', () => {
     expect(await screen.findByText('Ја пију воду.')).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'Reject' }));
     expect(decideMock).toHaveBeenCalledWith(draft.id, 'reject');
-    expect(await screen.findByText(/Vse pregledano/)).toBeDefined();
+    expect(await screen.findByText(/All reviewed/)).toBeDefined();
   });
 
   it('keeps the entry when the server refuses the decision', async () => {

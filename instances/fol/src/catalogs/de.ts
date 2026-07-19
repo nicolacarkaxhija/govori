@@ -9,8 +9,8 @@ export const de = {
   accountOptional:
     'Lernen funktioniert auch ohne Konto — ein Konto synchronisiert nur deinen Fortschritt zwischen Geräten.',
   aiDisclosure: 'KI-Entwurf, von Menschen geprüft',
-  allDone: 'Gjithçka gati.',
-  allReviewed: 'Gjithçka u përsërit.',
+  allDone: 'Alles fertig.',
+  allReviewed: 'Alles wiederholt.',
   answered: '{count} beantwortet',
   approve: 'Freigeben',
   assemblyBankAria: 'Wortvorrat',
@@ -33,7 +33,7 @@ export const de = {
     'Alles, was du hinzufügst, geht vor der Veröffentlichung in die Community-Prüfung, unter CC BY-SA 4.0.',
   contributeTitle: 'Neuen Eintrag vorschlagen',
   contributed: 'Gesendet! Es wird bald geprüft.',
-  correct: 'Saktë!',
+  correct: 'Richtig!',
   createAccount: 'Konto erstellen',
   createTitle: 'Ein Konto erstellen',
   deleteAccount: 'Mein Konto löschen',
@@ -64,7 +64,7 @@ export const de = {
   growingCourseBanner:
     'Jeden Monat neue Einheiten — hilf mit, es wachsen zu lassen.',
   haveAccount: 'Schon ein Konto? Anmelden',
-  incorrect: 'Jo tamam.',
+  incorrect: 'Nicht ganz.',
   journalLabel: 'Schreib ein paar Zeilen',
   journalPrompt1: 'Was hast du heute gemacht?',
   journalPrompt2: 'Beschreibe etwas in deiner Nähe.',
@@ -182,5 +182,5 @@ export const de = {
   weekdayTue: 'Dienstag',
   weekdayWed: 'Mittwoch',
   weeklyPlanTitle: 'Wochenplan',
-  welcome: 'Mirë se vini.',
+  welcome: 'Willkommen.',
 } as const;

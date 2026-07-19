@@ -57,7 +57,7 @@ describe('MorphologyCard', () => {
     expect(screen.getByText('dom')).toBeDefined();
     await user.type(screen.getByLabelText(/plural/), 'domy');
     await user.click(screen.getByRole('button', { name: 'Check' }));
-    expect(screen.getByText(/Pravilno/)).toBeDefined();
+    expect(screen.getByText(/Correct/)).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(onGrade).toHaveBeenCalledWith('good');
   });

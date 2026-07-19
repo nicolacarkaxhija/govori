@@ -40,6 +40,23 @@ describe('govori catalogs', () => {
     }
   });
 
+  // Purity: the English catalog speaks English. The feedback toasts were
+  // seeded with the Interslavic originals; only the isv catalog keeps them.
+  it('renders feedback in english, not interslavic flavour', () => {
+    const interslavic = govoriInstance.catalogs.isv;
+    const english = govoriInstance.catalogs.en;
+    const flavourKeys = [
+      'allDone',
+      'allReviewed',
+      'correct',
+      'incorrect',
+      'welcome',
+    ] as const;
+    for (const key of flavourKeys) {
+      expect(english?.[key], `en.${key}`).not.toBe(interslavic?.[key]);
+    }
+  });
+
   it('declares one direction whose fallback rides the offered rosters', () => {
     expect(
       govoriInstance.directions.map((direction) => direction.packId),
