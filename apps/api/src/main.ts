@@ -19,7 +19,9 @@ import { DrizzleExport } from './export/drizzle-export.js';
 
 // Composition root: the only place that touches process state (ADR 0024).
 // The instance is a required input — there is no default product (ADR 0029).
-const { instance, pack } = resolveApiInstance(process.env.GLOTTY_INSTANCE);
+const { instance, directions } = resolveApiInstance(
+  process.env.GLOTTY_INSTANCE,
+);
 const config = loadConfig(process.env, instance.brand);
 const db = createDb(config.db.url);
 await runMigrations(db);
@@ -27,7 +29,7 @@ const itemRepository = new DrizzleItemRepository(db);
 const app = buildApp({
   config,
   instance,
-  pack,
+  directions,
   items: itemRepository,
   flagStates: new DrizzleFlagStore(db),
   auth: createAuth(db, {

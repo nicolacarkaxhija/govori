@@ -27,11 +27,21 @@ export const folInstance: InstanceConfig = {
     description:
       'Learn Albanian (shqip) free: a community-driven course with real dictionary vocabulary, spaced repetition, and standard Albanian with Gheg variant notes.',
   },
-  packId: 'sq',
+  /**
+   * Learning directions (ADR 0046): Albanian first; an English
+   * direction for Albanian speakers is chartered to join it here.
+   */
+  directions: [
+    {
+      id: 'sq',
+      packId: 'sq',
+      label: 'Shqip',
+      fallbackTranslationLang: 'en',
+      /** A wider diaspora audience warrants a higher bar: five net upvotes. */
+      communityPublishNetVotes: 5,
+    },
+  ],
   uiLanguages: ['en', 'sq', 'de', 'it', 'tr'],
-  fallbackTranslationLang: 'en',
-  /** A wider diaspora audience warrants a higher bar: five net upvotes. */
-  communityPublishNetVotes: 5,
   /**
    * Curated learner languages (L1): the languages of the Albanian
    * diaspora and its neighbours, each under its native name.

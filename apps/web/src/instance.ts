@@ -1,4 +1,4 @@
-import { renderIn } from '@glotty/language';
+import { renderIn, resolveDirection } from '@glotty/language';
 import { resolveInstance } from './instances';
 
 /**
@@ -9,7 +9,18 @@ import { resolveInstance } from './instances';
 const resolved = resolveInstance(import.meta.env.VITE_INSTANCE);
 
 export const instance = resolved.instance;
-export const pack = resolved.pack;
+
+/**
+ * The sole direction, totally resolved from config (ADR 0046) — not a
+ * default: a second direction makes this throw until the app carries an
+ * explicit direction choice.
+ */
+const sole = resolveDirection(resolved, undefined);
+
+export const pack = sole.pack;
+
+/** The active direction's translation fallback (ADR 0046). */
+export const fallbackLang = sole.direction.fallbackTranslationLang;
 
 /** Renders canonical text in one of the pack's scripts (ADR 0003). */
 export function renderText(text: string, scriptId: string): string {

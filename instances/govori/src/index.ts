@@ -23,11 +23,22 @@ export const govoriInstance: InstanceConfig = {
     description:
       'Learn Interslavic (medžuslovjansky) free: a community-driven course with real dictionary vocabulary, spaced repetition, and Latin or Cyrillic script.',
   },
-  packId: 'isv',
+  /**
+   * A single-direction product by declaration (ADR 0046): Govori
+   * teaches Interslavic, full stop. The engine resolves this direction
+   * totally, so no switcher ever renders.
+   */
+  directions: [
+    {
+      id: 'isv',
+      packId: 'isv',
+      label: 'Medžuslovjansky',
+      fallbackTranslationLang: 'en',
+      /** A small, close-knit community: three net upvotes publish (ADR 0040). */
+      communityPublishNetVotes: 3,
+    },
+  ],
   uiLanguages: ['en', 'isv'],
-  fallbackTranslationLang: 'en',
-  /** A small, close-knit community: three net upvotes publish (ADR 0040). */
-  communityPublishNetVotes: 3,
   /**
    * Curated learner languages (L1): the most common codes in the corpus,
    * each under its native name.

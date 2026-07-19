@@ -21,6 +21,7 @@ vi.mock('./instance', async () => {
   return {
     instance: govoriInstance,
     pack,
+    fallbackLang: 'en',
     renderText: (text: string, scriptId: string) =>
       renderIn(pack, scriptId, text),
   };

@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { instance } from '../instance';
+import { fallbackLang, instance } from '../instance';
 
 /**
  * Learner languages (L1) come from the instance (ADR 0029): the roster
@@ -15,14 +15,14 @@ function isKnown(code: string): boolean {
 
 function stored(): string {
   const raw = localStorage.getItem(STORAGE_KEY);
-  return raw !== null && isKnown(raw) ? raw : instance.fallbackTranslationLang;
+  return raw !== null && isKnown(raw) ? raw : fallbackLang;
 }
 
 /** Learning-language preference: one picker, persisted, app-wide. */
 export function useLearnLanguage() {
   const [learnLang, setState] = useState<string>(stored);
   const setLearnLang = useCallback((code: string) => {
-    const next = isKnown(code) ? code : instance.fallbackTranslationLang;
+    const next = isKnown(code) ? code : fallbackLang;
     localStorage.setItem(STORAGE_KEY, next);
     setState(next);
   }, []);

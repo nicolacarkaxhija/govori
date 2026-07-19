@@ -1,4 +1,5 @@
 import { makeContentSchemas, type ContentSchemas } from '@glotty/content';
+import { resolveInstance, type ResolvedInstance } from '@glotty/language';
 import { govoriInstance } from '@glotty/instance-govori';
 import { isvPack } from '@glotty/pack-isv';
 import type { AppDependencies } from './app.js';
@@ -13,6 +14,13 @@ export const testSchemas: ContentSchemas = makeContentSchemas((text) =>
   isvPack.validateCanonical(text),
 );
 
+/** The fixture instance, resolved exactly as a composition root would. */
+export const testResolved: ResolvedInstance = resolveInstance(
+  { instances: { govori: govoriInstance }, packs: { isv: isvPack } },
+  'govori',
+  'TEST_INSTANCE',
+);
+
 /**
  * Baseline dependencies for route tests: everything stubbed inert, any
  * piece overridable per test. Lives in src so tests never rebuild it.
@@ -23,8 +31,8 @@ export function makeTestDeps(
 ): AppDependencies {
   return {
     config: loadConfig(env, govoriInstance.brand),
-    instance: govoriInstance,
-    pack: isvPack,
+    instance: testResolved.instance,
+    directions: testResolved.directions,
     items: {
       findById: () => Promise.resolve(undefined),
       findByIds: () => Promise.resolve([]),

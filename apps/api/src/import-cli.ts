@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { makeContentSchemas } from '@glotty/content';
+import { resolveDirection } from '@glotty/language';
 import { loadConfig } from './config.js';
 import { resolveApiInstance } from './instances.js';
 import { createDb } from './db/client.js';
@@ -30,7 +31,11 @@ if (path === undefined) {
   process.exit(1);
 }
 
-const { instance, pack } = resolveApiInstance(process.env.GLOTTY_INSTANCE);
+const resolved = resolveApiInstance(process.env.GLOTTY_INSTANCE);
+const { instance } = resolved;
+// The sole direction, totally resolved from config (ADR 0046); a
+// multi-direction instance will demand an explicit --direction flag.
+const { pack } = resolveDirection(resolved, undefined);
 const config = loadConfig(process.env, instance.brand);
 const db = createDb(config.db.url);
 await runMigrations(db);

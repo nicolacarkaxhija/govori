@@ -1,11 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import type { Item } from '@glotty/content';
-import type { InstanceConfig } from '@glotty/language';
+import { resolveInstance, type ResolvedInstance } from '@glotty/language';
 import { folInstance } from '@glotty/instance-fol';
+import { sqPack } from '@glotty/pack-sq';
 import { buildApp } from '../app.js';
 import type { Auth } from '../auth/auth.js';
 import type { PendingVotes } from './ports.js';
 import { makeTestDeps } from '../test-support.js';
+
+/** The fol fixture resolved whole, so its direction thresholds apply. */
+const folResolved: ResolvedInstance = resolveInstance(
+  { instances: { fol: folInstance }, packs: { sq: sqPack } },
+  'fol',
+  'TEST_INSTANCE',
+);
 
 const draft: Item = {
   id: '7f6e5d4c-3b2a-4190-8f7e-6d5c4b3a2918',
@@ -44,10 +52,10 @@ interface Setup {
   /** Someone else decides the entry between the vote and the publish. */
   raceLost?: boolean;
   /** Overrides the resolved instance to exercise its vote threshold. */
-  instance?: InstanceConfig;
+  resolved?: ResolvedInstance;
 }
 
-function testApp({ session = 'u1', raceLost = false, instance }: Setup = {}) {
+function testApp({ session = 'u1', raceLost = false, resolved }: Setup = {}) {
   const pending = new Map<string, Item>([[draft.id, draft]]);
   const ballots = new Map<string, boolean>();
   const decisions: { id: string; decision: string; decidedBy: string }[] = [];
@@ -71,7 +79,9 @@ function testApp({ session = 'u1', raceLost = false, instance }: Setup = {}) {
 
   const deps = makeTestDeps({
     auth: sessionAs(session),
-    ...(instance === undefined ? {} : { instance }),
+    ...(resolved === undefined
+      ? {}
+      : { instance: resolved.instance, directions: resolved.directions }),
     reviewQueue: {
       addPending: () => Promise.resolve(0),
       listPending: (limit) => {
@@ -199,7 +209,7 @@ describe('POST /review/:id/vote', () => {
   });
 
   it('holds back publication below a higher instance threshold (fol needs five)', async () => {
-    const { app, ballots, published } = testApp({ instance: folInstance });
+    const { app, ballots, published } = testApp({ resolved: folResolved });
     // Four net upvotes clear govori's bar but not fol's five.
     ballots.set(`${draft.id}:u2`, true);
     ballots.set(`${draft.id}:u3`, true);
@@ -217,7 +227,7 @@ describe('POST /review/:id/vote', () => {
 
   it('publishes at the higher instance threshold (fol at net five)', async () => {
     const { app, ballots, decisions, published } = testApp({
-      instance: folInstance,
+      resolved: folResolved,
     });
     ballots.set(`${draft.id}:u2`, true);
     ballots.set(`${draft.id}:u3`, true);

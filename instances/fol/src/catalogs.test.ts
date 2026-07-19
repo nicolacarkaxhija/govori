@@ -44,13 +44,17 @@ describe('fol catalogs', () => {
     }
   });
 
-  it('names a pack, a fallback language, and learner languages', () => {
-    expect(folInstance.packId).toBe('sq');
-    expect(folInstance.uiLanguages).toContain(
-      folInstance.fallbackTranslationLang,
+  it('declares directions whose fallbacks ride the offered rosters', () => {
+    expect(folInstance.directions.map((direction) => direction.packId)).toEqual(
+      ['sq'],
     );
-    expect(folInstance.learnLanguages.map((entry) => entry.code)).toContain(
-      folInstance.fallbackTranslationLang,
-    );
+    for (const direction of folInstance.directions) {
+      expect(folInstance.uiLanguages).toContain(
+        direction.fallbackTranslationLang,
+      );
+      expect(folInstance.learnLanguages.map((entry) => entry.code)).toContain(
+        direction.fallbackTranslationLang,
+      );
+    }
   });
 });

@@ -264,4 +264,6 @@ developer working alone. Appended in the same commit it describes.
 | 2026-07-19 | fix: walk the lesson e2e flows past the new onboarding | 0.3 | Fresh browser contexts now meet the first-run screen; lesson specs seed a returning learner and onboarding gains its own walkthrough spec |
 | 2026-07-19 | feat: add the basic-latin english language pack | 2–2.5 | @glotty/pack-en mirroring the sq pack's shape: 26-letter + apostrophe canonical validator, punctuation-stripping NFD-fold normalize (dont ≡ don't), min-3 loose stem, single identity Latin script; four suites incl. fast-check invariants, 100% branch, 97.4 mutation |
 
+| 2026-07-19 | feat: move per-direction config into instance directions | 3–4 | Breaking InstanceConfig reshape (ADR 0046 groundwork): Direction {id, packId, label, fallbackTranslationLang, communityPublishNetVotes} with instances declaring a directions roster (govori isv/3, fol sq/5); resolveInstance resolves every direction's pack failing fast on empty/duplicate/unknown, new resolveDirection is total over one direction and demands an id from two; api deps carry ResolvedDirection[] (vote threshold now per direction), web derives pack + fallbackLang from the sole direction; language suite reworked at 100% branch, both app suites green |
+
 **Running total: 257.7–330.3 h**

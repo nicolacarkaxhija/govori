@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { fetchItems } from '../api/client';
-import { instance, pack, renderText } from '../instance';
+import { fallbackLang, pack, renderText } from '../instance';
 import { useT } from '../i18n';
 import {
   matchedWordIds,
@@ -53,11 +53,7 @@ export function JournalView({ script, learnLang, onExit }: JournalViewProps) {
                 {
                   itemId: item.id,
                   text: item.text,
-                  translation: translationFor(
-                    item,
-                    learnLang,
-                    instance.fallbackTranslationLang,
-                  ),
+                  translation: translationFor(item, learnLang, fallbackLang),
                 },
               ];
         }),

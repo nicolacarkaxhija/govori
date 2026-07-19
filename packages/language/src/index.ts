@@ -39,9 +39,34 @@ export interface LanguagePack {
 }
 
 /**
- * One deployable product over the engine (ADR 0029): a language pack
- * plus everything brand- and audience-specific. Instances are config —
- * the engine never falls back to one; builds without an instance fail.
+ * One learning direction an instance hosts (ADR 0046): the pack it
+ * teaches plus the per-direction tuning that used to sit on the
+ * instance. A single product may host several — e.g. Albanian beside
+ * English-for-Albanian-speakers — each with its own content pool.
+ */
+export interface Direction {
+  /** Stable direction id, e.g. `isv`; content rows are scoped by it. */
+  readonly id: string;
+  /** The language pack this direction teaches, by pack id. */
+  readonly packId: string;
+  /** The direction's label in its own language, shown untranslated. */
+  readonly label: string;
+  /** Translation language shown when an item lacks the learner's own. */
+  readonly fallbackTranslationLang: string;
+  /**
+   * Net community votes (upvotes − downvotes) at which a pending draft
+   * publishes without a reviewer (ADR 0040). A tuning knob each
+   * direction owns: a larger, busier community can demand a higher bar
+   * than a fledgling one.
+   */
+  readonly communityPublishNetVotes: number;
+}
+
+/**
+ * One deployable product over the engine (ADR 0029): learning
+ * directions plus everything brand- and audience-specific. Instances
+ * are config — the engine never falls back to one; builds without an
+ * instance fail.
  */
 export interface InstanceConfig {
   /** Stable instance id, e.g. `govori`; selects deployment artifacts. */
@@ -52,19 +77,13 @@ export interface InstanceConfig {
     /** One-sentence store/SEO description; the instance owns its copy. */
     readonly description: string;
   };
-  /** The language pack this instance teaches, by pack id. */
-  readonly packId: string;
+  /**
+   * The learning directions this instance hosts, in display order
+   * (ADR 0046). At least one; each id unique within the instance.
+   */
+  readonly directions: readonly Direction[];
   /** UI languages offered, in display order; the first anchors fallback. */
   readonly uiLanguages: readonly string[];
-  /** Translation language shown when an item lacks the learner's own. */
-  readonly fallbackTranslationLang: string;
-  /**
-   * Net community votes (upvotes − downvotes) at which a pending draft
-   * publishes without a reviewer (ADR 0040). A tuning knob each product
-   * owns: a larger, busier community can demand a higher bar than a
-   * fledgling one.
-   */
-  readonly communityPublishNetVotes: number;
   /** Learner languages (L1) offered in the picker, in display order. */
   readonly learnLanguages: readonly {
     /** BCP 47 language code as served in item translations. */
@@ -82,15 +101,23 @@ export interface InstanceRegistry {
   readonly packs: Readonly<Record<string, LanguagePack>>;
 }
 
+/** One direction paired with the pack it teaches through. */
+export interface ResolvedDirection {
+  readonly direction: Direction;
+  readonly pack: LanguagePack;
+}
+
 export interface ResolvedInstance {
   readonly instance: InstanceConfig;
-  readonly pack: LanguagePack;
+  /** Every hosted direction with its pack, in the declared order. */
+  readonly directions: readonly ResolvedDirection[];
 }
 
 /**
  * Fail-fast instance resolution (ADR 0029): the engine has no default
  * product. An unset or unknown id aborts with the configuring variable's
- * name so the operator knows exactly what to set.
+ * name so the operator knows exactly what to set. Every declared
+ * direction must name a known pack, exactly once.
  */
 export function resolveInstance(
   registry: InstanceRegistry,
@@ -105,11 +132,54 @@ export function resolveInstance(
   if (instance === undefined) {
     throw new Error(`unknown instance '${id}'; known instances: ${known}`);
   }
-  const pack = registry.packs[instance.packId];
-  if (pack === undefined) {
-    throw new Error(`instance '${id}' names unknown pack '${instance.packId}'`);
+  if (instance.directions.length === 0) {
+    throw new Error(`instance '${id}' declares no directions`);
   }
-  return { instance, pack };
+  const seen = new Set<string>();
+  const directions = instance.directions.map((direction): ResolvedDirection => {
+    if (seen.has(direction.id)) {
+      throw new Error(
+        `instance '${id}' declares duplicate direction '${direction.id}'`,
+      );
+    }
+    seen.add(direction.id);
+    const pack = registry.packs[direction.packId];
+    if (pack === undefined) {
+      throw new Error(
+        `direction '${direction.id}' of instance '${id}' names unknown pack '${direction.packId}'`,
+      );
+    }
+    return { direction, pack };
+  });
+  return { instance, directions };
+}
+
+/**
+ * Resolves one of an instance's directions (ADR 0046). An omitted id is
+ * legal only for a single-direction instance, where the answer is the
+ * total function of its config — never a default: with two or more
+ * directions an omitted or unknown id always throws, naming the known
+ * ids so the caller can correct itself.
+ */
+export function resolveDirection(
+  resolved: ResolvedInstance,
+  id: string | undefined,
+): ResolvedDirection {
+  const known = resolved.directions
+    .map((entry) => entry.direction.id)
+    .join(', ');
+  if (id === undefined || id === '') {
+    const [sole, second] = resolved.directions;
+    if (sole !== undefined && second === undefined) {
+      return sole;
+    }
+    throw new Error(`direction is required; known directions: ${known}`);
+  }
+  const found = resolved.directions.find((entry) => entry.direction.id === id);
+  if (found === undefined) {
+    throw new Error(`unknown direction '${id}'; known directions: ${known}`);
+  }
+  return found;
 }
 
 /** Renders `text` in the given script, or unchanged when the id is unknown. */

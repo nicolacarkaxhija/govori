@@ -4,7 +4,7 @@ import { fetchForms, type ItemForm, type LearnItem } from '../api/client';
 import { checkTyped, translationFor } from './exercises';
 import type { Script } from './useScript';
 import { useT, type MessageKey } from '../i18n';
-import { instance, pack, renderText } from '../instance';
+import { fallbackLang, pack, renderText } from '../instance';
 
 export interface MorphologyCardProps {
   item: LearnItem;
@@ -115,8 +115,7 @@ export function MorphologyCard({
             <span lang={pack.bcp47} className="feedback-answer">
               {renderText(form.text, script)}
             </span>{' '}
-            = {t(label)} ·{' '}
-            {translationFor(item, lang, instance.fallbackTranslationLang)}
+            = {t(label)} · {translationFor(item, lang, fallbackLang)}
           </p>
           <button
             type="button"

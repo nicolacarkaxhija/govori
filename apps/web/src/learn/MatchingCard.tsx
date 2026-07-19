@@ -4,7 +4,7 @@ import type { LearnItem } from '../api/client';
 import { buildMatching } from './exercises';
 import type { Script } from './useScript';
 import { useT } from '../i18n';
-import { instance, pack, renderText } from '../instance';
+import { fallbackLang, pack, renderText } from '../instance';
 
 export interface MatchingCardProps {
   pool: readonly LearnItem[];
@@ -30,12 +30,12 @@ function shuffled<T>(values: readonly T[], random: () => number): T[] {
 export function MatchingCard({
   pool,
   script,
-  lang = instance.fallbackTranslationLang,
+  lang = fallbackLang,
   onComplete,
 }: MatchingCardProps) {
   const t = useT();
   const pairs = useMemo(
-    () => buildMatching(pool, 4, lang, instance.fallbackTranslationLang),
+    () => buildMatching(pool, 4, lang, fallbackLang),
     [pool, lang],
   );
   const [left, right] = useMemo(

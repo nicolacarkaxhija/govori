@@ -13,7 +13,11 @@ import {
   ProvenanceSchema,
   type Item,
 } from '@glotty/content';
-import type { InstanceConfig, LanguagePack } from '@glotty/language';
+import {
+  resolveDirection,
+  type InstanceConfig,
+  type ResolvedDirection,
+} from '@glotty/language';
 import { resolveFlags, type ViewerRole } from '@glotty/config';
 import type { Auth } from './auth/auth.js';
 import type { ApiConfig } from './config.js';
@@ -33,12 +37,14 @@ import type { ExportQueries } from './export/ports.js';
 
 export interface AppDependencies {
   config: ApiConfig;
-  /** The resolved product (ADR 0029): owns branding and tuning knobs like
-   * the community publish threshold (ADR 0040). */
+  /** The resolved product (ADR 0029): owns branding and the direction
+   * roster (ADR 0046). */
   instance: InstanceConfig;
-  /** The instance's language pack (ADR 0029): canonical validation and
-   * script renderings are its judgment calls, never this adapter's. */
-  pack: LanguagePack;
+  /** The instance's resolved directions (ADR 0046): each pairs the
+   * direction's tuning with its language pack, whose canonical
+   * validation and script renderings are judgment calls this adapter
+   * never makes itself (ADR 0029). */
+  directions: readonly ResolvedDirection[];
   items: ItemQueries;
   flagStates: FlagStore;
   auth: Auth;
@@ -107,7 +113,7 @@ const ReviewEventSchema = z.object({
 export function buildApp({
   config,
   instance,
-  pack,
+  directions,
   items,
   flagStates,
   auth,
@@ -127,6 +133,14 @@ export function buildApp({
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
+
+  // The sole direction, totally resolved from config (ADR 0046) — the
+  // engine still never defaults: a second direction makes this throw
+  // until the routes learn to ask.
+  const { direction, pack } = resolveDirection(
+    { instance, directions },
+    undefined,
+  );
 
   // Artifact schemas bound to this instance's language (ADR 0029).
   const {
@@ -692,7 +706,7 @@ export function buildApp({
         );
         if (
           tally.upvotes - tally.downvotes >=
-          instance.communityPublishNetVotes
+          direction.communityPublishNetVotes
         ) {
           // Publishing mirrors a reviewer approval (ADR 0040); a decide
           // that comes back empty means someone else got there first.

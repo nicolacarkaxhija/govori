@@ -40,13 +40,17 @@ describe('govori catalogs', () => {
     }
   });
 
-  it('names a pack, a fallback language, and learner languages', () => {
-    expect(govoriInstance.packId).toBe('isv');
-    expect(govoriInstance.uiLanguages).toContain(
-      govoriInstance.fallbackTranslationLang,
-    );
-    expect(govoriInstance.learnLanguages.map((entry) => entry.code)).toContain(
-      govoriInstance.fallbackTranslationLang,
-    );
+  it('declares one direction whose fallback rides the offered rosters', () => {
+    expect(
+      govoriInstance.directions.map((direction) => direction.packId),
+    ).toEqual(['isv']);
+    for (const direction of govoriInstance.directions) {
+      expect(govoriInstance.uiLanguages).toContain(
+        direction.fallbackTranslationLang,
+      );
+      expect(
+        govoriInstance.learnLanguages.map((entry) => entry.code),
+      ).toContain(direction.fallbackTranslationLang);
+    }
   });
 });

@@ -62,21 +62,32 @@ describe('GET /items/:id', () => {
     const app = buildApp(
       makeTestDeps({
         items: new FakeItemQueries(),
-        pack: {
-          id: 'fake',
-          bcp47: 'zxx',
-          orthographyName: 'fake canonical spelling',
-          validateCanonical: () => true,
-          normalize: (text) => text,
-          stem: (word) => word,
-          scripts: [
-            {
-              id: 'shouty',
-              label: 'AA',
-              render: (text) => text.toUpperCase(),
+        directions: [
+          {
+            direction: {
+              id: 'fake',
+              packId: 'fake',
+              label: 'Fakish',
+              fallbackTranslationLang: 'en',
+              communityPublishNetVotes: 3,
             },
-          ],
-        },
+            pack: {
+              id: 'fake',
+              bcp47: 'zxx',
+              orthographyName: 'fake canonical spelling',
+              validateCanonical: () => true,
+              normalize: (text) => text,
+              stem: (word) => word,
+              scripts: [
+                {
+                  id: 'shouty',
+                  label: 'AA',
+                  render: (text) => text.toUpperCase(),
+                },
+              ],
+            },
+          },
+        ],
       }),
     );
     const response = await app.inject({

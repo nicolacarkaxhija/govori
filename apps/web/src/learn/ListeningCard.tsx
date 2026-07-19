@@ -8,7 +8,7 @@ import {
 } from '../api/client';
 import { checkTyped, translationFor } from './exercises';
 import { useT } from '../i18n';
-import { instance, pack } from '../instance';
+import { fallbackLang, pack } from '../instance';
 
 export interface ListeningCardProps {
   item: LearnItem;
@@ -24,7 +24,7 @@ type Outcome = 'correct' | 'incorrect';
 /** Listening transcription (ADR 0005): hear a community clip, type it. */
 export function ListeningCard({
   item,
-  lang = instance.fallbackTranslationLang,
+  lang = fallbackLang,
   onGrade,
   onUnavailable,
 }: ListeningCardProps) {
@@ -118,7 +118,7 @@ export function ListeningCard({
             <span lang={pack.bcp47} className="feedback-answer">
               {item.text}
             </span>{' '}
-            = {translationFor(item, lang, instance.fallbackTranslationLang)}
+            = {translationFor(item, lang, fallbackLang)}
           </p>
           <button
             type="button"
