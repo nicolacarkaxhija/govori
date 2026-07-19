@@ -262,6 +262,15 @@ importers:
         specifier: 'catalog:'
         version: 4.9.0
 
+  packages/entitlements:
+    devDependencies:
+      '@stryker-mutator/core':
+        specifier: 'catalog:'
+        version: 9.6.1(@types/node@26.1.1)
+      '@stryker-mutator/vitest-runner':
+        specifier: 'catalog:'
+        version: 9.6.1(@stryker-mutator/core@9.6.1(@types/node@26.1.1))(vitest@4.1.10)
+
   packages/language:
     devDependencies:
       '@stryker-mutator/core':

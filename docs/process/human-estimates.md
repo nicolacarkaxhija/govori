@@ -287,6 +287,8 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-19 | feat: tombstone withdrawn recordings and freeze dataset builds | 2–2.5 | Account erasure now tombstones a contributor's clips per ADR 0010 (deleted_at set, audio bytes dropped, contributor pseudonymized) and clears their ballots and premium-time ledger, while the row survives; DrizzleRecordingStore gained buildDatasetManifest (verified + dataset-consented + non-tombstoned membership frozen under a version) and getManifest; real-Postgres proof that a withdrawn clip drops from a later build yet the version it already shipped in stays non-recallable |
 
+| 2026-07-19 | feat: add the entitlements domain package | 1–1.5 | New @glotty/entitlements pure domain (ADR 0047/0050): Entitlement {userId, sku, grantedAt, source: purchase\|founder\|contribution}, resolve() as timeless set membership (lifetime unlocks never expire), and the permissive-by-default content gate — free when content carries no premiumSku, entitled/locked when it does; full domain gate config, 100% branch and 100% mutation |
+
 **Running total: 198.7-252.2 h**
 
 **Running total: 257.7–330.3 h**
