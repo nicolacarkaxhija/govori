@@ -148,6 +148,7 @@ export const de = {
   stopRecording: 'Stopp',
   streak: 'Serie: {count} Tage',
   submitReview: 'Zur Community-Prüfung senden',
+  switchDirection: 'Lernrichtung wechseln',
   switchScript: 'Schrift wechseln',
   syncedDown: '{count} Wiederholungen kamen von deinen anderen Geräten.',
   syncedReviews: '{count} neue Wiederholungen von diesem Gerät synchronisiert.',

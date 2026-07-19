@@ -4,6 +4,7 @@ import { useT, type MessageKey } from '../i18n';
 import { weeklyGoals } from '../goals/goals';
 import { journalDays } from '../journal/journal';
 import { loadEvents, weakestItemIds } from '../learn/progress';
+import { activeDirection } from '../instance';
 import {
   buildPlan,
   loadChecked,
@@ -39,7 +40,7 @@ export function WeeklyPlanView({ onExit }: WeeklyPlanViewProps) {
 
   useEffect(() => {
     let active = true;
-    void fetchCourse().then((course) => {
+    void fetchCourse(activeDirection().direction.id).then((course) => {
       if (!active || course === null) {
         return;
       }

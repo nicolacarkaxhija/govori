@@ -44,10 +44,17 @@ const itemsSchema = z.object({ items: z.array(learnItemSchema) });
 
 export type LearnItem = z.infer<typeof learnItemSchema>;
 
-export async function fetchItems(limit = 50): Promise<LearnItem[] | null> {
+/** Items of one direction's pool (ADR 0046), most frequent first. */
+export async function fetchItems(
+  direction: string,
+  limit = 50,
+): Promise<LearnItem[] | null> {
   try {
     const response = await fetch(
-      new URL(`/items?limit=${String(limit)}`, apiBaseUrl),
+      new URL(
+        `/items?direction=${encodeURIComponent(direction)}&limit=${String(limit)}`,
+        apiBaseUrl,
+      ),
     );
     if (!response.ok) {
       return null;
@@ -68,9 +75,11 @@ const statsSchema = z.object({
 
 export type Stats = z.infer<typeof statsSchema>;
 
-export async function fetchStats(): Promise<Stats | null> {
+export async function fetchStats(direction: string): Promise<Stats | null> {
   try {
-    const response = await fetch(new URL('/stats', apiBaseUrl));
+    const response = await fetch(
+      new URL(`/stats?direction=${encodeURIComponent(direction)}`, apiBaseUrl),
+    );
     if (!response.ok) {
       return null;
     }
@@ -95,9 +104,11 @@ const courseSchema = z.object({
 
 export type Course = z.infer<typeof courseSchema>;
 
-export async function fetchCourse(): Promise<Course | null> {
+export async function fetchCourse(direction: string): Promise<Course | null> {
   try {
-    const response = await fetch(new URL('/course', apiBaseUrl));
+    const response = await fetch(
+      new URL(`/course?direction=${encodeURIComponent(direction)}`, apiBaseUrl),
+    );
     if (!response.ok) {
       return null;
     }
@@ -131,9 +142,17 @@ export type LessonDialogue = NonNullable<
 
 export type Lesson = z.infer<typeof lessonSchema>;
 
-export async function fetchLesson(id: string): Promise<Lesson | null> {
+export async function fetchLesson(
+  id: string,
+  direction: string,
+): Promise<Lesson | null> {
   try {
-    const response = await fetch(new URL(`/lessons/${id}`, apiBaseUrl));
+    const response = await fetch(
+      new URL(
+        `/lessons/${id}?direction=${encodeURIComponent(direction)}`,
+        apiBaseUrl,
+      ),
+    );
     if (!response.ok) {
       return null;
     }
@@ -147,10 +166,16 @@ export async function fetchLesson(id: string): Promise<Lesson | null> {
 const sentencesSchema = z.object({ sentences: z.array(learnItemSchema) });
 
 /** Sentences that exercise this lesson's words; empty when none exist. */
-export async function fetchLessonSentences(id: string): Promise<LearnItem[]> {
+export async function fetchLessonSentences(
+  id: string,
+  direction: string,
+): Promise<LearnItem[]> {
   try {
     const response = await fetch(
-      new URL(`/lessons/${id}/sentences`, apiBaseUrl),
+      new URL(
+        `/lessons/${id}/sentences?direction=${encodeURIComponent(direction)}`,
+        apiBaseUrl,
+      ),
     );
     if (!response.ok) {
       return [];
@@ -388,18 +413,20 @@ export async function setUserRole(
 export type ContributeResult =
   'accepted' | 'invalid' | 'unauthenticated' | 'failed';
 
-/** Sends a learner's suggestion into the community review queue. */
+/** Sends a learner's suggestion into the community review queue,
+ * scoped to one direction's pool (ADR 0046). */
 export async function contribute(
   kind: 'word' | 'phrase' | 'sentence',
   text: string,
   translations: { lang: string; text: string }[],
+  direction: string,
 ): Promise<ContributeResult> {
   try {
     const response = await fetch(new URL('/contribute', apiBaseUrl), {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ kind, text, translations }),
+      body: JSON.stringify({ direction, kind, text, translations }),
     });
     if (response.status === 202) {
       return 'accepted';

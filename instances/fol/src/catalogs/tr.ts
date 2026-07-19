@@ -145,6 +145,7 @@ export const tr = {
   stopRecording: 'Durdur',
   streak: '{count} günlük seri',
   submitReview: 'Topluluk incelemesine gönder',
+  switchDirection: 'Öğrenme yönünü değiştir',
   switchScript: 'Yazıyı değiştir',
   syncedDown: 'Diğer cihazlarından {count} tekrar geldi.',
   syncedReviews: 'Bu cihazdan {count} yeni tekrar eşitlendi.',

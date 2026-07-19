@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { fetchCourse, type Course } from '../api/client';
 import { useT } from '../i18n';
+import { activeDirection } from '../instance';
 
 export interface CourseViewProps {
   onOpenLesson: (lessonId: string) => void;
@@ -14,7 +15,7 @@ export function CourseView({ onOpenLesson, onExit }: CourseViewProps) {
   useEffect(() => {
     let active = true;
     const load = async () => {
-      const result = await fetchCourse();
+      const result = await fetchCourse(activeDirection().direction.id);
       if (active) {
         setCourse(result);
       }

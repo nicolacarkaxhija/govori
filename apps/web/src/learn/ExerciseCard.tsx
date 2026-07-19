@@ -10,7 +10,7 @@ import {
 } from './exercises';
 import type { Script } from './useScript';
 import { useT } from '../i18n';
-import { fallbackLang, pack, renderText } from '../instance';
+import { fallbackLang, activePack, renderText } from '../instance';
 
 export interface ExerciseCardProps {
   item: LearnItem;
@@ -32,7 +32,7 @@ export function ExerciseCard({
   script,
   mode,
   onGrade,
-  lang = fallbackLang,
+  lang = fallbackLang(),
   audio,
 }: ExerciseCardProps) {
   const t = useT();
@@ -43,7 +43,7 @@ export function ExerciseCard({
   // Reverse rounds prompt with the translation; answers are in the target language.
   const reverse = mode === 'reverseChoices' || mode === 'reverseTyped';
   const word = renderText(item.text, script);
-  const translation = translationFor(item, lang, fallbackLang);
+  const translation = translationFor(item, lang, fallbackLang());
   const prompt = reverse ? translation : word;
   const correct = reverse ? item.text : translation;
   // The card remounts per item (keyed by the parent), so choices are
@@ -52,7 +52,7 @@ export function ExerciseCard({
     () =>
       reverse
         ? buildReverseChoices(item, pool, 4)
-        : buildChoices(item, pool, 4, lang, fallbackLang),
+        : buildChoices(item, pool, 4, lang, fallbackLang()),
     [item, pool, reverse, lang],
   );
 
@@ -74,7 +74,9 @@ export function ExerciseCard({
       return;
     }
     setOutcome(
-      checkTyped(pack.normalize, item.text, typed) ? 'correct' : 'incorrect',
+      checkTyped(activePack().normalize, item.text, typed)
+        ? 'correct'
+        : 'incorrect',
     );
   };
 
@@ -93,7 +95,10 @@ export function ExerciseCard({
               : 'kindSentence',
         )}
       </p>
-      <h2 className="card-prompt" lang={reverse ? undefined : pack.bcp47}>
+      <h2
+        className="card-prompt"
+        lang={reverse ? undefined : activePack().bcp47}
+      >
         {prompt}
       </h2>
 
@@ -116,7 +121,7 @@ export function ExerciseCard({
               key={choice}
               type="button"
               className="choice"
-              lang={reverse ? pack.bcp47 : undefined}
+              lang={reverse ? activePack().bcp47 : undefined}
               data-state={
                 outcome === null
                   ? 'open'
@@ -164,7 +169,7 @@ export function ExerciseCard({
         <div className="card-feedback">
           <p className="feedback-text">
             {outcome === 'correct' ? t('correct') : t('incorrect')}{' '}
-            <span lang={pack.bcp47} className="feedback-answer">
+            <span lang={activePack().bcp47} className="feedback-answer">
               {word}
             </span>{' '}
             = {translation}

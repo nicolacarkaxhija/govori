@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { LearnItem } from '../api/client';
-import { pack } from '../instance';
+import { activePack } from '../instance';
 import {
   buildAssembly,
   buildChoices,
@@ -14,6 +14,9 @@ import {
   scrambleOrder,
   translationFor,
 } from './exercises';
+
+// The suite runs a govori build, whose sole direction's pack is stable.
+const pack = activePack();
 
 const items: LearnItem[] = [
   {

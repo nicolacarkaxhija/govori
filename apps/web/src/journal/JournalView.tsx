@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
 import { fetchItems } from '../api/client';
-import { fallbackLang, pack, renderText } from '../instance';
+import {
+  fallbackLang,
+  activePack,
+  renderText,
+  activeDirection,
+} from '../instance';
 import { useT } from '../i18n';
 import {
   matchedWordIds,
@@ -35,30 +40,36 @@ export function JournalView({ script, learnLang, onExit }: JournalViewProps) {
 
   useEffect(() => {
     let active = true;
-    void fetchItems(POOL_LIMIT).then((items) => {
-      if (!active || items === null) {
-        return;
-      }
-      const ids = dueItemIds(
-        items.map((item) => item.id),
-        SUGGESTION_COUNT,
-      );
-      const byId = new Map(items.map((item) => [item.id, item]));
-      setSuggested(
-        ids.flatMap((id) => {
-          const item = byId.get(id);
-          return item === undefined
-            ? []
-            : [
-                {
-                  itemId: item.id,
-                  text: item.text,
-                  translation: translationFor(item, learnLang, fallbackLang),
-                },
-              ];
-        }),
-      );
-    });
+    void fetchItems(activeDirection().direction.id, POOL_LIMIT).then(
+      (items) => {
+        if (!active || items === null) {
+          return;
+        }
+        const ids = dueItemIds(
+          items.map((item) => item.id),
+          SUGGESTION_COUNT,
+        );
+        const byId = new Map(items.map((item) => [item.id, item]));
+        setSuggested(
+          ids.flatMap((id) => {
+            const item = byId.get(id);
+            return item === undefined
+              ? []
+              : [
+                  {
+                    itemId: item.id,
+                    text: item.text,
+                    translation: translationFor(
+                      item,
+                      learnLang,
+                      fallbackLang(),
+                    ),
+                  },
+                ];
+          }),
+        );
+      },
+    );
     return () => {
       active = false;
     };
@@ -66,7 +77,7 @@ export function JournalView({ script, learnLang, onExit }: JournalViewProps) {
 
   const save = () => {
     saveEntry({ date: today, text, prompt });
-    for (const itemId of matchedWordIds(pack, text, suggested)) {
+    for (const itemId of matchedWordIds(activePack(), text, suggested)) {
       recordReview(itemId, 'good');
     }
     setSaved(true);
@@ -91,7 +102,7 @@ export function JournalView({ script, learnLang, onExit }: JournalViewProps) {
             <ul className="production-words">
               {suggested.map((word) => (
                 <li key={word.itemId} className="production-word">
-                  <span lang={pack.bcp47} className="production-target">
+                  <span lang={activePack().bcp47} className="production-target">
                     {renderText(word.text, script)}
                   </span>{' '}
                   <span className="production-gloss">{word.translation}</span>
@@ -107,7 +118,7 @@ export function JournalView({ script, learnLang, onExit }: JournalViewProps) {
         <textarea
           id="journal-text"
           className="typed-input journal-input"
-          lang={pack.bcp47}
+          lang={activePack().bcp47}
           spellCheck={false}
           value={text}
           onChange={(event) => {

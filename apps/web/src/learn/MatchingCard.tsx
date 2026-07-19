@@ -4,7 +4,7 @@ import type { LearnItem } from '../api/client';
 import { buildMatching } from './exercises';
 import type { Script } from './useScript';
 import { useT } from '../i18n';
-import { fallbackLang, pack, renderText } from '../instance';
+import { fallbackLang, activePack, renderText } from '../instance';
 
 export interface MatchingCardProps {
   pool: readonly LearnItem[];
@@ -30,12 +30,12 @@ function shuffled<T>(values: readonly T[], random: () => number): T[] {
 export function MatchingCard({
   pool,
   script,
-  lang = fallbackLang,
+  lang = fallbackLang(),
   onComplete,
 }: MatchingCardProps) {
   const t = useT();
   const pairs = useMemo(
-    () => buildMatching(pool, 4, lang, fallbackLang),
+    () => buildMatching(pool, 4, lang, fallbackLang()),
     [pool, lang],
   );
   const [left, right] = useMemo(
@@ -99,7 +99,7 @@ export function MatchingCard({
               key={side.itemId}
               type="button"
               className="choice"
-              lang={pack.bcp47}
+              lang={activePack().bcp47}
               data-state={
                 matched.has(side.itemId)
                   ? 'correct'

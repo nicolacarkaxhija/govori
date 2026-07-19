@@ -8,7 +8,7 @@ import {
 } from '../api/client';
 import { checkTyped, translationFor } from './exercises';
 import { useT } from '../i18n';
-import { fallbackLang, pack } from '../instance';
+import { fallbackLang, activePack } from '../instance';
 
 export interface ListeningCardProps {
   item: LearnItem;
@@ -24,7 +24,7 @@ type Outcome = 'correct' | 'incorrect';
 /** Listening transcription (ADR 0005): hear a community clip, type it. */
 export function ListeningCard({
   item,
-  lang = fallbackLang,
+  lang = fallbackLang(),
   onGrade,
   onUnavailable,
 }: ListeningCardProps) {
@@ -64,7 +64,9 @@ export function ListeningCard({
       return;
     }
     setOutcome(
-      checkTyped(pack.normalize, item.text, typed) ? 'correct' : 'incorrect',
+      checkTyped(activePack().normalize, item.text, typed)
+        ? 'correct'
+        : 'incorrect',
     );
   };
 
@@ -115,10 +117,10 @@ export function ListeningCard({
         <div className="card-feedback">
           <p className="feedback-text">
             {outcome === 'correct' ? t('correct') : t('incorrect')}{' '}
-            <span lang={pack.bcp47} className="feedback-answer">
+            <span lang={activePack().bcp47} className="feedback-answer">
               {item.text}
             </span>{' '}
-            = {translationFor(item, lang, fallbackLang)}
+            = {translationFor(item, lang, fallbackLang())}
           </p>
           <button
             type="button"

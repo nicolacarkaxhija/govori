@@ -122,9 +122,12 @@ describe('ProductionCard signed in', () => {
       'water and bread',
     );
     await user.click(submit);
-    expect(contributeMock).toHaveBeenCalledWith('sentence', 'voda i hlěb', [
-      { lang: 'pl', text: 'water and bread' },
-    ]);
+    expect(contributeMock).toHaveBeenCalledWith(
+      'sentence',
+      'voda i hlěb',
+      [{ lang: 'pl', text: 'water and bread' }],
+      'isv',
+    );
     expect(await screen.findByText(/reviewer will look/)).toBeDefined();
   });
 });

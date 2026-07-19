@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { instance } from './instance';
 import { fetchMe, fetchMeta } from './api/client';
 import { useTheme } from './hooks/useTheme';
+import { useDirection } from './learn/useDirection';
 import { useScript } from './learn/useScript';
 import { LEARN_LANGUAGES, useLearnLanguage } from './learn/useLearnLanguage';
 import { LessonView } from './learn/LessonView';
@@ -41,13 +42,20 @@ function AppShell({
   const t = useT();
   const { theme, toggle } = useTheme();
   const {
+    directionId,
+    cycle: cycleDirection,
+    hasChoice: hasDirectionChoice,
+    currentLabel: directionLabel,
+    nextLabel: nextDirectionLabel,
+  } = useDirection();
+  const {
     script,
     toggle: toggleScript,
     hasChoice: hasScriptChoice,
     currentLabel,
     nextLabel,
-  } = useScript();
-  const { learnLang, setLearnLang } = useLearnLanguage();
+  } = useScript(directionId);
+  const { learnLang, setLearnLang } = useLearnLanguage(directionId);
   const [shortName, setShortName] = useState<string>(instance.brand.shortName);
   const [fullName, setFullName] = useState<string>(instance.brand.fullName);
   const [signedIn, setSignedIn] = useState(false);
@@ -116,7 +124,9 @@ function AppShell({
   }
 
   return (
-    <div className="shell">
+    // Keyed by the working direction (ADR 0046): a switch remounts the
+    // content views so every pool read runs against the new direction.
+    <div className="shell" key={directionId}>
       <header className="topbar">
         <span className="wordmark" aria-hidden={view.name === 'home'}>
           {view.name === 'home' ? '' : shortName}
@@ -139,6 +149,16 @@ function AppShell({
           >
             {nextLanguage.toUpperCase()}
           </button>
+          {hasDirectionChoice && (
+            <button
+              type="button"
+              className="quiet"
+              onClick={cycleDirection}
+              aria-label={t('switchDirection')}
+            >
+              {`${directionLabel} → ${nextDirectionLabel ?? ''}`}
+            </button>
+          )}
           {hasScriptChoice && (
             <button
               type="button"

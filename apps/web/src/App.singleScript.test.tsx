@@ -18,10 +18,14 @@ vi.mock('./instance', async () => {
   const { govoriInstance } = await import('@glotty/instance-govori');
   const { isvPack } = await import('@glotty/pack-isv');
   const pack = { ...isvPack, scripts: isvPack.scripts.slice(0, 1) };
+  const sole = { direction: govoriInstance.directions[0], pack };
   return {
     instance: govoriInstance,
-    pack,
-    fallbackLang: 'en',
+    directions: [sole],
+    activeDirection: () => sole,
+    activePack: () => pack,
+    setActiveDirection: () => undefined,
+    fallbackLang: () => 'en',
     renderText: (text: string, scriptId: string) =>
       renderIn(pack, scriptId, text),
   };
@@ -38,5 +42,9 @@ describe('single-script pack', () => {
       await screen.findByRole('button', { name: 'Switch language' }),
     ).toBeDefined();
     expect(screen.queryByRole('button', { name: 'Switch script' })).toBeNull();
+    // One declared direction: no switcher either (ADR 0046).
+    expect(
+      screen.queryByRole('button', { name: 'Switch learning direction' }),
+    ).toBeNull();
   });
 });

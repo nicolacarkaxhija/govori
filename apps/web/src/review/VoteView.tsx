@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { castVote, fetchPendingVotes, type PendingVote } from '../api/client';
 import { useT } from '../i18n';
 import type { Script } from '../learn/useScript';
-import { pack, renderText } from '../instance';
+import { activePack, renderText } from '../instance';
 
 export interface VoteViewProps {
   script: Script;
@@ -97,7 +97,7 @@ export function VoteView({ script, onExit, onSignIn }: VoteViewProps) {
         <ul className="review-list">
           {phase.pending.map((entry) => (
             <li key={entry.item.id} className="review-entry">
-              <p className="review-text" lang={pack.bcp47}>
+              <p className="review-text" lang={activePack().bcp47}>
                 {renderText(entry.item.text, script)}
               </p>
               <p className="review-translation">

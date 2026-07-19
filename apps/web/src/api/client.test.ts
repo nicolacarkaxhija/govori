@@ -61,7 +61,7 @@ describe('fetchItems', () => {
           new Response(JSON.stringify({ items: [item] }), { status: 200 }),
         ),
     );
-    expect(await fetchItems(5)).toEqual([item]);
+    expect(await fetchItems('isv', 5)).toEqual([item]);
   });
 
   it('returns null on server errors and network failures', async () => {
@@ -69,9 +69,9 @@ describe('fetchItems', () => {
       'fetch',
       vi.fn().mockResolvedValue(new Response('nope', { status: 500 })),
     );
-    expect(await fetchItems()).toBeNull();
+    expect(await fetchItems('isv')).toBeNull();
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
-    expect(await fetchItems()).toBeNull();
+    expect(await fetchItems('isv')).toBeNull();
   });
 });
 
@@ -86,14 +86,14 @@ describe('fetchCourse and fetchLesson', () => {
           new Response(JSON.stringify(course), { status: 200 }),
         ),
     );
-    expect(await fetchCourse()).toEqual(course);
+    expect(await fetchCourse('isv')).toEqual(course);
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue(new Response('x', { status: 500 })),
     );
-    expect(await fetchCourse()).toBeNull();
+    expect(await fetchCourse('isv')).toBeNull();
     expect(
-      await fetchLesson('9c8d7e6f-5a4b-4c3d-8e2f-1a0b9c8d7e6f'),
+      await fetchLesson('9c8d7e6f-5a4b-4c3d-8e2f-1a0b9c8d7e6f', 'isv'),
     ).toBeNull();
     const lesson = {
       title: 'Lekcija 1',
@@ -114,9 +114,9 @@ describe('fetchCourse and fetchLesson', () => {
           new Response(JSON.stringify(lesson), { status: 200 }),
         ),
     );
-    expect(await fetchLesson('9c8d7e6f-5a4b-4c3d-8e2f-1a0b9c8d7e6f')).toEqual(
-      lesson,
-    );
+    expect(
+      await fetchLesson('9c8d7e6f-5a4b-4c3d-8e2f-1a0b9c8d7e6f', 'isv'),
+    ).toEqual(lesson);
   });
 });
 
@@ -263,7 +263,7 @@ describe('contrastive notes on learn items', () => {
           new Response(JSON.stringify({ items: [noted] }), { status: 200 }),
         ),
     );
-    expect(await fetchItems(1)).toEqual([noted]);
+    expect(await fetchItems('isv', 1)).toEqual([noted]);
   });
 
   it('still accepts items without notes', async () => {
@@ -281,7 +281,7 @@ describe('contrastive notes on learn items', () => {
           new Response(JSON.stringify({ items: [bare] }), { status: 200 }),
         ),
     );
-    expect(await fetchItems(1)).toEqual([bare]);
+    expect(await fetchItems('isv', 1)).toEqual([bare]);
   });
 });
 
@@ -323,11 +323,11 @@ describe('review clients', () => {
     const { fetchLessonSentences } = await import('./client');
     stubFetch({ ok: true, json: () => Promise.resolve({ sentences: [] }) });
     expect(
-      await fetchLessonSentences('cccccccc-0000-4000-8000-000000000001'),
+      await fetchLessonSentences('cccccccc-0000-4000-8000-000000000001', 'isv'),
     ).toEqual([]);
     stubFetch({ ok: false, json: () => Promise.resolve({}) });
     expect(
-      await fetchLessonSentences('cccccccc-0000-4000-8000-000000000001'),
+      await fetchLessonSentences('cccccccc-0000-4000-8000-000000000001', 'isv'),
     ).toEqual([]);
   });
 });
@@ -414,14 +414,14 @@ describe('account clients fail closed', () => {
       json: () =>
         Promise.resolve({ items: 1, translations: 2, reviews: 3, learners: 4 }),
     });
-    expect(await fetchStats()).toEqual({
+    expect(await fetchStats('isv')).toEqual({
       items: 1,
       translations: 2,
       reviews: 3,
       learners: 4,
     });
     stubFetch({ ok: false, json: () => Promise.resolve({}) });
-    expect(await fetchStats()).toBeNull();
+    expect(await fetchStats('isv')).toBeNull();
     expect(await fetchMe()).toBeNull();
     expect(await signUp('a@b.c', 'password-123', 'A')).toBe(false);
     expect(await signIn('a@b.c', 'password-123')).toBe(false);
@@ -448,26 +448,26 @@ describe('contribute', () => {
       );
     post(202);
     expect(
-      await contribute('word', 'sněg', [{ lang: 'en', text: 'snow' }]),
+      await contribute('word', 'sněg', [{ lang: 'en', text: 'snow' }], 'isv'),
     ).toBe('accepted');
     post(401);
     expect(
-      await contribute('word', 'sněg', [{ lang: 'en', text: 'snow' }]),
+      await contribute('word', 'sněg', [{ lang: 'en', text: 'snow' }], 'isv'),
     ).toBe('unauthenticated');
     post(400);
     expect(
-      await contribute('word', 'снег', [{ lang: 'en', text: 'snow' }]),
+      await contribute('word', 'снег', [{ lang: 'en', text: 'snow' }], 'isv'),
     ).toBe('invalid');
     post(500);
     expect(
-      await contribute('word', 'sněg', [{ lang: 'en', text: 'snow' }]),
+      await contribute('word', 'sněg', [{ lang: 'en', text: 'snow' }], 'isv'),
     ).toBe('failed');
     vi.stubGlobal(
       'fetch',
       vi.fn(() => Promise.reject(new Error('offline'))),
     );
     expect(
-      await contribute('word', 'sněg', [{ lang: 'en', text: 'snow' }]),
+      await contribute('word', 'sněg', [{ lang: 'en', text: 'snow' }], 'isv'),
     ).toBe('failed');
   });
 });

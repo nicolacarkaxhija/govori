@@ -6,7 +6,7 @@ import {
   type LearnItem,
   type LessonDialogue,
 } from '../api/client';
-import { fallbackLang } from '../instance';
+import { fallbackLang, activeDirection } from '../instance';
 import { useT } from '../i18n';
 import { DialogueCard } from './DialogueCard';
 import { DialogueReorderCard } from './DialogueReorderCard';
@@ -36,7 +36,7 @@ type State =
 export function LessonView({
   lessonId,
   script,
-  learnLang = fallbackLang,
+  learnLang = fallbackLang(),
   onExit,
 }: LessonViewProps) {
   const t = useT();
@@ -47,8 +47,8 @@ export function LessonView({
     let active = true;
     const load = async () => {
       const [lesson, lessonSentences, flags] = await Promise.all([
-        fetchLesson(lessonId),
-        fetchLessonSentences(lessonId),
+        fetchLesson(lessonId, activeDirection().direction.id),
+        fetchLessonSentences(lessonId, activeDirection().direction.id),
         fetchFlags(),
       ]);
       if (!active) {

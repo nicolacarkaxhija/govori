@@ -140,6 +140,7 @@ export const sq = {
   stopRecording: 'Ndalo',
   streak: 'Seria: {count} ditë',
   submitReview: 'Dërgo për shqyrtim nga komuniteti',
+  switchDirection: 'Ndërro drejtimin e mësimit',
   switchScript: 'Ndërro shkrimin',
   syncedDown: '{count} përsëritje erdhën nga pajisjet e tua të tjera.',
   syncedReviews: '{count} përsëritje të reja u sinkronizuan nga kjo pajisje.',

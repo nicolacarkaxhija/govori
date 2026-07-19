@@ -3,7 +3,7 @@ import type { LessonDialogue } from '../api/client';
 import { scrambleOrder } from './exercises';
 import type { Script } from './useScript';
 import { useT } from '../i18n';
-import { pack, renderText } from '../instance';
+import { activePack, renderText } from '../instance';
 
 export interface DialogueReorderCardProps {
   dialogue: LessonDialogue;
@@ -74,7 +74,7 @@ export function DialogueReorderCard({
             key={index}
             type="button"
             className="choice"
-            lang={pack.bcp47}
+            lang={activePack().bcp47}
             onClick={() => {
               takeBack(index);
             }}
@@ -94,7 +94,7 @@ export function DialogueReorderCard({
             key={index}
             type="button"
             className="choice"
-            lang={pack.bcp47}
+            lang={activePack().bcp47}
             onClick={() => {
               place(index);
             }}

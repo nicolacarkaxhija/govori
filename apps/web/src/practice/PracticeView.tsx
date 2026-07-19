@@ -4,6 +4,7 @@ import { useT } from '../i18n';
 import { Session } from '../learn/Session';
 import { weakestItemIds } from '../learn/progress';
 import type { Script } from '../learn/useScript';
+import { activeDirection } from '../instance';
 
 export interface PracticeViewProps {
   /** Weak items from the local lapse log, or the frequency top list. */
@@ -46,7 +47,10 @@ export function PracticeView({
           setState({ name: 'empty' });
           return;
         }
-        const found = await fetchItems(WEAK_FETCH_LIMIT);
+        const found = await fetchItems(
+          activeDirection().direction.id,
+          WEAK_FETCH_LIMIT,
+        );
         if (!active) {
           return;
         }
@@ -63,7 +67,10 @@ export function PracticeView({
           pool.length === 0 ? { name: 'empty' } : { name: 'ready', pool },
         );
       } else {
-        const found = await fetchItems(COMMON_COUNT);
+        const found = await fetchItems(
+          activeDirection().direction.id,
+          COMMON_COUNT,
+        );
         if (!active) {
           return;
         }

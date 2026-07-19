@@ -1,7 +1,7 @@
 import type { LessonDialogue } from '../api/client';
 import { useT } from '../i18n';
 import type { Script } from './useScript';
-import { pack, renderText } from '../instance';
+import { activePack, renderText } from '../instance';
 
 export interface DialogueCardProps {
   dialogue: LessonDialogue;
@@ -23,7 +23,7 @@ export function DialogueCard({
         {dialogue.turns.map((turn, index) => (
           <li key={index} className="dialogue-turn">
             <p className="dialogue-speaker">{turn.speaker}</p>
-            <p className="dialogue-text" lang={pack.bcp47}>
+            <p className="dialogue-text" lang={activePack().bcp47}>
               {renderText(turn.text, script)}
             </p>
             <p className="dialogue-translation">{turn.translation}</p>

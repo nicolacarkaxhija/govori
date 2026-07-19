@@ -4,7 +4,7 @@ import { fetchForms, type ItemForm, type LearnItem } from '../api/client';
 import { checkTyped, translationFor } from './exercises';
 import type { Script } from './useScript';
 import { useT, type MessageKey } from '../i18n';
-import { fallbackLang, pack, renderText } from '../instance';
+import { fallbackLang, activePack, renderText } from '../instance';
 
 export interface MorphologyCardProps {
   item: LearnItem;
@@ -73,14 +73,16 @@ export function MorphologyCard({
       return;
     }
     setOutcome(
-      checkTyped(pack.normalize, form.text, typed) ? 'correct' : 'incorrect',
+      checkTyped(activePack().normalize, form.text, typed)
+        ? 'correct'
+        : 'incorrect',
     );
   };
 
   return (
     <section className="card" data-outcome={outcome ?? 'open'}>
       <p className="card-kind">{t('morphologyKind')}</p>
-      <h2 className="card-prompt" lang={pack.bcp47}>
+      <h2 className="card-prompt" lang={activePack().bcp47}>
         {renderText(item.text, script)}
       </h2>
 
@@ -112,10 +114,10 @@ export function MorphologyCard({
         <div className="card-feedback">
           <p className="feedback-text">
             {outcome === 'correct' ? t('correct') : t('incorrect')}{' '}
-            <span lang={pack.bcp47} className="feedback-answer">
+            <span lang={activePack().bcp47} className="feedback-answer">
               {renderText(form.text, script)}
             </span>{' '}
-            = {t(label)} · {translationFor(item, lang, fallbackLang)}
+            = {t(label)} · {translationFor(item, lang, fallbackLang())}
           </p>
           <button
             type="button"

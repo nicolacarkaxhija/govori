@@ -1,5 +1,5 @@
 import { useState, type SubmitEvent } from 'react';
-import { pack } from '../instance';
+import { activeDirection, activePack } from '../instance';
 import { contribute } from '../api/client';
 import { useT } from '../i18n';
 
@@ -27,14 +27,17 @@ export function ContributeView({ onExit, onSignIn }: ContributeViewProps) {
 
   const submit = async (event: SubmitEvent) => {
     event.preventDefault();
-    if (!pack.validateCanonical(text.trim())) {
+    if (!activePack().validateCanonical(text.trim())) {
       setNotice('notCanonical');
       return;
     }
     setBusy(true);
-    const result = await contribute(kind, text.trim(), [
-      { lang: 'en', text: translation.trim() },
-    ]);
+    const result = await contribute(
+      kind,
+      text.trim(),
+      [{ lang: 'en', text: translation.trim() }],
+      activeDirection().direction.id,
+    );
     setBusy(false);
     if (result === 'accepted') {
       setNotice('contributed');

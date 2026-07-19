@@ -2,7 +2,7 @@ import { useState, type SubmitEvent } from 'react';
 import { nextScript } from '@glotty/language';
 import type { Grade } from '@glotty/srs';
 import type { LearnItem } from '../api/client';
-import { pack, renderText } from '../instance';
+import { activePack, renderText } from '../instance';
 import { checkTyped } from './exercises';
 import type { Script } from './useScript';
 import { useT } from '../i18n';
@@ -28,7 +28,7 @@ export function ScriptCard({ item, script, onGrade }: ScriptCardProps) {
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [typed, setTyped] = useState('');
 
-  const other = nextScript(pack, script);
+  const other = nextScript(activePack(), script);
   const prompt = renderText(item.text, script);
   const target = other === undefined ? item.text : other.render(item.text);
 
@@ -38,14 +38,16 @@ export function ScriptCard({ item, script, onGrade }: ScriptCardProps) {
       return;
     }
     setOutcome(
-      checkTyped(pack.normalize, item.text, typed) ? 'correct' : 'incorrect',
+      checkTyped(activePack().normalize, item.text, typed)
+        ? 'correct'
+        : 'incorrect',
     );
   };
 
   return (
     <section className="card" data-outcome={outcome ?? 'open'}>
       <p className="card-kind">{t('scriptDrillKind')}</p>
-      <h2 className="card-prompt" lang={pack.bcp47}>
+      <h2 className="card-prompt" lang={activePack().bcp47}>
         {prompt}
       </h2>
 
@@ -77,11 +79,11 @@ export function ScriptCard({ item, script, onGrade }: ScriptCardProps) {
         <div className="card-feedback">
           <p className="feedback-text">
             {outcome === 'correct' ? t('correct') : t('incorrect')}{' '}
-            <span lang={pack.bcp47} className="feedback-answer">
+            <span lang={activePack().bcp47} className="feedback-answer">
               {prompt}
             </span>{' '}
             ={' '}
-            <span lang={pack.bcp47} className="feedback-answer">
+            <span lang={activePack().bcp47} className="feedback-answer">
               {target}
             </span>
           </p>

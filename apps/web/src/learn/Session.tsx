@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { Grade } from '@glotty/srs';
 import type { LearnItem } from '../api/client';
-import { fallbackLang, pack } from '../instance';
+import { fallbackLang, activePack } from '../instance';
 import { useT } from '../i18n';
 import { AssemblyCard } from './AssemblyCard';
 import { ClozeCard } from './ClozeCard';
@@ -74,7 +74,13 @@ export function Session({
   // A cloze needs a sentence sharing a word with this pool; try a few.
   const makeCloze = (): Cloze | null => {
     for (const sentence of sentences) {
-      const built = buildCloze(pack, sentence, pool, learnLang, fallbackLang);
+      const built = buildCloze(
+        activePack(),
+        sentence,
+        pool,
+        learnLang,
+        fallbackLang(),
+      );
       if (built !== null) {
         return built;
       }
@@ -85,7 +91,7 @@ export function Session({
   // Assembly needs a sentence long enough to reorder (ADR 0005).
   const makeAssembly = (): Assembly | null => {
     for (const sentence of sentences) {
-      const built = buildAssembly(sentence, learnLang, fallbackLang);
+      const built = buildAssembly(sentence, learnLang, fallbackLang());
       if (built !== null) {
         return built;
       }
@@ -96,7 +102,7 @@ export function Session({
   const nextMode = (current: ExerciseMode): ExerciseMode => {
     const builtCloze = makeCloze();
     const builtAssembly = makeAssembly();
-    const builtProduction = buildProduction(pool, learnLang, fallbackLang);
+    const builtProduction = buildProduction(pool, learnLang, fallbackLang());
     const next = planNextMode(current, {
       poolSize: pool.length,
       hasCloze: builtCloze !== null,
@@ -104,7 +110,7 @@ export function Session({
       audioOn,
       sentenceRounds,
       scriptRounds,
-      scriptCount: pack.scripts.length,
+      scriptCount: activePack().scripts.length,
       morphologyRounds,
       productionRounds,
       hasProduction: builtProduction !== null,

@@ -5,6 +5,7 @@ import { useT } from '../i18n';
 import { MatchingCard } from '../learn/MatchingCard';
 import { recordReview } from '../learn/progress';
 import type { Script } from '../learn/useScript';
+import { activeDirection } from '../instance';
 
 export interface SpeedReviewViewProps {
   script: Script;
@@ -43,7 +44,10 @@ export function SpeedReviewView({
   useEffect(() => {
     let active = true;
     const load = async () => {
-      const found = await fetchItems(SPEED_FETCH_LIMIT);
+      const found = await fetchItems(
+        activeDirection().direction.id,
+        SPEED_FETCH_LIMIT,
+      );
       if (!active) {
         return;
       }

@@ -18,9 +18,12 @@ describe('ContributeView', () => {
     await user.type(screen.getByLabelText(/Interslavic/), 'sněg');
     await user.type(screen.getByLabelText(/English translation/), 'snow');
     await user.click(screen.getByRole('button', { name: 'Send for review' }));
-    expect(contributeMock).toHaveBeenCalledWith('word', 'sněg', [
-      { lang: 'en', text: 'snow' },
-    ]);
+    expect(contributeMock).toHaveBeenCalledWith(
+      'word',
+      'sněg',
+      [{ lang: 'en', text: 'snow' }],
+      'isv',
+    );
     expect(await screen.findByText(/reviewer will look/)).toBeDefined();
   });
 

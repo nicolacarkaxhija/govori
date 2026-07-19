@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { fetchStats, type Stats } from '../api/client';
 import { useT } from '../i18n';
+import { activeDirection } from '../instance';
 
 export interface StatsViewProps {
   onExit: () => void;
@@ -14,7 +15,7 @@ export function StatsView({ onExit }: StatsViewProps) {
   useEffect(() => {
     let active = true;
     const load = async () => {
-      const result = await fetchStats();
+      const result = await fetchStats(activeDirection().direction.id);
       if (active) {
         setStats(result);
       }

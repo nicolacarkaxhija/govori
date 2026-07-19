@@ -6,7 +6,7 @@ import {
 } from '../api/client';
 import { useT } from '../i18n';
 import type { Script } from '../learn/useScript';
-import { pack, renderText } from '../instance';
+import { activePack, renderText } from '../instance';
 
 export interface ReviewViewProps {
   script: Script;
@@ -85,7 +85,7 @@ export function ReviewView({ script, onExit }: ReviewViewProps) {
         <ul className="review-list">
           {phase.pending.map((item) => (
             <li key={item.id} className="review-entry">
-              <p className="review-text" lang={pack.bcp47}>
+              <p className="review-text" lang={activePack().bcp47}>
                 {renderText(item.text, script)}
               </p>
               <p className="review-translation">

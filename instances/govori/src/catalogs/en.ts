@@ -140,6 +140,7 @@ export const en = {
   stopRecording: 'Stop',
   streak: '{count}-day streak',
   submitReview: 'Submit to community review',
+  switchDirection: 'Switch learning direction',
   switchScript: 'Switch script',
   syncedDown: '{count} reviews arrived from your other devices.',
   syncedReviews: '{count} new reviews synced from this device.',

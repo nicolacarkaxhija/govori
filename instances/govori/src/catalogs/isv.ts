@@ -140,6 +140,7 @@ export const isv = {
   stopRecording: 'Zastavi',
   streak: 'Serija: {count} dni',
   submitReview: 'Pošlji na pregled komunity',
+  switchDirection: 'Prěključi směr učenja',
   switchScript: 'Prěključi pismo',
   syncedDown: '{count} povtorjenj prišlo s tvojih drugih uredjenj.',
   syncedReviews: '{count} novyh povtorjenj synhronizovano s togo uredjenja.',

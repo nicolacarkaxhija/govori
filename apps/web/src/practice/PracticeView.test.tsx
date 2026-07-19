@@ -52,7 +52,7 @@ describe('PracticeView common words', () => {
       />,
     );
     expect(await screen.findByRole('heading', { name: 'voda' })).toBeDefined();
-    expect(fetchItemsMock).toHaveBeenCalledWith(20);
+    expect(fetchItemsMock).toHaveBeenCalledWith('isv', 20);
   });
 
   it('reports an unreachable server', async () => {
@@ -91,7 +91,7 @@ describe('PracticeView weak words', () => {
       />,
     );
     expect(await screen.findByRole('heading', { name: 'sněg' })).toBeDefined();
-    expect(fetchItemsMock).toHaveBeenCalledWith(500);
+    expect(fetchItemsMock).toHaveBeenCalledWith('isv', 500);
   });
 
   it('celebrates an empty weak list without calling the API', async () => {

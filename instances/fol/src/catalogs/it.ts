@@ -146,6 +146,7 @@ export const it = {
   stopRecording: 'Stop',
   streak: 'Serie: {count} giorni',
   submitReview: 'Invia alla revisione della community',
+  switchDirection: 'Cambia direzione di apprendimento',
   switchScript: 'Cambia scrittura',
   syncedDown: '{count} ripassi arrivati dagli altri tuoi dispositivi.',
   syncedReviews: '{count} nuovi ripassi sincronizzati da questo dispositivo.',

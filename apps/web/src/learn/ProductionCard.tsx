@@ -4,7 +4,7 @@ import { contribute, fetchMe } from '../api/client';
 import { checkProduction, type Production } from './exercises';
 import type { Script } from './useScript';
 import { useT } from '../i18n';
-import { pack, renderText } from '../instance';
+import { activeDirection, activePack, renderText } from '../instance';
 
 export interface ProductionCardProps {
   production: Production;
@@ -50,15 +50,20 @@ export function ProductionCard({
 
   const check = () => {
     setOutcome(
-      checkProduction(pack, typed, production.words) ? 'correct' : 'incorrect',
+      checkProduction(activePack(), typed, production.words)
+        ? 'correct'
+        : 'incorrect',
     );
   };
 
   const submit = async () => {
     setBusy(true);
-    const result = await contribute('sentence', typed.trim(), [
-      { lang, text: gloss.trim() },
-    ]);
+    const result = await contribute(
+      'sentence',
+      typed.trim(),
+      [{ lang, text: gloss.trim() }],
+      activeDirection().direction.id,
+    );
     setBusy(false);
     if (result === 'accepted') {
       setSubmitted(true);
@@ -72,7 +77,7 @@ export function ProductionCard({
       <ul className="production-words">
         {production.words.map((word) => (
           <li key={word.itemId} className="production-word">
-            <span lang={pack.bcp47} className="production-target">
+            <span lang={activePack().bcp47} className="production-target">
               {renderText(word.text, script)}
             </span>{' '}
             <span className="production-gloss">{word.translation}</span>
@@ -86,7 +91,7 @@ export function ProductionCard({
       <textarea
         id="production-answer"
         className="typed-input production-input"
-        lang={pack.bcp47}
+        lang={activePack().bcp47}
         autoComplete="off"
         spellCheck={false}
         value={typed}
