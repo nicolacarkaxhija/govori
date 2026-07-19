@@ -258,4 +258,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-19 | docs: charter freemium with a free-core covenant | 1–1.5 | ADR 0047: provenance-split free/paid boundary, core-course-free guarantee, preview labels and founder grandfathering, per-level lifetime unlocks with published declining price bands, no subscriptions, ADR 0016 left intact — plus registry row |
 
+| 2026-07-19 | docs: charter the community audio program | 1–1.5 | ADR 0048: two-tier collection (casual for premium time, studio under contract), ADR-0040 vote validation, three separate consent grants with no single-speaker cloning, labeled synthetic-voice fallback, data-ready storage schema, public revenue accounting, lawyer review gate — plus registry row |
+
 **Running total: 257.4–330.0 h**
