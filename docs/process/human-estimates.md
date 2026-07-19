@@ -274,4 +274,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-19 | feat: teach english beside albanian in the fol instance | 1–1.5 | fol declares the chartered second direction — en over @glotty/pack-en, labelled English, falling back to Albanian translations, net-five publish bar — with sq staying the declared primary; sq joined the learner roster so the fallback stays offerable; enPack registered in both app registries with the workspace deps; registry suites assert the two-way roster in order and a VITE_INSTANCE=fol build ships the switcher |
 
+| 2026-07-19 | docs: record multi-direction instances | 0.5–1 | ADR 0046 recording the Direction concept, the omission-is-total (never default) rule for CLI and routes, the nullable-column + boot-backfill migration design and why static SQL cannot carry the direction, the per-direction publish threshold, the web switcher's config-owned primary, and why the SRS log needs no direction namespacing; registry row and a Direction entry in the CONTEXT.md glossary |
+
 **Running total: 257.7–330.3 h**
