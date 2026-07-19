@@ -262,4 +262,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-19 | docs: charter the paid-track analytics posture | 0.5–1 | ADR 0049: analytics-you-can-see — flag-gated, self-hosted, first-party per-user analytics on the paid track only, every signal powering a user-visible feature, opt-out and disclosed at purchase; free tier keeps the ADR 0023 zero-tracking promise; no third parties ever — plus registry row |
 
+| 2026-07-19 | docs: add the Fol competitive landscape | 1.5–2 | Marketing reference: absent majors, specialist-field weakness table, diaspora market figures, unserved intersection, three positioning claims, Ling threat model, tutor-bench and grammar-quality notes — plus marketing registry row |
+
 **Running total: 257.4–330.0 h**
