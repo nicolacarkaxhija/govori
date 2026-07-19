@@ -17,9 +17,16 @@ import type {
   Provenance,
 } from '@glotty/content';
 
-/** The content atom (ADR 0002/0003); text is canonical etymological Latin. */
+/** The content atom (ADR 0002/0003); text is canonical in its pack. */
 export const items = pgTable('items', {
   id: uuid('id').primaryKey(),
+  /**
+   * The learning direction this item belongs to (ADR 0046). Nullable in
+   * SQL only for the migration window: the boot backfill stamps every
+   * NULL with the instance's first direction, and adapters treat NULL
+   * rows as absent from then on.
+   */
+  direction: text('direction'),
   kind: text('kind', { enum: ['word', 'phrase', 'sentence'] }).notNull(),
   text: text('text').notNull(),
   provenance: jsonb('provenance').$type<Provenance>().notNull(),
@@ -41,6 +48,8 @@ export const items = pgTable('items', {
 export const reviewQueue = pgTable('review_queue', {
   /** Matches the item id the draft becomes when approved. */
   id: uuid('id').primaryKey(),
+  /** The direction the draft publishes into (ADR 0046); see items. */
+  direction: text('direction'),
   item: jsonb('item').$type<Item>().notNull(),
   status: text('status', { enum: ['pending', 'approved', 'rejected'] })
     .notNull()
@@ -114,6 +123,9 @@ export const contrastiveNotes = pgTable(
 /** Gated course structure over the item pool (ADR 0009). */
 export const units = pgTable('units', {
   id: uuid('id').primaryKey(),
+  /** The direction this unit teaches (ADR 0046); see items. Lessons
+   * inherit it through their unit. */
+  direction: text('direction'),
   title: text('title').notNull(),
   position: real('position').notNull(),
 });

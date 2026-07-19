@@ -21,11 +21,12 @@ import type { ExportQueries, ExportUnit } from './ports.js';
 export class DrizzleExport implements ExportQueries {
   constructor(private readonly db: Db) {}
 
-  async allItems(): Promise<Item[]> {
+  async allItems(direction: string): Promise<Item[]> {
     const [itemRows, translationRows, noteRows] = await Promise.all([
       this.db
         .select()
         .from(items)
+        .where(eq(items.direction, direction))
         .orderBy(sql`${items.frequency} DESC NULLS LAST`, asc(items.id)),
       this.db.select().from(translations),
       this.db.select().from(contrastiveNotes),
@@ -70,9 +71,13 @@ export class DrizzleExport implements ExportQueries {
     }));
   }
 
-  async curriculumUnits(): Promise<ExportUnit[]> {
+  async curriculumUnits(direction: string): Promise<ExportUnit[]> {
     const [unitRows, lessonRows, linkRows] = await Promise.all([
-      this.db.select().from(units).orderBy(asc(units.position)),
+      this.db
+        .select()
+        .from(units)
+        .where(eq(units.direction, direction))
+        .orderBy(asc(units.position)),
       this.db.select().from(lessons).orderBy(asc(lessons.position)),
       this.db.select().from(lessonItems).orderBy(asc(lessonItems.position)),
     ]);
@@ -97,7 +102,7 @@ export class DrizzleExport implements ExportQueries {
     }));
   }
 
-  async morphologyEntries(): Promise<MorphologyEntry[]> {
+  async morphologyEntries(direction: string): Promise<MorphologyEntry[]> {
     const rows = await this.db
       .select({
         itemId: itemForms.itemId,
@@ -107,6 +112,7 @@ export class DrizzleExport implements ExportQueries {
       })
       .from(itemForms)
       .innerJoin(items, eq(itemForms.itemId, items.id))
+      .where(eq(items.direction, direction))
       .orderBy(asc(itemForms.itemId), asc(itemForms.tag), asc(itemForms.text));
     const grouped = new Map<
       string,

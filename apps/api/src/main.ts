@@ -2,7 +2,7 @@ import { buildApp } from './app.js';
 import { loadConfig } from './config.js';
 import { resolveApiInstance } from './instances.js';
 import { createDb } from './db/client.js';
-import { runMigrations } from './db/migrate.js';
+import { backfillDirections, runMigrations } from './db/migrate.js';
 import { DrizzleItemRepository } from './content/drizzle-item-repository.js';
 import { DrizzleFlagStore } from './flags/drizzle-flag-store.js';
 import { createAuth } from './auth/auth.js';
@@ -25,6 +25,13 @@ const { instance, directions } = resolveApiInstance(
 const config = loadConfig(process.env, instance.brand);
 const db = createDb(config.db.url);
 await runMigrations(db);
+// Pre-direction rows can only belong to the instance's first direction
+// (ADR 0046); the migration itself is static SQL and cannot know it.
+const [firstDirection] = directions;
+if (firstDirection === undefined) {
+  throw new Error(`instance '${instance.id}' declares no directions`);
+}
+await backfillDirections(db, firstDirection.direction.id);
 const itemRepository = new DrizzleItemRepository(db);
 const app = buildApp({
   config,

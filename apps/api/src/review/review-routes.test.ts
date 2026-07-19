@@ -44,14 +44,19 @@ interface Setup {
 function testApp({ userRole = 'admin', session = 'u1' }: Setup = {}) {
   const pending = new Map<string, Item>([[draft.id, draft]]);
   const decisions: { id: string; decision: string; decidedBy: string }[] = [];
-  const published: Item[] = [];
+  const published: { item: Item; direction: string }[] = [];
   const deps = makeTestDeps({
     auth: sessionAs(session),
     userRoles: { getRole: () => Promise.resolve(userRole) },
     reviewQueue: {
       addPending: () => Promise.resolve(0),
       listPending: () => Promise.resolve([...pending.values()]),
-      findPending: (id) => Promise.resolve(pending.get(id)),
+      findPending: (id) => {
+        const item = pending.get(id);
+        return Promise.resolve(
+          item === undefined ? undefined : { item, direction: 'isv' },
+        );
+      },
       decide: (id, decision, decidedBy) => {
         const item = pending.get(id);
         if (item === undefined) {
@@ -59,12 +64,12 @@ function testApp({ userRole = 'admin', session = 'u1' }: Setup = {}) {
         }
         pending.delete(id);
         decisions.push({ id, decision, decidedBy });
-        return Promise.resolve(item);
+        return Promise.resolve({ item, direction: 'isv' });
       },
     },
     itemWriter: {
-      upsertMany: (items) => {
-        published.push(...items);
+      upsertMany: (items, direction) => {
+        published.push(...items.map((item) => ({ item, direction })));
         return Promise.resolve();
       },
     },
@@ -118,7 +123,9 @@ describe('POST /admin/review/:id', () => {
     });
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({ decided: 'approved' });
-    expect(published.map((item) => item.id)).toEqual([draft.id]);
+    expect(published.map((entry) => entry.item.id)).toEqual([draft.id]);
+    // The draft publishes into the direction it was queued for.
+    expect(published[0]?.direction).toBe('isv');
     expect(decisions[0]).toEqual({
       id: draft.id,
       decision: 'approved',
@@ -135,7 +142,7 @@ describe('POST /admin/review/:id', () => {
       payload: { decision: 'approve' },
     });
     expect(response.statusCode).toBe(200);
-    expect(published.map((item) => item.id)).toEqual([draft.id]);
+    expect(published.map((entry) => entry.item.id)).toEqual([draft.id]);
     expect(decisions[0]?.decidedBy).toBe('user:u1');
     await app.close();
   });

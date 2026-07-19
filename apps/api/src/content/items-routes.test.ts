@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Item } from '@glotty/content';
 import { buildApp } from './../app.js';
 import { makeTestDeps } from '../test-support.js';
-import type { ItemQueries } from './ports.js';
+import type { DirectedItem, ItemQueries } from './ports.js';
 
 const voda: Item = {
   id: '3e2d8f0a-4b1c-4f6e-9a7d-1c2b3a4d5e6f',
@@ -20,16 +20,24 @@ const voda: Item = {
 };
 
 class FakeItemQueries implements ItemQueries {
-  findById(id: string): Promise<Item | undefined> {
-    return Promise.resolve(id === voda.id ? voda : undefined);
+  constructor(private readonly direction = 'isv') {}
+
+  findById(id: string): Promise<DirectedItem | undefined> {
+    return Promise.resolve(
+      id === voda.id ? { item: voda, direction: this.direction } : undefined,
+    );
   }
 
   findByIds(ids: readonly string[]): Promise<Item[]> {
     return Promise.resolve(ids.includes(voda.id) ? [voda] : []);
   }
 
-  list(limit: number, offset: number): Promise<Item[]> {
-    return Promise.resolve(offset > 0 ? [] : [voda].slice(0, limit));
+  list(direction: string, limit: number, offset: number): Promise<Item[]> {
+    return Promise.resolve(
+      direction === this.direction && offset === 0
+        ? [voda].slice(0, limit)
+        : [],
+    );
   }
 
   findSentencesContaining(): Promise<Item[]> {
@@ -58,10 +66,10 @@ describe('GET /items/:id', () => {
     await app.close();
   });
 
-  it('derives renderings from the injected pack, not a fixed script pair', async () => {
+  it('derives renderings from the item direction pack, not a fixed pair', async () => {
     const app = buildApp(
       makeTestDeps({
-        items: new FakeItemQueries(),
+        items: new FakeItemQueries('fake'),
         directions: [
           {
             direction: {
@@ -98,6 +106,23 @@ describe('GET /items/:id', () => {
     expect(
       response.json<{ renderings: Record<string, string> }>().renderings,
     ).toEqual({ shouty: 'VȮLNŲ' });
+    await app.close();
+  });
+
+  it('renders nothing for an item stranded outside the roster', async () => {
+    // A row whose stored direction no longer matches any declared
+    // direction has no pack to render through (ADR 0046).
+    const app = buildApp(
+      makeTestDeps({ items: new FakeItemQueries('retired') }),
+    );
+    const response = await app.inject({
+      method: 'GET',
+      url: `/items/${voda.id}`,
+    });
+    expect(response.statusCode).toBe(200);
+    expect(
+      response.json<{ renderings: Record<string, string> }>().renderings,
+    ).toEqual({});
     await app.close();
   });
 

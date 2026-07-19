@@ -19,12 +19,12 @@ function sessionAs(userId: string | null): Auth {
 }
 
 function testApp(session: string | null = 'u1') {
-  const queued: Item[] = [];
+  const queued: { item: Item; direction: string }[] = [];
   const deps = makeTestDeps({
     auth: sessionAs(session),
     reviewQueue: {
-      addPending: (items) => {
-        queued.push(...items);
+      addPending: (items, direction) => {
+        queued.push(...items.map((item) => ({ item, direction })));
         return Promise.resolve(items.length);
       },
       listPending: () => Promise.resolve([]),
@@ -63,12 +63,14 @@ describe('POST /contribute', () => {
     expect(response.statusCode).toBe(202);
     expect(response.json()).toEqual({ status: 'pending-review' });
     expect(queued).toHaveLength(1);
-    expect(queued[0]?.text).toBe('sněg');
-    expect(queued[0]?.provenance).toEqual({
+    expect(queued[0]?.item.text).toBe('sněg');
+    // The contribution queues for the resolved direction (ADR 0046).
+    expect(queued[0]?.direction).toBe('isv');
+    expect(queued[0]?.item.provenance).toEqual({
       origin: 'human',
       contributorId: expect.any(String) as unknown,
     });
-    expect(queued[0]?.audit).toBeUndefined();
+    expect(queued[0]?.item.audit).toBeUndefined();
     await app.close();
   });
 

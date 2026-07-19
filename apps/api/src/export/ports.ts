@@ -5,13 +5,13 @@ import type { MorphologyEntry } from '../morphology/ports.js';
 export type ExportUnit = CurriculumArtifact['units'][number];
 
 /**
- * Read port for the public open-data export (ADR 0007/0010): the whole
- * pool at once, shaped exactly like the import artifacts so the export
- * round-trips through our own importer.
+ * Read port for the public open-data export (ADR 0007/0010): one
+ * direction's whole pool at once (ADR 0046), shaped exactly like the
+ * import artifacts so the export round-trips through our own importer.
  */
 export interface ExportQueries {
-  allItems(): Promise<Item[]>;
-  curriculumUnits(): Promise<ExportUnit[]>;
+  allItems(direction: string): Promise<Item[]>;
+  curriculumUnits(direction: string): Promise<ExportUnit[]>;
   /** Only entries a valid artifact can carry: a pos and two-plus forms. */
-  morphologyEntries(): Promise<MorphologyEntry[]>;
+  morphologyEntries(direction: string): Promise<MorphologyEntry[]>;
 }

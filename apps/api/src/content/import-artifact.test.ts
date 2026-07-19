@@ -26,10 +26,10 @@ const artifact = {
 };
 
 class FakeRepository implements ItemRepository {
-  stored: Item[] = [];
+  stored: { item: Item; direction: string }[] = [];
 
-  upsertMany(items: readonly Item[]): Promise<void> {
-    this.stored.push(...items);
+  upsertMany(items: readonly Item[], direction: string): Promise<void> {
+    this.stored.push(...items.map((entry) => ({ item: entry, direction })));
     return Promise.resolve();
   }
 
@@ -39,18 +39,20 @@ class FakeRepository implements ItemRepository {
 }
 
 describe('importArtifact', () => {
-  it('validates then upserts, reporting the producer', async () => {
+  it('validates then upserts into the direction, reporting the producer', async () => {
     const repository = new FakeRepository();
     const result = await importArtifact(
       artifact,
       repository,
       testSchemas.parseContentArtifact,
+      'isv',
     );
     expect(result).toEqual({
       imported: 1,
       producer: 'govori-content-forge@0.1.0',
     });
-    expect(repository.stored[0]?.text).toBe('voda');
+    expect(repository.stored[0]?.item.text).toBe('voda');
+    expect(repository.stored[0]?.direction).toBe('isv');
   });
 
   it('rejects invalid artifacts before anything is written', async () => {
@@ -60,6 +62,7 @@ describe('importArtifact', () => {
         { ...artifact, schemaVersion: 2 },
         repository,
         testSchemas.parseContentArtifact,
+        'isv',
       ),
     ).rejects.toThrow(ArtifactError);
     expect(await repository.count()).toBe(0);

@@ -2,21 +2,27 @@ import { and, asc, count, eq, inArray, or, sql } from 'drizzle-orm';
 import type { Item } from '@glotty/content';
 import type { Db } from '../db/client.js';
 import { contrastiveNotes, items, translations } from '../db/schema.js';
-import type { ItemQueries, ItemRepository } from './ports.js';
+import type { DirectedItem, ItemQueries, ItemRepository } from './ports.js';
 
 type ItemRow = typeof items.$inferSelect;
 
-/** Postgres adapter for the item ports (ADR 0020). */
+/** Postgres adapter for the item ports (ADR 0020). Every read scopes by
+ * direction (ADR 0046); a NULL direction is invalid after the boot
+ * backfill, so such rows are treated as absent. */
 export class DrizzleItemRepository implements ItemRepository, ItemQueries {
   constructor(private readonly db: Db) {}
 
-  async findById(id: string): Promise<Item | undefined> {
+  async findById(id: string): Promise<DirectedItem | undefined> {
     const [row] = await this.db.select().from(items).where(eq(items.id, id));
     if (row === undefined) {
       return undefined;
     }
+    const { direction } = row;
+    if (direction === null) {
+      return undefined;
+    }
     const [assembled] = await this.assemble([row]);
-    return assembled;
+    return assembled === undefined ? undefined : { item: assembled, direction };
   }
 
   async findByIds(ids: readonly string[]): Promise<Item[]> {
@@ -35,10 +41,15 @@ export class DrizzleItemRepository implements ItemRepository, ItemQueries {
     });
   }
 
-  async list(limit: number, offset: number): Promise<Item[]> {
+  async list(
+    direction: string,
+    limit: number,
+    offset: number,
+  ): Promise<Item[]> {
     const rows = await this.db
       .select()
       .from(items)
+      .where(eq(items.direction, direction))
       .orderBy(sql`${items.frequency} DESC NULLS LAST`, asc(items.id))
       .limit(limit)
       .offset(offset);
@@ -46,6 +57,7 @@ export class DrizzleItemRepository implements ItemRepository, ItemQueries {
   }
 
   async findSentencesContaining(
+    direction: string,
     words: readonly string[],
     limit: number,
   ): Promise<Item[]> {
@@ -61,7 +73,13 @@ export class DrizzleItemRepository implements ItemRepository, ItemQueries {
     const rows = await this.db
       .select()
       .from(items)
-      .where(and(eq(items.kind, 'sentence'), or(...matches)))
+      .where(
+        and(
+          eq(items.direction, direction),
+          eq(items.kind, 'sentence'),
+          or(...matches),
+        ),
+      )
       .orderBy(asc(items.id))
       .limit(limit);
     return this.assemble(rows);
@@ -98,7 +116,10 @@ export class DrizzleItemRepository implements ItemRepository, ItemQueries {
     }));
   }
 
-  async upsertMany(toUpsert: readonly Item[]): Promise<void> {
+  async upsertMany(
+    toUpsert: readonly Item[],
+    direction: string,
+  ): Promise<void> {
     // Chunked bulk statements: a 19k-item artifact imports in seconds
     // instead of minutes. The chunk size keeps each statement well under
     // Postgres's parameter limit even with 26 translations per item.
@@ -112,6 +133,7 @@ export class DrizzleItemRepository implements ItemRepository, ItemQueries {
           .values(
             chunk.map((item) => ({
               id: item.id,
+              direction,
               kind: item.kind,
               text: item.text,
               provenance: item.provenance,
@@ -124,6 +146,7 @@ export class DrizzleItemRepository implements ItemRepository, ItemQueries {
           .onConflictDoUpdate({
             target: items.id,
             set: {
+              direction: sql`excluded."direction"`,
               kind: sql`excluded."kind"`,
               text: sql`excluded."text"`,
               provenance: sql`excluded."provenance"`,

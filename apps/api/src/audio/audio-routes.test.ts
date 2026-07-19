@@ -67,7 +67,8 @@ function testApp(options: { session?: string | null; audioOn?: boolean } = {}) {
       setFlag: () => Promise.resolve(),
     },
     items: {
-      findById: (id) => Promise.resolve(id === itemId ? item : undefined),
+      findById: (id) =>
+        Promise.resolve(id === itemId ? { item, direction: 'isv' } : undefined),
       findByIds: () => Promise.resolve([]),
       list: () => Promise.resolve([]),
       findSentencesContaining: () => Promise.resolve([]),

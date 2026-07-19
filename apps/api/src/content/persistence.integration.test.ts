@@ -12,7 +12,8 @@ const {
   parseCurriculumArtifact,
   parseMorphologyArtifact,
 } = testSchemas;
-import { runMigrations } from '../db/migrate.js';
+import { backfillDirections, runMigrations } from '../db/migrate.js';
+import { items as itemsTable } from '../db/schema.js';
 import { DrizzleItemRepository } from './drizzle-item-repository.js';
 import { DrizzleFlagStore } from '../flags/drizzle-flag-store.js';
 import { importArtifact } from './import-artifact.js';
@@ -103,6 +104,7 @@ describe('DrizzleItemRepository through importArtifact', () => {
       artifact,
       repository,
       parseContentArtifact,
+      'isv',
     );
     expect(result.imported).toBe(3);
     expect(await repository.count()).toBe(3);
@@ -118,21 +120,57 @@ describe('DrizzleItemRepository through importArtifact', () => {
           : item,
       ),
     };
-    await importArtifact(updated, repository, parseContentArtifact);
+    await importArtifact(updated, repository, parseContentArtifact, 'isv');
     expect(await repository.count()).toBe(3);
   });
 });
 
-describe('DrizzleItemRepository reads', () => {
-  it('finds an item by id with translations and notes', async () => {
+describe('backfillDirections', () => {
+  it('stamps direction-less rows once and leaves stamped rows alone', async () => {
     const repository = new DrizzleItemRepository(db);
-    const item = await repository.findById(
+    // A pre-direction row, exactly as a deployment migrated from 0011
+    // would hold it: the column exists, but nothing has filled it.
+    const strayId = 'cc0b1c2d-3e4f-4a5b-8c6d-7e8f9a0b1c2d';
+    await db.insert(itemsTable).values({
+      id: strayId,
+      kind: 'word',
+      text: 'sněg',
+      provenance: {
+        origin: 'human',
+        contributorId: 'u-legacy',
+      },
+    });
+    // Invalid until backfilled: adapters treat NULL rows as absent.
+    expect(await repository.findById(strayId)).toBeUndefined();
+    await backfillDirections(db, 'legacy');
+    const found = await repository.findById(strayId);
+    expect(found?.direction).toBe('legacy');
+    // A second run with another id must not restamp settled rows —
+    // neither the stray nor the rows imported directly into 'isv'.
+    await backfillDirections(db, 'other');
+    expect((await repository.findById(strayId))?.direction).toBe('legacy');
+    expect(
+      (await repository.findById(artifact.items[0]?.id ?? ''))?.direction,
+    ).toBe('isv');
+    // Pools stay isolated: the stray never surfaces in the isv pool.
+    const listed = await repository.list('isv', 10, 0);
+    expect(listed.map((item) => item.id)).not.toContain(strayId);
+  });
+});
+
+describe('DrizzleItemRepository reads', () => {
+  it('finds an item by id with its direction, translations and notes', async () => {
+    const repository = new DrizzleItemRepository(db);
+    const found = await repository.findById(
       '9b8a7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d',
     );
-    expect(item?.kind).toBe('sentence');
-    expect(item?.translations).toHaveLength(2);
-    expect(item?.notes).toEqual([{ sourceLang: 'pl', text: 'čista ≈ czysta' }]);
-    expect(item?.audit?.status).toBe('clean');
+    expect(found?.direction).toBe('isv');
+    expect(found?.item.kind).toBe('sentence');
+    expect(found?.item.translations).toHaveLength(2);
+    expect(found?.item.notes).toEqual([
+      { sourceLang: 'pl', text: 'čista ≈ czysta' },
+    ]);
+    expect(found?.item.audit?.status).toBe('clean');
   });
 
   it('returns undefined for unknown ids', async () => {
@@ -147,14 +185,14 @@ describe('DrizzleItemRepository reads', () => {
     expect(await repository.findByIds([])).toEqual([]);
     const course = new DrizzleCourse(db, repository);
     expect(
-      await course.lessonItems('00000000-0000-4000-8000-00000000dead'),
+      await course.lessonItems('00000000-0000-4000-8000-00000000dead', 'isv'),
     ).toBeUndefined();
   });
 
   it('lists by frequency first, deterministically paginated', async () => {
     const repository = new DrizzleItemRepository(db);
-    const first = await repository.list(2, 0);
-    const rest = await repository.list(2, 2);
+    const first = await repository.list('isv', 2, 0);
+    const rest = await repository.list('isv', 2, 2);
     expect(first).toHaveLength(2);
     expect(rest).toHaveLength(1);
     expect(first[0]?.text).toBe('voda');
@@ -171,17 +209,32 @@ describe('DrizzleItemRepository reads', () => {
 describe('DrizzleItemRepository sentence search', () => {
   it('finds sentences containing a lesson word, whole-word and any case', async () => {
     const repository = new DrizzleItemRepository(db);
-    const sentences = await repository.findSentencesContaining(['voda'], 20);
+    const sentences = await repository.findSentencesContaining(
+      'isv',
+      ['voda'],
+      20,
+    );
     expect(sentences.map((item) => item.text)).toEqual(['Voda je čista.']);
     expect(sentences[0]?.kind).toBe('sentence');
+  });
+
+  it('searches only inside the asked direction', async () => {
+    const repository = new DrizzleItemRepository(db);
+    expect(
+      await repository.findSentencesContaining('other', ['voda'], 20),
+    ).toEqual([]);
   });
 
   it('ignores partial-word matches and survives regex metacharacters', async () => {
     const repository = new DrizzleItemRepository(db);
     // "vod" must not match inside "Voda"; "č." must not act as a regex.
-    expect(await repository.findSentencesContaining(['vod'], 20)).toEqual([]);
-    expect(await repository.findSentencesContaining(['č.'], 20)).toEqual([]);
-    expect(await repository.findSentencesContaining([], 20)).toEqual([]);
+    expect(
+      await repository.findSentencesContaining('isv', ['vod'], 20),
+    ).toEqual([]);
+    expect(await repository.findSentencesContaining('isv', ['č.'], 20)).toEqual(
+      [],
+    );
+    expect(await repository.findSentencesContaining('isv', [], 20)).toEqual([]);
   });
 });
 
@@ -205,12 +258,13 @@ describe('DrizzleReviewQueue', () => {
         auditedAt: '2026-07-17T13:00:00.000Z',
       },
     };
-    expect(await queue.addPending([draft])).toBe(1);
-    expect(await queue.addPending([draft])).toBe(0);
+    expect(await queue.addPending([draft], 'isv')).toBe(1);
+    expect(await queue.addPending([draft], 'isv')).toBe(0);
     const pending = await queue.listPending(10);
     expect(pending.map((item) => item.id)).toContain(draft.id);
     const decided = await queue.decide(draft.id, 'approved', 'user:test');
-    expect(decided?.text).toBe('Hlěb jest dobry.');
+    expect(decided?.item.text).toBe('Hlěb jest dobry.');
+    expect(decided?.direction).toBe('isv');
     expect(await queue.decide(draft.id, 'approved', 'user:test')).toBe(
       undefined,
     );
@@ -240,8 +294,8 @@ describe('DrizzleVoteStore', () => {
         auditedAt: '2026-07-17T13:00:00.000Z',
       },
     };
-    await queue.addPending([draft]);
-    expect((await queue.findPending(draft.id))?.text).toBe('sněg');
+    await queue.addPending([draft], 'isv');
+    expect((await queue.findPending(draft.id))?.item.text).toBe('sněg');
 
     expect(await votes.castVote(draft.id, 'voter-a', true)).toEqual({
       upvotes: 1,
@@ -295,29 +349,36 @@ describe('DrizzleCourse', () => {
         },
       ],
     };
-    await course.replaceCurriculum(curriculum);
-    await course.replaceCurriculum(curriculum);
-    const overview = await course.overview();
+    await course.replaceCurriculum(curriculum, 'isv');
+    await course.replaceCurriculum(curriculum, 'isv');
+    const overview = await course.overview('isv');
     expect(overview).toHaveLength(1);
     expect(overview[0]?.lessons[0]?.itemCount).toBe(2);
     const lessonId = overview[0]?.lessons[0]?.id ?? '';
-    const lesson = await course.lessonItems(lessonId);
+    const lesson = await course.lessonItems(lessonId, 'isv');
     expect(lesson?.title).toBe('Lekcija 1');
     expect(lesson?.items.map((item) => item.text)).toEqual([
       'Voda je čista.',
       'voda',
     ]);
+    // Another direction sees neither the units nor the lesson.
+    expect(await course.overview('other')).toEqual([]);
+    expect(await course.lessonItems(lessonId, 'other')).toBeUndefined();
   });
 });
 
 describe('DrizzleStats', () => {
-  it('counts public aggregates from the live tables', async () => {
+  it('counts public aggregates inside one direction', async () => {
     const stats = new DrizzleStats(db);
-    const counts = await stats.counts();
+    const counts = await stats.counts('isv');
     expect(counts.items).toBe(3);
     expect(counts.translations).toBeGreaterThanOrEqual(4);
     expect(counts.reviews).toBe(0);
     expect(counts.learners).toBe(0);
+    // The stray legacy pool never leaks into another direction's stats.
+    const other = await stats.counts('other');
+    expect(other.items).toBe(0);
+    expect(other.translations).toBe(0);
   });
 });
 
@@ -474,9 +535,9 @@ describe('DrizzleExport', () => {
   const phraseId = '5a4b3c2d-1e0f-4a9b-8c7d-6e5f4a3b2c1d';
   const sentenceId = '9b8a7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d';
 
-  it('exports every item so our own importer accepts it back', async () => {
+  it('exports every item of the direction so our importer accepts it back', async () => {
     const exporter = new DrizzleExport(db);
-    const exported = await exporter.allItems();
+    const exported = await exporter.allItems('isv');
     expect(exported.map((item) => item.text)).toEqual([
       'voda',
       'dobry denj',
@@ -500,38 +561,42 @@ describe('DrizzleExport', () => {
   it('exports the live course as a curriculum artifact, dialogue included', async () => {
     const repository = new DrizzleItemRepository(db);
     const course = new DrizzleCourse(db, repository);
-    await course.replaceCurriculum({
-      schemaVersion: 1,
-      createdAt: '2026-07-18T00:00:00Z',
-      producer: { name: 'test', version: '0.0.1' },
-      units: [
-        {
-          title: 'Jedinica 1',
-          lessons: [
-            {
-              title: 'Lekcija 1',
-              itemIds: [sentenceId, vodaId],
-              dialogue: {
-                turns: [
-                  {
-                    speaker: 'Mila',
-                    text: 'Dobry denj!',
-                    translation: 'Good day!',
+    await course.replaceCurriculum(
+      {
+        schemaVersion: 1,
+        createdAt: '2026-07-18T00:00:00Z',
+        producer: { name: 'test', version: '0.0.1' },
+        units: [
+          {
+            title: 'Jedinica 1',
+            lessons: [
+              {
+                title: 'Lekcija 1',
+                itemIds: [sentenceId, vodaId],
+                dialogue: {
+                  turns: [
+                    {
+                      speaker: 'Mila',
+                      text: 'Dobry denj!',
+                      translation: 'Good day!',
+                    },
+                  ],
+                  provenance: {
+                    origin: 'human',
+                    contributorId: 'u-author',
                   },
-                ],
-                provenance: {
-                  origin: 'human',
-                  contributorId: 'u-author',
                 },
               },
-            },
-            { title: 'Lekcija 2', itemIds: [phraseId] },
-          ],
-        },
-      ],
-    });
+              { title: 'Lekcija 2', itemIds: [phraseId] },
+            ],
+          },
+        ],
+      },
+      'isv',
+    );
     const exporter = new DrizzleExport(db);
-    const units = await exporter.curriculumUnits();
+    const units = await exporter.curriculumUnits('isv');
+    expect(await exporter.curriculumUnits('other')).toEqual([]);
     const roundTrip = parseCurriculumArtifact({
       schemaVersion: 1,
       createdAt: '2026-07-18T00:00:00Z',
@@ -573,7 +638,8 @@ describe('DrizzleExport', () => {
       },
     ]);
     const exporter = new DrizzleExport(db);
-    const entries = await exporter.morphologyEntries();
+    const entries = await exporter.morphologyEntries('isv');
+    expect(await exporter.morphologyEntries('other')).toEqual([]);
     const roundTrip = parseMorphologyArtifact({
       schemaVersion: 1,
       createdAt: '2026-07-18T00:00:00Z',

@@ -56,8 +56,11 @@ export interface AppDependencies {
   reviewQueue: ReviewQueue;
   /** Community votes over the pending queue (ADR 0040). */
   votes: VoteStore;
-  /** Write side used when a draft is approved (ADR 0038). */
-  itemWriter: { upsertMany(items: readonly Item[]): Promise<void> };
+  /** Write side used when a draft is approved (ADR 0038); the draft's
+   * direction picks the pool it publishes into (ADR 0046). */
+  itemWriter: {
+    upsertMany(items: readonly Item[], direction: string): Promise<void>;
+  };
   userDirectory: UserDirectory;
   recordings: RecordingStore;
   /** Inflected forms per item for morphology drills (ADR 0037). */
@@ -359,7 +362,7 @@ export function buildApp({
           },
         },
       },
-      () => stats.counts(),
+      () => stats.counts(direction.id),
     );
 
     routes.get(
@@ -480,7 +483,7 @@ export function buildApp({
             message: `the text must be written in ${pack.orthographyName}`,
           });
         }
-        await reviewQueue.addPending([candidate.data]);
+        await reviewQueue.addPending([candidate.data], direction.id);
         return reply.status(202).send({ status: 'pending-review' });
       },
     );
@@ -520,14 +523,14 @@ export function buildApp({
         if (sessionResult === null) {
           return reply.status(401).send({ message: 'not signed in' });
         }
-        const item = await items.findById(request.params.id);
-        if (item === undefined) {
+        const found = await items.findById(request.params.id);
+        if (found === undefined) {
           return reply.status(404).send({ message: 'unknown item' });
         }
         const id = crypto.randomUUID();
         await recordings.add({
           id,
-          itemId: item.id,
+          itemId: found.item.id,
           mime: request.body.mime,
           contributorId: sessionResult.user.id,
           bytes: Buffer.from(request.body.data, 'base64'),
@@ -653,16 +656,17 @@ export function buildApp({
         }
         const decision: 'approved' | 'rejected' =
           request.body.decision === 'approve' ? 'approved' : 'rejected';
-        const item = await reviewQueue.decide(
+        const decided = await reviewQueue.decide(
           request.params.id,
           decision,
           `user:${sessionResult.user.id}`,
         );
-        if (item === undefined) {
+        if (decided === undefined) {
           return reply.status(404).send({ message: 'no pending entry' });
         }
         if (decision === 'approved') {
-          await itemWriter.upsertMany([item]);
+          // The draft publishes into the direction it was queued for.
+          await itemWriter.upsertMany([decided.item], decided.direction);
         }
         return { decided: decision };
       },
@@ -710,13 +714,13 @@ export function buildApp({
         ) {
           // Publishing mirrors a reviewer approval (ADR 0040); a decide
           // that comes back empty means someone else got there first.
-          const item = await reviewQueue.decide(
+          const decided = await reviewQueue.decide(
             request.params.id,
             'approved',
             'community:vote',
           );
-          if (item !== undefined) {
-            await itemWriter.upsertMany([item]);
+          if (decided !== undefined) {
+            await itemWriter.upsertMany([decided.item], decided.direction);
           }
         }
         return tally;
@@ -951,7 +955,7 @@ export function buildApp({
           },
         },
       },
-      async () => ({ units: await course.overview() }),
+      async () => ({ units: await course.overview(direction.id) }),
     );
 
     routes.get(
@@ -982,7 +986,10 @@ export function buildApp({
         },
       },
       async (request, reply) => {
-        const lesson = await course.lessonItems(request.params.id);
+        const lesson = await course.lessonItems(
+          request.params.id,
+          direction.id,
+        );
         if (lesson === undefined) {
           return reply.status(404).send({ message: 'lesson not found' });
         }
@@ -1002,12 +1009,21 @@ export function buildApp({
         },
       },
       async (request, reply) => {
-        const lesson = await course.lessonItems(request.params.id);
+        const lesson = await course.lessonItems(
+          request.params.id,
+          direction.id,
+        );
         if (lesson === undefined) {
           return reply.status(404).send({ message: 'lesson not found' });
         }
         const words = lesson.items.map((item) => item.text);
-        return { sentences: await items.findSentencesContaining(words, 20) };
+        return {
+          sentences: await items.findSentencesContaining(
+            direction.id,
+            words,
+            20,
+          ),
+        };
       },
     );
 
@@ -1023,7 +1039,11 @@ export function buildApp({
         },
       },
       async (request) => ({
-        items: await items.list(request.query.limit, request.query.offset),
+        items: await items.list(
+          direction.id,
+          request.query.limit,
+          request.query.offset,
+        ),
       }),
     );
 
@@ -1036,14 +1056,22 @@ export function buildApp({
         },
       },
       async (request, reply) => {
-        const item = await items.findById(request.params.id);
-        if (item === undefined) {
+        const found = await items.findById(request.params.id);
+        if (found === undefined) {
           return reply.status(404).send({ message: 'item not found' });
         }
+        // Renderings come from the owning direction's pack (ADR 0046);
+        // an item stranded outside the declared roster renders nothing.
+        const owning = directions.find(
+          (entry) => entry.direction.id === found.direction,
+        );
         return {
-          item,
+          item: found.item,
           renderings: Object.fromEntries(
-            pack.scripts.map((script) => [script.id, script.render(item.text)]),
+            (owning?.pack.scripts ?? []).map((script) => [
+              script.id,
+              script.render(found.item.text),
+            ]),
           ),
         };
       },
@@ -1099,7 +1127,7 @@ export function buildApp({
         },
       },
       async (_request, reply) => {
-        const exported = await openData.allItems();
+        const exported = await openData.allItems(direction.id);
         if (exported.length === 0) {
           return reply
             .status(404)
@@ -1123,7 +1151,7 @@ export function buildApp({
         },
       },
       async (_request, reply) => {
-        const exported = await openData.curriculumUnits();
+        const exported = await openData.curriculumUnits(direction.id);
         if (exported.length === 0) {
           return reply
             .status(404)
@@ -1147,7 +1175,7 @@ export function buildApp({
         },
       },
       async (_request, reply) => {
-        const exported = await openData.morphologyEntries();
+        const exported = await openData.morphologyEntries(direction.id);
         if (exported.length === 0) {
           return reply
             .status(404)

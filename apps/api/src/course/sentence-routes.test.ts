@@ -49,8 +49,8 @@ function testApp(words: string[] = []) {
         findById: () => Promise.resolve(undefined),
         findByIds: () => Promise.resolve([]),
         list: () => Promise.resolve([]),
-        findSentencesContaining: (requested) => {
-          words.push(...requested);
+        findSentencesContaining: (direction, requested) => {
+          words.push(direction, ...requested);
           return Promise.resolve([sentence]);
         },
       },
@@ -70,7 +70,8 @@ describe('GET /lessons/:id/sentences', () => {
     const body = response.json<{ sentences: Item[] }>();
     expect(body.sentences).toHaveLength(1);
     expect(body.sentences[0]?.text).toBe('Ja pijų vodų.');
-    expect(words).toEqual(['voda']);
+    // The search runs inside the lesson's direction (ADR 0046).
+    expect(words).toEqual(['isv', 'voda']);
   });
 
   it('404s for an unknown lesson', async () => {

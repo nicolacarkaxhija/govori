@@ -56,10 +56,12 @@ interface Setup {
 }
 
 function testApp({ session = 'u1', raceLost = false, resolved }: Setup = {}) {
+  // Drafts queue into the fixture instance's sole direction.
+  const draftDirection = resolved?.directions[0]?.direction.id ?? 'isv';
   const pending = new Map<string, Item>([[draft.id, draft]]);
   const ballots = new Map<string, boolean>();
   const decisions: { id: string; decision: string; decidedBy: string }[] = [];
-  const published: Item[] = [];
+  const published: { item: Item; direction: string }[] = [];
   const seenLimits: number[] = [];
 
   const tally = (reviewId: string) => {
@@ -88,7 +90,12 @@ function testApp({ session = 'u1', raceLost = false, resolved }: Setup = {}) {
         seenLimits.push(limit);
         return Promise.resolve([...pending.values()]);
       },
-      findPending: (id) => Promise.resolve(pending.get(id)),
+      findPending: (id) => {
+        const item = pending.get(id);
+        return Promise.resolve(
+          item === undefined ? undefined : { item, direction: draftDirection },
+        );
+      },
       decide: (id, decision, decidedBy) => {
         const item = pending.get(id);
         if (raceLost || item === undefined) {
@@ -96,7 +103,7 @@ function testApp({ session = 'u1', raceLost = false, resolved }: Setup = {}) {
         }
         pending.delete(id);
         decisions.push({ id, decision, decidedBy });
-        return Promise.resolve(item);
+        return Promise.resolve({ item, direction: draftDirection });
       },
     },
     votes: {
@@ -116,8 +123,8 @@ function testApp({ session = 'u1', raceLost = false, resolved }: Setup = {}) {
       },
     },
     itemWriter: {
-      upsertMany: (items) => {
-        published.push(...items);
+      upsertMany: (items, direction) => {
+        published.push(...items.map((item) => ({ item, direction })));
         return Promise.resolve();
       },
     },
@@ -204,7 +211,9 @@ describe('POST /review/:id/vote', () => {
     expect(decisions).toEqual([
       { id: draft.id, decision: 'approved', decidedBy: 'community:vote' },
     ]);
-    expect(published.map((item) => item.id)).toEqual([draft.id]);
+    expect(published.map((entry) => entry.item.id)).toEqual([draft.id]);
+    // Community publication lands in the draft's own direction.
+    expect(published[0]?.direction).toBe('isv');
     await app.close();
   });
 
@@ -243,7 +252,7 @@ describe('POST /review/:id/vote', () => {
     expect(decisions).toEqual([
       { id: draft.id, decision: 'approved', decidedBy: 'community:vote' },
     ]);
-    expect(published.map((item) => item.id)).toEqual([draft.id]);
+    expect(published.map((entry) => entry.item.id)).toEqual([draft.id]);
     await app.close();
   });
 
