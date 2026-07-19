@@ -266,4 +266,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-19 | docs: add the language expansion roadmap | 1.5–2 | Marketing reference: ranked next-pack table (BCMS/Armenian/Bulgarian/Macedonian top, Kazakh/Georgian rising), blocked list with the thin-data playbook, license-triaged source-stack tiers, OCS and Arbëresh halo projects, and the dead-language/conlang/dialect exotic tracks — plus marketing registry row |
 
-**Running total: 257.4–330.0 h**
+| 2026-07-19 | fix: walk the lesson e2e flows past the new onboarding | 0.3 | Fresh browser contexts now meet the first-run screen; lesson specs seed a returning learner and onboarding gains its own walkthrough spec |
+
+**Running total: 257.7–330.3 h**

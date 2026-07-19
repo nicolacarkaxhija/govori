@@ -4,6 +4,9 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => {
     localStorage.clear();
+    // The first-run onboarding is covered by its own spec; the lesson
+    // flows start from a returning learner's state.
+    localStorage.setItem('govori.onboarded', '1');
   });
   await page.reload();
 });
@@ -51,4 +54,17 @@ test('typed answers are checked tolerantly', async ({ page }) => {
   await input.fill(prompt === 'hlěb' ? 'hleb' : 'voda');
   await page.click('text=Check');
   await expect(page.locator('.card-feedback')).toContainText('Pravilno');
+});
+
+test('a first visit walks through onboarding once', async ({ page }) => {
+  await page.evaluate(() => {
+    localStorage.removeItem('govori.onboarded');
+  });
+  await page.reload();
+  await expect(page.locator('.onboarding-title')).toBeVisible();
+  await page.click('.onboarding button.primary');
+  await page.click('.onboarding button.primary');
+  await expect(page.locator('.hero-name')).toHaveText('Govori');
+  await page.reload();
+  await expect(page.locator('.hero-name')).toHaveText('Govori');
 });
