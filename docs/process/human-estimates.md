@@ -256,4 +256,6 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-19 | fix: require a translation before submitting a produced sentence | 0.3 | The free-production submit posted an empty gloss the API's validation always rejects; a required translation input closes the loop |
 
+| 2026-07-19 | docs: charter freemium with a free-core covenant | 1–1.5 | ADR 0047: provenance-split free/paid boundary, core-course-free guarantee, preview labels and founder grandfathering, per-level lifetime unlocks with published declining price bands, no subscriptions, ADR 0016 left intact — plus registry row |
+
 **Running total: 257.4–330.0 h**
