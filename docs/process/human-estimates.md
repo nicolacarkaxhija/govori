@@ -291,6 +291,8 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-19 | feat: persist and gate entitlements in the api | 2.5–3 | entitlements table (migration 0014, generated clean, PK per user+SKU), EntitlementStore port + Drizzle adapter (server-stamped idempotent grant, oldest-first list); GET /me/entitlements and admin-only POST /admin/entitlements (founder/manual grant, no payment rails); ContentGate wired into buildApp and the live /items/:id path, permissive by default — free when no premiumSku (every item today), 402 when content declares a SKU the viewer lacks; content-gate unit tests cover free/locked/entitled, route tests cover the seam both ways, real-Postgres grant/list/idempotence |
 
+| 2026-07-19 | docs: charter the entitlements seam | 0.5–1 | ADR 0050: pure entitlements domain (timeless per-SKU lifetime unlocks, three grant sources), a permissive-by-default content gate wired live but inert until content declares a premiumSku, the api table/port/adapter and admin/founder grant path, and payments held deliberately out of scope with the purchase source pre-modelled so the seam stays put; registry row |
+
 **Running total: 198.7-252.2 h**
 
 **Running total: 257.7–330.3 h**

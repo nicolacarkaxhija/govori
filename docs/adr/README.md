@@ -96,3 +96,4 @@ Architecture Decision Records are the project's decision log — each file captu
 | [0047](adr-0047-freemium-free-core-covenant.md) | Freemium with a free-core covenant | Provenance-split freemium on chartering instances; community/CC content free forever, core course guaranteed, lifetime level unlocks | accepted |
 | [0048](adr-0048-community-audio-program.md) | The community audio program | Two-tier community audio with three-grant consent, vote validation, and data-ready storage for a licensable speech dataset | accepted |
 | [0049](adr-0049-paid-track-analytics-posture.md) | The paid-track analytics posture | Paid-track-only, self-hosted per-user analytics where every signal powers a visible feature; the free tier stays zero-tracking | accepted |
+| [0050](adr-0050-entitlements-seam.md) | The entitlements seam | Pure entitlements domain + permissive-by-default content gate + admin grant path, built ahead of payments which stay deliberately out of scope | accepted |
