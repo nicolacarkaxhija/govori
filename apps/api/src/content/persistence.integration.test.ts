@@ -22,6 +22,7 @@ import { DrizzleCourse } from '../course/drizzle-course.js';
 import { DrizzleReviewQueue } from '../review/drizzle-review-queue.js';
 import { DrizzleVoteStore } from '../review/drizzle-vote-store.js';
 import { DrizzleRecordingStore } from '../audio/drizzle-recording-store.js';
+import { DrizzleAccount } from '../account/drizzle-account.js';
 import { DrizzleMorphologyRepository } from '../morphology/drizzle-morphology-repository.js';
 import { importMorphologyArtifact } from '../morphology/import-morphology.js';
 import { DrizzleExport } from '../export/drizzle-export.js';
@@ -524,6 +525,54 @@ describe('DrizzleRecordingStore', () => {
     });
     expect(mine.recordings.map((row) => row.id)).toContain(id);
     expect(mine.recordings[0]?.consentApp).toBe(true);
+  });
+});
+
+describe('dataset manifests honour the deletion tombstone', () => {
+  const itemId = '3e2d8f0a-4b1c-4f6e-9a7d-1c2b3a4d5e6f';
+  const withdrawnId = 'ff0b1c2d-3e4f-4a5b-8c6d-7e8f9a0b1c2d';
+
+  it('drops a withdrawn clip from future builds but keeps shipped ones', async () => {
+    const store = new DrizzleRecordingStore(db);
+    // A verified, dataset-consented clip is eligible for the corpus.
+    await store.add({
+      id: withdrawnId,
+      itemId,
+      direction: 'isv',
+      contributorId: 'u-withdraw',
+      speakerPseudonym: 'spk_w',
+      accentTag: null,
+      mime: 'audio/webm',
+      bytes: new Uint8Array([0x01, 0x02, 0x03]),
+      deviceMeta: { mime: 'audio/webm', durationMs: 130_000 },
+      consentVersion: 'v1',
+      consentApp: true,
+      consentDataset: true,
+      consentTraining: false,
+    });
+    for (const voter of ['a', 'b', 'c']) {
+      await store.castVote(withdrawnId, voter, true);
+    }
+    await store.verify(withdrawnId);
+
+    // The build that ships includes it.
+    const shipped = await store.buildDatasetManifest('ds-v1');
+    expect(shipped.recordingIds).toContain(withdrawnId);
+
+    // The contributor erases their account: the clip is tombstoned, its
+    // audio dropped, its attribution gone — but the row remains.
+    await new DrizzleAccount(db).deleteAccount('u-withdraw');
+    const record = await store.findById(withdrawnId);
+    expect(record?.deletedAt).not.toBeNull();
+    expect(await store.get(withdrawnId)).toBeUndefined();
+    expect((await store.mine('u-withdraw')).recordings).toEqual([]);
+
+    // A later build no longer carries the withdrawn clip...
+    const rebuilt = await store.buildDatasetManifest('ds-v2');
+    expect(rebuilt.recordingIds).not.toContain(withdrawnId);
+    // ...but the version it already shipped in stays non-recallable.
+    expect(await store.getManifest('ds-v1')).toContain(withdrawnId);
+    expect(await store.getManifest('unshipped')).toBeUndefined();
   });
 });
 

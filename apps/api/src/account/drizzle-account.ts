@@ -1,7 +1,16 @@
 import { asc, eq } from 'drizzle-orm';
 import type { Db } from '../db/client.js';
-import { reviewEvents, user } from '../db/schema.js';
+import {
+  audioCredits,
+  recordingVotes,
+  recordings,
+  reviewEvents,
+  user,
+} from '../db/schema.js';
 import type { AccountRights, ExportBundle } from './ports.js';
+
+/** The attribution a pseudonymized contribution carries after erasure (ADR 0010). */
+const ERASED_CONTRIBUTOR = 'deleted';
 
 export class DrizzleAccount implements AccountRights {
   constructor(private readonly db: Db) {}
@@ -34,6 +43,23 @@ export class DrizzleAccount implements AccountRights {
   }
 
   async deleteAccount(userId: string): Promise<void> {
+    // Voice recordings are personal data (ADR 0048): erasure drops the audio
+    // and its attribution but keeps a tombstone (deleted_at), so the clip is
+    // excluded from every future dataset build while versions it already
+    // shipped in stay non-recallable (ADR 0010). The contributor's ballots
+    // and premium-time ledger are theirs alone and go entirely.
+    await this.db
+      .update(recordings)
+      .set({
+        deletedAt: new Date(),
+        bytes: new Uint8Array(),
+        contributorId: ERASED_CONTRIBUTOR,
+      })
+      .where(eq(recordings.contributorId, userId));
+    await this.db
+      .delete(recordingVotes)
+      .where(eq(recordingVotes.voterId, userId));
+    await this.db.delete(audioCredits).where(eq(audioCredits.userId, userId));
     await this.db.delete(user).where(eq(user.id, userId));
   }
 }

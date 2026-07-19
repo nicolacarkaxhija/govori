@@ -1,6 +1,11 @@
 import { and, asc, eq, isNull } from 'drizzle-orm';
 import type { Db } from '../db/client.js';
-import { audioCredits, recordingVotes, recordings } from '../db/schema.js';
+import {
+  audioCredits,
+  datasetManifests,
+  recordingVotes,
+  recordings,
+} from '../db/schema.js';
 import { premiumDaysFor } from './credit-policy.js';
 import type {
   AudioCredit,
@@ -170,5 +175,46 @@ export class DrizzleRecordingStore implements RecordingStore {
           ? null
           : { ...credit, grantedAt: credit.grantedAt.toISOString() },
     };
+  }
+
+  /**
+   * Freezes a dataset build's membership (ADR 0048): the eligible recordings
+   * are those verified, dataset-consented, and not tombstoned. The snapshot
+   * is stored under its version, so a later build reflects a withdrawal while
+   * the version this one shipped stays non-recallable. Not on the port — the
+   * app never builds datasets; this is exercised offline and in tests.
+   */
+  async buildDatasetManifest(
+    version: string,
+  ): Promise<{ version: string; recordingIds: string[] }> {
+    const eligible = await this.db
+      .select({ id: recordings.id })
+      .from(recordings)
+      .where(
+        and(
+          eq(recordings.status, 'verified'),
+          eq(recordings.consentDataset, true),
+          isNull(recordings.deletedAt),
+        ),
+      )
+      .orderBy(asc(recordings.createdAt), asc(recordings.id));
+    const recordingIds = eligible.map((row) => row.id);
+    await this.db
+      .insert(datasetManifests)
+      .values({ version, recordingIds })
+      .onConflictDoUpdate({
+        target: datasetManifests.version,
+        set: { recordingIds },
+      });
+    return { version, recordingIds };
+  }
+
+  /** A shipped manifest's frozen membership; undefined when unknown. */
+  async getManifest(version: string): Promise<string[] | undefined> {
+    const [row] = await this.db
+      .select({ recordingIds: datasetManifests.recordingIds })
+      .from(datasetManifests)
+      .where(eq(datasetManifests.version, version));
+    return row?.recordingIds;
   }
 }
