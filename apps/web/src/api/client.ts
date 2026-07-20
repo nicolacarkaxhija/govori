@@ -562,11 +562,37 @@ function toBase64(bytes: Uint8Array): string {
   return btoa(binary);
 }
 
-/** Publishes a clip against an item; audio skips review (ADR 0008). */
+/** Uploads accept exactly these container types (ADR 0004). */
+export type RecordingMime = 'audio/webm' | 'audio/ogg' | 'audio/mpeg';
+
+/** Client-estimated capture metadata (ADR 0048); triage only, never trusted. */
+export interface RecordingDevice {
+  /** Capture sample rate in Hz; omitted when the client cannot report it. */
+  sampleRate?: number;
+  mime: RecordingMime;
+  durationMs: number;
+}
+
+/** The three independently opt-in grants (ADR 0048); app-use is required to
+ * contribute, dataset and training default off. */
+export interface RecordingConsent {
+  version: string;
+  app: true;
+  dataset: boolean;
+  training: boolean;
+}
+
+/**
+ * Publishes a clip against an item (ADR 0048): the recording carries the
+ * three consent grants, client-estimated device metadata, and an optional
+ * accent tag, then enters the community-vote validation path as pending.
+ */
 export async function uploadRecording(
   itemId: string,
-  mime: string,
   clip: Blob,
+  device: RecordingDevice,
+  consent: RecordingConsent,
+  accentTag?: string,
 ): Promise<boolean> {
   try {
     const data = toBase64(new Uint8Array(await clip.arrayBuffer()));
@@ -576,12 +602,157 @@ export async function uploadRecording(
         method: 'POST',
         credentials: 'include',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ mime, data }),
+        body: JSON.stringify({
+          mime: device.mime,
+          data,
+          device: {
+            ...(device.sampleRate === undefined
+              ? {}
+              : { sampleRate: device.sampleRate }),
+            durationMs: device.durationMs,
+          },
+          consent: {
+            version: consent.version,
+            app: consent.app,
+            dataset: consent.dataset,
+            training: consent.training,
+          },
+          ...(accentTag === undefined ? {} : { accentTag }),
+        }),
       },
     );
     return response.status === 201;
   } catch {
     return false;
+  }
+}
+
+const recordingStatusSchema = z.enum(['pending', 'verified', 'rejected']);
+
+export type RecordingStatus = z.infer<typeof recordingStatusSchema>;
+
+const myAudioSchema = z.object({
+  recordings: z.array(
+    z.object({
+      id: z.string(),
+      itemId: z.string(),
+      status: recordingStatusSchema,
+      accentTag: z.string().nullable(),
+      consentVersion: z.string(),
+      consentApp: z.boolean(),
+      consentDataset: z.boolean(),
+      consentTraining: z.boolean(),
+      createdAt: z.string(),
+    }),
+  ),
+  credit: z
+    .object({
+      secondsValidated: z.number(),
+      premiumDaysGranted: z.number(),
+      grantedAt: z.string(),
+    })
+    .nullable(),
+});
+
+export type MyAudio = z.infer<typeof myAudioSchema>;
+export type MyRecording = MyAudio['recordings'][number];
+
+/**
+ * A contributor's own clips, their consents, and the premium-time ledger
+ * (ADR 0048). A 401 is a missing session, not a failure — the view offers
+ * sign-in for it; null is unreachable.
+ */
+export async function fetchMyRecordings(): Promise<
+  MyAudio | 'unauthenticated' | null
+> {
+  try {
+    const response = await fetch(new URL('/audio/mine', apiBaseUrl), {
+      credentials: 'include',
+    });
+    if (response.status === 401) {
+      return 'unauthenticated';
+    }
+    if (!response.ok) {
+      return null;
+    }
+    const payload: unknown = await response.json();
+    return myAudioSchema.parse(payload);
+  } catch {
+    return null;
+  }
+}
+
+const audioVoteSchema = z.object({
+  upvotes: z.number(),
+  downvotes: z.number(),
+  status: recordingStatusSchema,
+});
+
+export type AudioVoteResult = z.infer<typeof audioVoteSchema>;
+
+/** Votes a pending recording up or down (ADR 0048/0040); the response
+ * carries the fresh tally and the clip's status. Null when it did not land. */
+export async function castAudioVote(
+  id: string,
+  up: boolean,
+): Promise<AudioVoteResult | null> {
+  try {
+    const response = await fetch(new URL(`/audio/${id}/vote`, apiBaseUrl), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ up }),
+    });
+    if (!response.ok) {
+      return null;
+    }
+    const payload: unknown = await response.json();
+    return audioVoteSchema.parse(payload);
+  } catch {
+    return null;
+  }
+}
+
+const pendingAudioSchema = z.object({
+  pending: z.array(
+    z.object({
+      id: z.string(),
+      mime: z.string(),
+      item: learnItemSchema,
+      upvotes: z.number(),
+      downvotes: z.number(),
+      myVote: z.boolean().nullable(),
+    }),
+  ),
+});
+
+export type PendingRecording = z.infer<
+  typeof pendingAudioSchema
+>['pending'][number];
+
+/**
+ * Pending clips awaiting community validation (ADR 0048). A 401 is a missing
+ * session; null is unreachable — including while the listing endpoint is not
+ * yet served, so the queue degrades to "unavailable" rather than throwing.
+ */
+export async function fetchPendingAudio(
+  limit = 50,
+): Promise<PendingRecording[] | 'unauthenticated' | null> {
+  try {
+    const response = await fetch(
+      new URL(`/audio/pending?limit=${String(limit)}`, apiBaseUrl),
+      { credentials: 'include' },
+    );
+    if (response.status === 401) {
+      return 'unauthenticated';
+    }
+    if (!response.ok) {
+      return null;
+    }
+    const payload: unknown = await response.json();
+    return pendingAudioSchema.parse(payload).pending;
+  } catch {
+    return null;
   }
 }
 

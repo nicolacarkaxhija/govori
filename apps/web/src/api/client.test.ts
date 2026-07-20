@@ -520,20 +520,61 @@ describe('audio client', () => {
     expect(recordingUrl('abc')).toContain('/audio/abc');
   });
 
-  it('uploads a recording as base64 and reports the outcome', async () => {
+  it('uploads a recording with consent and device metadata', async () => {
     const { uploadRecording } = await import('./client');
     const fetchMock = vi.fn(() => Promise.resolve({ status: 201, ok: true }));
     vi.stubGlobal('fetch', fetchMock);
     const ok = await uploadRecording(
       '7d9a2f04-6d19-4c1a-9e3a-1f2b3c4d5e6f',
-      'audio/webm',
       new Blob(['clip']),
+      { sampleRate: 48000, mime: 'audio/webm', durationMs: 1200 },
+      { version: '1', app: true, dataset: true, training: false },
+      'northern',
     );
     expect(ok).toBe(true);
     const call = fetchMock.mock.calls[0] as unknown as [URL, { body: string }];
-    const body = JSON.parse(call[1].body) as { mime: string; data: string };
+    const body = JSON.parse(call[1].body) as {
+      mime: string;
+      data: string;
+      accentTag: string;
+      device: { sampleRate: number; durationMs: number };
+      consent: {
+        version: string;
+        app: boolean;
+        dataset: boolean;
+        training: boolean;
+      };
+    };
     expect(body.mime).toBe('audio/webm');
     expect(atob(body.data)).toBe('clip');
+    expect(body.accentTag).toBe('northern');
+    expect(body.device).toEqual({ sampleRate: 48000, durationMs: 1200 });
+    expect(body.consent).toEqual({
+      version: '1',
+      app: true,
+      dataset: true,
+      training: false,
+    });
+  });
+
+  it('omits an absent sample rate and accent, and fails closed', async () => {
+    const { uploadRecording } = await import('./client');
+    const fetchMock = vi.fn(() => Promise.resolve({ status: 201, ok: true }));
+    vi.stubGlobal('fetch', fetchMock);
+    await uploadRecording(
+      '7d9a2f04-6d19-4c1a-9e3a-1f2b3c4d5e6f',
+      new Blob(['clip']),
+      { mime: 'audio/ogg', durationMs: 900 },
+      { version: '1', app: true, dataset: false, training: false },
+    );
+    const call = fetchMock.mock.calls[0] as unknown as [URL, { body: string }];
+    const body = JSON.parse(call[1].body) as {
+      device: Record<string, number>;
+      accentTag?: string;
+    };
+    expect('sampleRate' in body.device).toBe(false);
+    expect(body.device).toEqual({ durationMs: 900 });
+    expect(body.accentTag).toBeUndefined();
     vi.stubGlobal(
       'fetch',
       vi.fn(() => Promise.reject(new Error('offline'))),
@@ -541,10 +582,137 @@ describe('audio client', () => {
     expect(
       await uploadRecording(
         '7d9a2f04-6d19-4c1a-9e3a-1f2b3c4d5e6f',
-        'audio/webm',
         new Blob(['clip']),
+        { mime: 'audio/webm', durationMs: 900 },
+        { version: '1', app: true, dataset: false, training: false },
       ),
     ).toBe(false);
+  });
+
+  it('reads my recordings, distinguishing unauthenticated from unreachable', async () => {
+    const { fetchMyRecordings } = await import('./client');
+    const id = '7d9a2f04-6d19-4c1a-9e3a-1f2b3c4d5e6f';
+    const payload = {
+      recordings: [
+        {
+          id,
+          itemId: id,
+          status: 'verified',
+          accentTag: null,
+          consentVersion: '1',
+          consentApp: true,
+          consentDataset: true,
+          consentTraining: false,
+          createdAt: '2026-07-20T00:00:00.000Z',
+        },
+      ],
+      credit: {
+        secondsValidated: 12,
+        premiumDaysGranted: 1,
+        grantedAt: '2026-07-20T00:00:00.000Z',
+      },
+    };
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve({
+          status: 200,
+          ok: true,
+          json: () => Promise.resolve(payload),
+        }),
+      ),
+    );
+    expect(await fetchMyRecordings()).toEqual(payload);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.resolve({ status: 401, ok: false })),
+    );
+    expect(await fetchMyRecordings()).toBe('unauthenticated');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.resolve({ status: 404, ok: false })),
+    );
+    expect(await fetchMyRecordings()).toBeNull();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.reject(new Error('offline'))),
+    );
+    expect(await fetchMyRecordings()).toBeNull();
+  });
+
+  it('casts an audio vote and returns the fresh tally with status', async () => {
+    const { castAudioVote } = await import('./client');
+    const id = '7d9a2f04-6d19-4c1a-9e3a-1f2b3c4d5e6f';
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve({
+          status: 200,
+          ok: true,
+          json: () =>
+            Promise.resolve({ upvotes: 3, downvotes: 0, status: 'verified' }),
+        }),
+      ),
+    );
+    expect(await castAudioVote(id, true)).toEqual({
+      upvotes: 3,
+      downvotes: 0,
+      status: 'verified',
+    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.resolve({ status: 404, ok: false })),
+    );
+    expect(await castAudioVote(id, true)).toBeNull();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.reject(new Error('offline'))),
+    );
+    expect(await castAudioVote(id, false)).toBeNull();
+  });
+
+  it('lists the pending audio queue, unauthenticated from unreachable', async () => {
+    const { fetchPendingAudio } = await import('./client');
+    const id = '7d9a2f04-6d19-4c1a-9e3a-1f2b3c4d5e6f';
+    const entry = {
+      id,
+      mime: 'audio/webm',
+      item: {
+        id,
+        kind: 'word',
+        text: 'dom',
+        translations: [{ lang: 'en', text: 'house' }],
+      },
+      upvotes: 1,
+      downvotes: 0,
+      myVote: null,
+    };
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve({
+          status: 200,
+          ok: true,
+          json: () => Promise.resolve({ pending: [entry] }),
+        }),
+      ),
+    );
+    expect(await fetchPendingAudio()).toEqual([entry]);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.resolve({ status: 401, ok: false })),
+    );
+    expect(await fetchPendingAudio()).toBe('unauthenticated');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.resolve({ status: 404, ok: false })),
+    );
+    expect(await fetchPendingAudio()).toBeNull();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.reject(new Error('offline'))),
+    );
+    expect(await fetchPendingAudio()).toBeNull();
   });
 });
 
