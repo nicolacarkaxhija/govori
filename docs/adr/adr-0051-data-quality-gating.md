@@ -86,3 +86,37 @@ target?)` helper drops `attestation === 'bronze'` items from the candidate
 - **Push the gate into the SRS scheduler** — rejected: it would entangle a
   content-quality concern with due-ness semantics (ADR 0036). Ordering the
   offered tail at the pool seam leaves scheduling pure.
+
+## Implementation note — the golden-set quality benchmark (2026-07-20)
+
+The distractor/ordering gate above is the _preventive_ half of quality. This
+note adds the _measured_ half: a reviewer-audited golden set whose mean score
+is published on the open-metrics page (ADR 0033).
+
+- **Two tables.** `golden_sample (direction, item_id, added_at)` is the fixed,
+  **append-only** per-direction sample — items enter once and stay, so growing
+  the course never displaces an already-audited pick. `golden_audits (item_id,
+direction, reviewer_id, accuracy, naturalness, fit, comment, audited_at)`
+  holds one row per (item, reviewer); re-auditing upserts. Both cascade off
+  `items`. Migration `0016_golden-set.sql`.
+- **Sampling is a pure, deterministic function.** `selectGoldenSample(pool,
+target)` strata-buckets by (kind × attestation-tier, untiered items in their
+  own stratum), orders each stratum by an FNV-1a hash of the item id, and
+  allocates per-stratum quotas by largest-remainder so the sample's mix mirrors
+  the pool's. Re-running over the same pool yields the same ids; the
+  append-only table — not the function — is what guarantees a settled pick
+  never leaves. `POST /admin/golden/sample` (admin-only) reads the pool, targets
+  `min(200, pool)`, and inserts the selection `onConflictDoNothing`, so it is
+  idempotent and tops up as the course grows.
+- **Auditing is reviewer-gated.** `GET /admin/golden` lists sampled items the
+  caller has not yet audited, each hydrated with its text/translations and the
+  most recent prior audit (by anyone) as context. `POST /admin/golden/:itemId/
+audit` takes three 1-5 integer axes plus an optional comment and upserts;
+  only items actually in the sample are auditable.
+- **The score is a query, never stored.** `GET /stats` gains `qualityScore`
+  (the mean of the three axes across every audit for the direction, rescaled
+  1-5 → 0-100, rounded) and `qualityAuditedItems`; the score is `null` until
+  the first audit lands. The web StatsView shows it only when non-null and
+  always states the audited-item count, so a thin sample is never dressed up as
+  a verdict. A reviewer-only "Audit golden set" view (reached from the account
+  surface, mirroring the review-queue card) drives the audit loop.
