@@ -22,6 +22,7 @@ import { ReviewView } from './review/ReviewView';
 import { UsersView } from './review/UsersView';
 import { ContributeView } from './review/ContributeView';
 import { VoteView } from './review/VoteView';
+import { AudioReviewView } from './review/AudioReviewView';
 import { LanguageProvider, useLanguage, useT } from './i18n';
 import { streakDays } from './learn/progress';
 
@@ -82,6 +83,7 @@ function AppShell({
     | { name: 'account' }
     | { name: 'settings' }
     | { name: 'myRecordings' }
+    | { name: 'audioReview' }
     | { name: 'review' }
     | { name: 'users' }
     | { name: 'contribute' }
@@ -340,6 +342,16 @@ function AppShell({
             setView({ name: 'account' });
           }}
         />
+      ) : view.name === 'audioReview' ? (
+        <AudioReviewView
+          script={script}
+          onExit={() => {
+            setView({ name: 'home' });
+          }}
+          onSignIn={() => {
+            setView({ name: 'account' });
+          }}
+        />
       ) : view.name === 'speed' ? (
         <SpeedReviewView
           script={script}
@@ -421,6 +433,17 @@ function AppShell({
             }}
           >
             {t('communityReview')}
+          </button>
+        )}
+        {signedIn && audioOn && (
+          <button
+            type="button"
+            className="footer-link"
+            onClick={() => {
+              setView({ name: 'audioReview' });
+            }}
+          >
+            {t('audioReview')}
           </button>
         )}
         <button
