@@ -90,3 +90,43 @@ describe('makeContentSchemas', () => {
     );
   });
 });
+
+it('carries attestation, difficulty, and per-sense translations when present', () => {
+  const enriched = {
+    ...item,
+    text: 'gjuha',
+    translations: [
+      { lang: 'en', text: 'language', senseGroup: 0 },
+      { lang: 'en', text: 'tongue', senseGroup: 1 },
+    ],
+    attestation: 'gold',
+    difficulty: 0.42,
+  };
+  const result = schemas.ItemSchema.safeParse(enriched);
+  expect(result.success).toBe(true);
+  if (result.success) {
+    expect(result.data.attestation).toBe('gold');
+    expect(result.data.difficulty).toBeCloseTo(0.42);
+    expect(result.data.translations[1]?.senseGroup).toBe(1);
+  }
+});
+
+it('stays valid when the quality fields are absent (additive, backward compatible)', () => {
+  expect(schemas.ItemSchema.safeParse({ ...item, text: 'gjuha' }).success).toBe(
+    true,
+  );
+});
+
+it('rejects an unknown attestation tier and an out-of-range difficulty', () => {
+  expect(
+    schemas.ItemSchema.safeParse({
+      ...item,
+      text: 'gjuha',
+      attestation: 'platinum',
+    }).success,
+  ).toBe(false);
+  expect(
+    schemas.ItemSchema.safeParse({ ...item, text: 'gjuha', difficulty: 1.5 })
+      .success,
+  ).toBe(false);
+});

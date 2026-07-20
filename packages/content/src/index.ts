@@ -12,6 +12,12 @@ export const LanguageCodeSchema = z
 export const TranslationSchema = z.object({
   lang: LanguageCodeSchema,
   text: z.string().trim().min(1),
+  /**
+   * 0-based index of the sense this translation renders, within the
+   * item's sense inventory. Omitted = ungrouped (e.g. cross-language
+   * translations a source does not sense-delimit).
+   */
+  senseGroup: z.number().int().min(0).optional(),
 });
 
 /** Contrastive note shown to speakers of one source language (ADR 0001). */
@@ -128,6 +134,18 @@ export function makeContentSchemas(
     notes: z.array(ContrastiveNoteSchema).default([]),
     provenance: ProvenanceSchema,
     audit: OriginalityAuditSchema.optional(),
+    /**
+     * Cross-source attestation tier, triangulated in the forge from how
+     * many independent corpora corroborate the headword: gold = 3+
+     * sources, silver = 2, bronze = 1. Word/phrase items only.
+     */
+    attestation: z.enum(['gold', 'silver', 'bronze']).optional(),
+    /**
+     * Computed 0-1 sentence-difficulty score, blended from mean word-rank
+     * percentile, sentence length, and morphological complexity.
+     * Sentence items only.
+     */
+    difficulty: z.number().min(0).max(1).optional(),
   });
 
   /**

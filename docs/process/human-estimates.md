@@ -297,6 +297,8 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-19 | fix: drive the e2e flows through the settings screen | 0.3 | The redesign moved script choice into Settings and anglicized feedback copy; the specs now follow the real journeys |
 
-**Running total: 258.0–330.6 h**
+| 2026-07-20 | feat: declare the quality fields the forges emit | 0.5–1 | Additive attestation tier, per-sense translations, and sentence difficulty on the shared content schema, so the importer stops silently dropping the forge's triangulated quality signals |
+
+**Running total: 258.7–331.3 h**
 
 | 2026-07-20 | test: kill the surviving config mutants | 0.5–1 | Stryker over @glotty/config sat at 83.69 after the viewer-role rework left resolveFlags branches under-asserted: added assertions across build/env/flags specs (ConfigError.name, a null override surviving merge and deep-freeze, plain-vs-non-plain-object merge precedence, scalar-over-object override, the multi-issue error separator, and the exact unknown-flag/dangling-requirement/default-ring messages), and rebuilt the shared flag graph lazily per test so defineFlags runs as runtime not static code, making its dependency-graph mutants killable — 135/141 killed, score 95.74, the remaining six provably-equivalent memoization/regex/validated-key mutants |
