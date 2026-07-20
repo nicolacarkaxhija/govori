@@ -206,6 +206,61 @@ describe('DrizzleItemRepository reads', () => {
     const all = [...first, ...rest].map((item) => item.id);
     expect(new Set(all).size).toBe(3);
   });
+
+  it('round-trips attestation, difficulty, and per-sense translations', async () => {
+    const repository = new DrizzleItemRepository(db);
+    const wordId = '1a2b3c4d-5e6f-4a1b-8c2d-3e4f5a6b7c8d';
+    const sentenceId = '2b3c4d5e-6f7a-4b2c-8d3e-4f5a6b7c8d9e';
+    await repository.upsertMany(
+      [
+        {
+          id: wordId,
+          kind: 'word',
+          text: 'gjuha',
+          attestation: 'gold',
+          translations: [
+            { lang: 'en', text: 'language', senseGroup: 0 },
+            { lang: 'en', text: 'tongue', senseGroup: 1 },
+          ],
+          notes: [],
+          provenance: {
+            origin: 'import',
+            source: 'medzuslovjansky/slovnik',
+            license: 'MIT',
+            attribution: 'Interslavic community dictionary',
+          },
+        },
+        {
+          id: sentenceId,
+          kind: 'sentence',
+          text: 'Kjo është një provë.',
+          difficulty: 0.42,
+          translations: [{ lang: 'en', text: 'This is a test.' }],
+          notes: [],
+          provenance: {
+            origin: 'ai-draft',
+            model: 'calibration',
+            generatedAt: '2026-07-16T00:00:00Z',
+          },
+        },
+      ],
+      // A throwaway direction, so this fixture never perturbs the 'isv'
+      // counts other tests in this file depend on.
+      'quality-fixture',
+    );
+    const [word, sentence] = await repository.findByIds([wordId, sentenceId]);
+    expect(word?.attestation).toBe('gold');
+    expect(word?.translations).toEqual([
+      { lang: 'en', text: 'language', senseGroup: 0 },
+      { lang: 'en', text: 'tongue', senseGroup: 1 },
+    ]);
+    expect(sentence?.difficulty).toBeCloseTo(0.42, 5);
+    // A translation without a sense group omits the field entirely.
+    expect(sentence?.translations[0]).toEqual({
+      lang: 'en',
+      text: 'This is a test.',
+    });
+  });
 });
 
 describe('DrizzleItemRepository sentence search', () => {

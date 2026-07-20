@@ -11,6 +11,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import type {
+  Attestation,
   CurriculumArtifact,
   Item,
   OriginalityAudit,
@@ -38,6 +39,10 @@ export const items = pgTable('items', {
   pos: text('pos').$type<PartOfSpeech>(),
   /** The source's raw part-of-speech tag, e.g. `v.tr. ipf.` or `m.anim.`. */
   posDetail: text('pos_detail'),
+  /** Cross-source triangulation tier from the forge (ADR 0051); word/phrase only. */
+  attestation: text('attestation').$type<Attestation>(),
+  /** Computed 0-1 sentence-difficulty score (ADR 0051); sentence items only. */
+  difficulty: real('difficulty'),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -87,6 +92,8 @@ export const translations = pgTable(
       .references(() => items.id, { onDelete: 'cascade' }),
     lang: text('lang').notNull(),
     text: text('text').notNull(),
+    /** 0-based sense-inventory index this translation renders (ADR 0051). */
+    senseGroup: integer('sense_group'),
   },
   (table) => [primaryKey({ columns: [table.itemId, table.lang, table.text] })],
 );

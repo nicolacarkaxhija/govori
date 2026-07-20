@@ -301,7 +301,10 @@ developer working alone. Appended in the same commit it describes.
 
 | 2026-07-20 | feat: list pending audio clips for community review | 1–1.5 | Closes the gap the web voice-review queue flagged: GET /audio/pending mirrors the review queue's shape with per-clip tallies and the viewer's own ballot, backed by a new drizzle listPending query |
 
-**Running total: 259.9–332.5 h**
+| 2026-07-20 | feat: name the attestation tier as a reusable type | 0.3 | Extracted AttestationSchema/Attestation to module scope, matching the existing part-of-speech export pattern, so the api layer can type against it |
+| 2026-07-20 | feat: persist the forge's quality signals | 1–1.5 | Attestation, difficulty, and per-sense translations now survive the database round trip instead of being silently dropped at the repository layer — closes the gap the forge's schema proposal opened |
+
+**Running total: 261.5–334.1 h**
 
 | 2026-07-20 | test: kill the surviving config mutants | 0.5–1 | Stryker over @glotty/config sat at 83.69 after the viewer-role rework left resolveFlags branches under-asserted: added assertions across build/env/flags specs (ConfigError.name, a null override surviving merge and deep-freeze, plain-vs-non-plain-object merge precedence, scalar-over-object override, the multi-issue error separator, and the exact unknown-flag/dangling-requirement/default-ring messages), and rebuilt the shared flag graph lazily per test so defineFlags runs as runtime not static code, making its dependency-graph mutants killable — 135/141 killed, score 95.74, the remaining six provably-equivalent memoization/regex/validated-key mutants |
 

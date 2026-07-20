@@ -1,0 +1,2365 @@
+{
+  "files": {
+    "src/index.ts": {
+      "language": "typescript",
+      "mutants": [
+        {
+          "id": "1",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "invalid configuration — server.baseUrl: Invalid input: expected string, received undefined",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 2,
+          "killedBy": ["12"],
+          "coveredBy": ["11", "12", "13", "14", "15", "16", "17"],
+          "location": {
+            "end": { "column": 2, "line": 17 },
+            "start": { "column": 62, "line": 10 }
+          }
+        },
+        {
+          "id": "0",
+          "mutatorName": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "Survived",
+          "static": false,
+          "testsCompleted": 5,
+          "coveredBy": ["0", "1", "6", "13", "14"],
+          "location": {
+            "end": { "column": 41, "line": 5 },
+            "start": { "column": 28, "line": 5 }
+          }
+        },
+        {
+          "id": "4",
+          "mutatorName": "LogicalOperator",
+          "replacement": "typeof value === 'object' && value !== null && !Array.isArray(value) || Object.getPrototypeOf(value) === Object.prototype",
+          "statusReason": "Cannot convert undefined or null to object",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["11"],
+          "coveredBy": ["11", "12", "13", "14", "15", "16", "17"],
+          "location": {
+            "end": { "column": 54, "line": 15 },
+            "start": { "column": 5, "line": 12 }
+          }
+        },
+        {
+          "id": "2",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "statusReason": "Hit limit reached (2401/2400)",
+          "status": "Timeout",
+          "static": false,
+          "coveredBy": ["11", "12", "13", "14", "15", "16", "17"],
+          "location": {
+            "end": { "column": 54, "line": 15 },
+            "start": { "column": 5, "line": 12 }
+          }
+        },
+        {
+          "id": "3",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "false",
+          "statusReason": "invalid configuration — server.baseUrl: Invalid input: expected string, received undefined",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 2,
+          "killedBy": ["12"],
+          "coveredBy": ["11", "12", "13", "14", "15", "16", "17"],
+          "location": {
+            "end": { "column": 54, "line": 15 },
+            "start": { "column": 5, "line": 12 }
+          }
+        },
+        {
+          "id": "6",
+          "mutatorName": "LogicalOperator",
+          "replacement": "typeof value === 'object' && value !== null || !Array.isArray(value)",
+          "statusReason": "Cannot convert undefined or null to object",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["11"],
+          "coveredBy": ["11", "12", "13", "14", "15", "16", "17"],
+          "location": {
+            "end": { "column": 26, "line": 14 },
+            "start": { "column": 5, "line": 12 }
+          }
+        },
+        {
+          "id": "5",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "statusReason": "Cannot convert undefined or null to object",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["11"],
+          "coveredBy": ["11", "12", "13", "14", "15", "16", "17"],
+          "location": {
+            "end": { "column": 26, "line": 14 },
+            "start": { "column": 5, "line": 12 }
+          }
+        },
+        {
+          "id": "7",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "statusReason": "Cannot convert undefined or null to object",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["11"],
+          "coveredBy": ["11", "12", "13", "14", "15", "16", "17"],
+          "location": {
+            "end": { "column": 19, "line": 13 },
+            "start": { "column": 5, "line": 12 }
+          }
+        },
+        {
+          "id": "8",
+          "mutatorName": "LogicalOperator",
+          "replacement": "typeof value === 'object' || value !== null",
+          "statusReason": "Cannot convert undefined or null to object",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["11"],
+          "coveredBy": ["11", "12", "13", "14", "15", "16", "17"],
+          "location": {
+            "end": { "column": 19, "line": 13 },
+            "start": { "column": 5, "line": 12 }
+          }
+        },
+        {
+          "id": "10",
+          "mutatorName": "EqualityOperator",
+          "replacement": "typeof value !== 'object'",
+          "statusReason": "Cannot convert undefined or null to object",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["11"],
+          "coveredBy": ["11", "12", "13", "14", "15", "16", "17"],
+          "location": {
+            "end": { "column": 30, "line": 12 },
+            "start": { "column": 5, "line": 12 }
+          }
+        },
+        {
+          "id": "9",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "statusReason": "Cannot convert undefined or null to object",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["11"],
+          "coveredBy": ["11", "12", "13", "14", "15", "16", "17"],
+          "location": {
+            "end": { "column": 30, "line": 12 },
+            "start": { "column": 5, "line": 12 }
+          }
+        },
+        {
+          "id": "11",
+          "mutatorName": "StringLiteral",
+          "replacement": "\"\"",
+          "statusReason": "invalid configuration — server.baseUrl: Invalid input: expected string, received undefined",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 2,
+          "killedBy": ["12"],
+          "coveredBy": ["11", "12", "13", "14", "15", "16", "17"],
+          "location": {
+            "end": { "column": 30, "line": 12 },
+            "start": { "column": 22, "line": 12 }
+          }
+        },
+        {
+          "id": "14",
+          "mutatorName": "BooleanLiteral",
+          "replacement": "Array.isArray(value)",
+          "statusReason": "invalid configuration — server.baseUrl: Invalid input: expected string, received undefined",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["12"],
+          "coveredBy": ["12", "13", "17"],
+          "location": {
+            "end": { "column": 26, "line": 14 },
+            "start": { "column": 5, "line": 14 }
+          }
+        },
+        {
+          "id": "13",
+          "mutatorName": "EqualityOperator",
+          "replacement": "value === null",
+          "statusReason": "invalid configuration — server.baseUrl: Invalid input: expected string, received undefined",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["12"],
+          "coveredBy": ["12", "13", "17"],
+          "location": {
+            "end": { "column": 19, "line": 13 },
+            "start": { "column": 5, "line": 13 }
+          }
+        },
+        {
+          "id": "12",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "status": "Survived",
+          "static": false,
+          "testsCompleted": 3,
+          "coveredBy": ["12", "13", "17"],
+          "location": {
+            "end": { "column": 19, "line": 13 },
+            "start": { "column": 5, "line": 13 }
+          }
+        },
+        {
+          "id": "16",
+          "mutatorName": "EqualityOperator",
+          "replacement": "Object.getPrototypeOf(value) !== Object.prototype",
+          "statusReason": "invalid configuration — server.baseUrl: Invalid input: expected string, received undefined",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["12"],
+          "coveredBy": ["12", "13", "17"],
+          "location": {
+            "end": { "column": 54, "line": 15 },
+            "start": { "column": 5, "line": 15 }
+          }
+        },
+        {
+          "id": "15",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "status": "Survived",
+          "static": false,
+          "testsCompleted": 3,
+          "coveredBy": ["12", "13", "17"],
+          "location": {
+            "end": { "column": 54, "line": 15 },
+            "start": { "column": 5, "line": 15 }
+          }
+        },
+        {
+          "id": "17",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "invalid configuration — : Invalid input: expected object, received undefined",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["11"],
+          "coveredBy": ["11", "12", "13", "14", "15"],
+          "location": {
+            "end": { "column": 2, "line": 29 },
+            "start": { "column": 75, "line": 19 }
+          }
+        },
+        {
+          "id": "18",
+          "mutatorName": "ObjectLiteral",
+          "replacement": "{}",
+          "statusReason": "invalid configuration — server.baseUrl: Invalid input: expected string, received undefined; brand: Invalid input: expected object, received undefined",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 2,
+          "killedBy": ["12"],
+          "coveredBy": ["11", "12", "13", "14", "15"],
+          "location": {
+            "end": { "column": 42, "line": 20 },
+            "start": { "column": 31, "line": 20 }
+          }
+        },
+        {
+          "id": "19",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "invalid configuration — server: Invalid input: expected object, received undefined; brand: Invalid input: expected object, received undefined",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["11"],
+          "coveredBy": ["11", "12", "13", "14", "15"],
+          "location": {
+            "end": { "column": 4, "line": 27 },
+            "start": { "column": 56, "line": 21 }
+          }
+        },
+        {
+          "id": "20",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "statusReason": "Hit limit reached (1701/1700)",
+          "status": "Timeout",
+          "static": false,
+          "coveredBy": ["11", "12", "13", "14", "15"],
+          "location": {
+            "end": { "column": 54, "line": 24 },
+            "start": { "column": 7, "line": 24 }
+          }
+        },
+        {
+          "id": "21",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "false",
+          "statusReason": "invalid configuration — server.baseUrl: Invalid input: expected string, received undefined",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 2,
+          "killedBy": ["12"],
+          "coveredBy": ["11", "12", "13", "14", "15"],
+          "location": {
+            "end": { "column": 54, "line": 24 },
+            "start": { "column": 7, "line": 24 }
+          }
+        },
+        {
+          "id": "22",
+          "mutatorName": "LogicalOperator",
+          "replacement": "isPlainObject(existing) || isPlainObject(value)",
+          "status": "Survived",
+          "static": false,
+          "testsCompleted": 5,
+          "coveredBy": ["11", "12", "13", "14", "15"],
+          "location": {
+            "end": { "column": 54, "line": 24 },
+            "start": { "column": 7, "line": 24 }
+          }
+        },
+        {
+          "id": "23",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "Cannot read properties of undefined (reading 'server')",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["11"],
+          "coveredBy": [
+            "2",
+            "3",
+            "4",
+            "5",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "15"
+          ],
+          "location": {
+            "end": { "column": 2, "line": 39 },
+            "start": { "column": 37, "line": 31 }
+          }
+        },
+        {
+          "id": "25",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "false",
+          "statusReason": "expected false to be true // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 3,
+          "killedBy": ["15"],
+          "coveredBy": [
+            "2",
+            "3",
+            "4",
+            "5",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "15"
+          ],
+          "location": {
+            "end": { "column": 50, "line": 32 },
+            "start": { "column": 7, "line": 32 }
+          }
+        },
+        {
+          "id": "24",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "statusReason": "Maximum call stack size exceeded",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["11"],
+          "coveredBy": [
+            "2",
+            "3",
+            "4",
+            "5",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "15"
+          ],
+          "location": {
+            "end": { "column": 50, "line": 32 },
+            "start": { "column": 7, "line": 32 }
+          }
+        },
+        {
+          "id": "27",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "statusReason": "Maximum call stack size exceeded",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["11"],
+          "coveredBy": [
+            "2",
+            "3",
+            "4",
+            "5",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "15"
+          ],
+          "location": {
+            "end": { "column": 32, "line": 32 },
+            "start": { "column": 7, "line": 32 }
+          }
+        },
+        {
+          "id": "26",
+          "mutatorName": "LogicalOperator",
+          "replacement": "typeof value === 'object' || value !== null",
+          "statusReason": "Maximum call stack size exceeded",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["11"],
+          "coveredBy": [
+            "2",
+            "3",
+            "4",
+            "5",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "15"
+          ],
+          "location": {
+            "end": { "column": 50, "line": 32 },
+            "start": { "column": 7, "line": 32 }
+          }
+        },
+        {
+          "id": "29",
+          "mutatorName": "StringLiteral",
+          "replacement": "\"\"",
+          "statusReason": "expected false to be true // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 3,
+          "killedBy": ["15"],
+          "coveredBy": [
+            "2",
+            "3",
+            "4",
+            "5",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "15"
+          ],
+          "location": {
+            "end": { "column": 32, "line": 32 },
+            "start": { "column": 24, "line": 32 }
+          }
+        },
+        {
+          "id": "28",
+          "mutatorName": "EqualityOperator",
+          "replacement": "typeof value !== 'object'",
+          "statusReason": "expected false to be true // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 3,
+          "killedBy": ["15"],
+          "coveredBy": [
+            "2",
+            "3",
+            "4",
+            "5",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "15"
+          ],
+          "location": {
+            "end": { "column": 32, "line": 32 },
+            "start": { "column": 7, "line": 32 }
+          }
+        },
+        {
+          "id": "31",
+          "mutatorName": "EqualityOperator",
+          "replacement": "value === null",
+          "statusReason": "expected false to be true // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 3,
+          "killedBy": ["15"],
+          "coveredBy": [
+            "2",
+            "3",
+            "4",
+            "5",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "15"
+          ],
+          "location": {
+            "end": { "column": 50, "line": 32 },
+            "start": { "column": 36, "line": 32 }
+          }
+        },
+        {
+          "id": "32",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected false to be true // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 3,
+          "killedBy": ["15"],
+          "coveredBy": [
+            "2",
+            "3",
+            "4",
+            "5",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "15"
+          ],
+          "location": {
+            "end": { "column": 4, "line": 37 },
+            "start": { "column": 52, "line": 32 }
+          }
+        },
+        {
+          "id": "34",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "Cannot read properties of undefined (reading 'server')",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["11"],
+          "coveredBy": ["11", "12", "13", "14", "15"],
+          "location": {
+            "end": { "column": 2, "line": 63 },
+            "start": { "column": 31, "line": 50 }
+          }
+        },
+        {
+          "id": "33",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected false to be true // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 3,
+          "killedBy": ["15"],
+          "coveredBy": [
+            "2",
+            "3",
+            "4",
+            "5",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "15"
+          ],
+          "location": {
+            "end": { "column": 6, "line": 35 },
+            "start": { "column": 47, "line": 33 }
+          }
+        },
+        {
+          "id": "30",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "status": "Survived",
+          "static": false,
+          "testsCompleted": 11,
+          "coveredBy": [
+            "2",
+            "3",
+            "4",
+            "5",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "15"
+          ],
+          "location": {
+            "end": { "column": 50, "line": 32 },
+            "start": { "column": 36, "line": 32 }
+          }
+        },
+        {
+          "id": "36",
+          "mutatorName": "BooleanLiteral",
+          "replacement": "result.success",
+          "statusReason": "Cannot read properties of undefined (reading 'issues')",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["11"],
+          "coveredBy": ["11", "12", "13", "14", "15"],
+          "location": {
+            "end": { "column": 22, "line": 56 },
+            "start": { "column": 7, "line": 56 }
+          }
+        },
+        {
+          "id": "35",
+          "mutatorName": "ArrowFunction",
+          "replacement": "() => undefined",
+          "statusReason": "invalid configuration — : Invalid input: expected object, received undefined",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["11"],
+          "coveredBy": ["11", "12", "13", "14", "15"],
+          "location": {
+            "end": { "column": 60, "line": 52 },
+            "start": { "column": 5, "line": 52 }
+          }
+        },
+        {
+          "id": "37",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "statusReason": "Cannot read properties of undefined (reading 'issues')",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["11"],
+          "coveredBy": ["11", "12", "13", "14", "15"],
+          "location": {
+            "end": { "column": 22, "line": 56 },
+            "start": { "column": 7, "line": 56 }
+          }
+        },
+        {
+          "id": "38",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "false",
+          "statusReason": "expected function to throw an error, but it didn't",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 3,
+          "killedBy": ["13"],
+          "coveredBy": ["11", "12", "13", "14", "15"],
+          "location": {
+            "end": { "column": 22, "line": 56 },
+            "start": { "column": 7, "line": 56 }
+          }
+        },
+        {
+          "id": "39",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected function to throw an error, but it didn't",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["13"],
+          "coveredBy": ["13", "14"],
+          "location": {
+            "end": { "column": 4, "line": 61 },
+            "start": { "column": 24, "line": 56 }
+          }
+        },
+        {
+          "id": "41",
+          "mutatorName": "StringLiteral",
+          "replacement": "``",
+          "statusReason": "expected [Function] to throw error matching /server\\.port/ but got 'invalid configuration — '",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["13"],
+          "coveredBy": ["13", "14"],
+          "location": {
+            "end": { "column": 66, "line": 58 },
+            "start": { "column": 23, "line": 58 }
+          }
+        },
+        {
+          "id": "40",
+          "mutatorName": "ArrowFunction",
+          "replacement": "() => undefined",
+          "statusReason": "expected [Function] to throw error matching /server\\.port/ but got 'invalid configuration — '",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["13"],
+          "coveredBy": ["13", "14"],
+          "location": {
+            "end": { "column": 66, "line": 58 },
+            "start": { "column": 12, "line": 58 }
+          }
+        },
+        {
+          "id": "42",
+          "mutatorName": "StringLiteral",
+          "replacement": "\"\"",
+          "statusReason": "expected [Function] to throw error matching /server\\.port/ but got 'invalid configuration — serverport: I…'",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["13"],
+          "coveredBy": ["13", "14"],
+          "location": {
+            "end": { "column": 45, "line": 58 },
+            "start": { "column": 42, "line": 58 }
+          }
+        },
+        {
+          "id": "45",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected { undefined: { undefined: 'Govori' } } to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16", "17"],
+          "location": {
+            "end": { "column": 2, "line": 69 },
+            "start": { "column": 44, "line": 65 }
+          }
+        },
+        {
+          "id": "46",
+          "mutatorName": "MethodExpression",
+          "replacement": "segment.toUpperCase()",
+          "statusReason": "expected { SERVER: { PORT: '8080' }, …(1) } to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16", "17"],
+          "location": {
+            "end": { "column": 19, "line": 67 },
+            "start": { "column": 10, "line": 66 }
+          }
+        },
+        {
+          "id": "43",
+          "mutatorName": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "Survived",
+          "static": false,
+          "testsCompleted": 2,
+          "coveredBy": ["13", "14"],
+          "location": {
+            "end": { "column": 17, "line": 59 },
+            "start": { "column": 13, "line": 59 }
+          }
+        },
+        {
+          "id": "47",
+          "mutatorName": "Regex",
+          "replacement": "/_(.)/gu",
+          "status": "Survived",
+          "static": false,
+          "testsCompleted": 2,
+          "coveredBy": ["16", "17"],
+          "location": {
+            "end": { "column": 23, "line": 68 },
+            "start": { "column": 14, "line": 68 }
+          }
+        },
+        {
+          "id": "44",
+          "mutatorName": "StringLiteral",
+          "replacement": "``",
+          "statusReason": "expected [Function] to throw error matching /server\\.port/ but got ''",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["13"],
+          "coveredBy": ["13", "14"],
+          "location": {
+            "end": { "column": 63, "line": 60 },
+            "start": { "column": 27, "line": 60 }
+          }
+        },
+        {
+          "id": "48",
+          "mutatorName": "ArrowFunction",
+          "replacement": "() => undefined",
+          "statusReason": "expected { server: { port: '8080' }, …(1) } to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16", "17"],
+          "location": {
+            "end": { "column": 73, "line": 68 },
+            "start": { "column": 25, "line": 68 }
+          }
+        },
+        {
+          "id": "49",
+          "mutatorName": "MethodExpression",
+          "replacement": "letter.toLowerCase()",
+          "statusReason": "expected { server: { port: '8080' }, …(1) } to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16"],
+          "location": {
+            "end": { "column": 73, "line": 68 },
+            "start": { "column": 53, "line": 68 }
+          }
+        },
+        {
+          "id": "50",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected undefined to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16", "17", "18", "19"],
+          "location": {
+            "end": { "column": 2, "line": 100 },
+            "start": { "column": 16, "line": 80 }
+          }
+        },
+        {
+          "id": "51",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected {} to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16", "17", "18", "19"],
+          "location": {
+            "end": { "column": 4, "line": 98 },
+            "start": { "column": 52, "line": 82 }
+          }
+        },
+        {
+          "id": "52",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "statusReason": "expected {} to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16", "17", "18", "19"],
+          "location": {
+            "end": { "column": 56, "line": 83 },
+            "start": { "column": 9, "line": 83 }
+          }
+        },
+        {
+          "id": "53",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "false",
+          "statusReason": "expected { server: { port: '8080' }, …(2) } to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16", "17", "18", "19"],
+          "location": {
+            "end": { "column": 56, "line": 83 },
+            "start": { "column": 9, "line": 83 }
+          }
+        },
+        {
+          "id": "55",
+          "mutatorName": "BooleanLiteral",
+          "replacement": "name.startsWith(prefix)",
+          "statusReason": "expected { ed: 'ignored' } to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16", "17", "18", "19"],
+          "location": {
+            "end": { "column": 33, "line": 83 },
+            "start": { "column": 9, "line": 83 }
+          }
+        },
+        {
+          "id": "54",
+          "mutatorName": "LogicalOperator",
+          "replacement": "!name.startsWith(prefix) && value === undefined",
+          "statusReason": "expected { server: { port: '8080' }, …(2) } to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16", "17", "18", "19"],
+          "location": {
+            "end": { "column": 56, "line": 83 },
+            "start": { "column": 9, "line": 83 }
+          }
+        },
+        {
+          "id": "56",
+          "mutatorName": "MethodExpression",
+          "replacement": "name.endsWith(prefix)",
+          "statusReason": "expected {} to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16", "17", "18", "19"],
+          "location": {
+            "end": { "column": 33, "line": 83 },
+            "start": { "column": 10, "line": 83 }
+          }
+        },
+        {
+          "id": "60",
+          "mutatorName": "MethodExpression",
+          "replacement": "name",
+          "statusReason": "expected { Object (glottyServer, glottyBrand) } to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16", "17"],
+          "location": {
+            "end": { "column": 43, "line": 86 },
+            "start": { "column": 18, "line": 86 }
+          }
+        },
+        {
+          "id": "58",
+          "mutatorName": "EqualityOperator",
+          "replacement": "value !== undefined",
+          "statusReason": "expected {} to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16", "17", "19"],
+          "location": {
+            "end": { "column": 56, "line": 83 },
+            "start": { "column": 37, "line": 83 }
+          }
+        },
+        {
+          "id": "59",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected { server: { port: '8080' }, …(2) } to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16", "18", "19"],
+          "location": {
+            "end": { "column": 6, "line": 85 },
+            "start": { "column": 58, "line": 83 }
+          }
+        },
+        {
+          "id": "57",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "false",
+          "statusReason": "expected { server: { port: undefined } } to deeply equal {}",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 3,
+          "killedBy": ["19"],
+          "coveredBy": ["16", "17", "19"],
+          "location": {
+            "end": { "column": 56, "line": 83 },
+            "start": { "column": 37, "line": 83 }
+          }
+        },
+        {
+          "id": "62",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected {} to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16", "17"],
+          "location": {
+            "end": { "column": 6, "line": 97 },
+            "start": { "column": 38, "line": 88 }
+          }
+        },
+        {
+          "id": "61",
+          "mutatorName": "StringLiteral",
+          "replacement": "\"\"",
+          "statusReason": "expected { …(2) } to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16", "17"],
+          "location": {
+            "end": { "column": 54, "line": 86 },
+            "start": { "column": 50, "line": 86 }
+          }
+        },
+        {
+          "id": "63",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "statusReason": "expected { server: '8080', port: '8080', …(2) } to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16", "17"],
+          "location": {
+            "end": { "column": 36, "line": 89 },
+            "start": { "column": 11, "line": 89 }
+          }
+        },
+        {
+          "id": "64",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "false",
+          "statusReason": "expected { server: { port: {} }, …(1) } to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16", "17"],
+          "location": {
+            "end": { "column": 36, "line": 89 },
+            "start": { "column": 11, "line": 89 }
+          }
+        },
+        {
+          "id": "66",
+          "mutatorName": "ArithmeticOperator",
+          "replacement": "path.length + 1",
+          "statusReason": "expected { server: { port: {} }, …(1) } to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16", "17"],
+          "location": {
+            "end": { "column": 36, "line": 89 },
+            "start": { "column": 21, "line": 89 }
+          }
+        },
+        {
+          "id": "65",
+          "mutatorName": "EqualityOperator",
+          "replacement": "index !== path.length - 1",
+          "statusReason": "expected { server: '8080', port: {}, …(2) } to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16", "17"],
+          "location": {
+            "end": { "column": 36, "line": 89 },
+            "start": { "column": 11, "line": 89 }
+          }
+        },
+        {
+          "id": "70",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected undefined to be true // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 2, "line": 150 },
+            "start": { "column": 73, "line": 148 }
+          }
+        },
+        {
+          "id": "71",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "statusReason": "expected true to be false // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 6,
+          "killedBy": ["8"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 50, "line": 149 },
+            "start": { "column": 10, "line": 149 }
+          }
+        },
+        {
+          "id": "72",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "false",
+          "statusReason": "expected false to be true // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 50, "line": 149 },
+            "start": { "column": 10, "line": 149 }
+          }
+        },
+        {
+          "id": "67",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected { server: { port: {} }, …(1) } to deeply equal { server: { port: '8080' }, …(1) }",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["16"],
+          "coveredBy": ["16", "17"],
+          "location": {
+            "end": { "column": 8, "line": 92 },
+            "start": { "column": 38, "line": 89 }
+          }
+        },
+        {
+          "id": "73",
+          "mutatorName": "EqualityOperator",
+          "replacement": "viewerRank[viewer] > targetRank[target]",
+          "statusReason": "expected false to be true // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 5,
+          "killedBy": ["7"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 50, "line": 149 },
+            "start": { "column": 10, "line": 149 }
+          }
+        },
+        {
+          "id": "83",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected function to throw an error, but it didn't",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["0"],
+          "coveredBy": ["0"],
+          "location": {
+            "end": { "column": 8, "line": 164 },
+            "start": { "column": 42, "line": 160 }
+          }
+        },
+        {
+          "id": "74",
+          "mutatorName": "EqualityOperator",
+          "replacement": "viewerRank[viewer] < targetRank[target]",
+          "statusReason": "expected false to be true // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 50, "line": 149 },
+            "start": { "column": 10, "line": 149 }
+          }
+        },
+        {
+          "id": "84",
+          "mutatorName": "StringLiteral",
+          "replacement": "``",
+          "statusReason": "expected [Function] to throw error matching /acounts/ but got ''",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["0"],
+          "coveredBy": ["0"],
+          "location": {
+            "end": { "column": 65, "line": 162 },
+            "start": { "column": 11, "line": 162 }
+          }
+        },
+        {
+          "id": "91",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "Hit limit reached (101/100)",
+          "status": "Timeout",
+          "static": false,
+          "coveredBy": ["1"],
+          "location": {
+            "end": { "column": 6, "line": 175 },
+            "start": { "column": 28, "line": 173 }
+          }
+        },
+        {
+          "id": "92",
+          "mutatorName": "StringLiteral",
+          "replacement": "``",
+          "statusReason": "expected [Function] to throw error matching /cycle/i but got ''",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["1"],
+          "coveredBy": ["1"],
+          "location": {
+            "end": { "column": 71, "line": 174 },
+            "start": { "column": 29, "line": 174 }
+          }
+        },
+        {
+          "id": "98",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "Cannot read properties of undefined (reading 'leaderboards')",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "6", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 2, "line": 249 },
+            "start": { "column": 53, "line": 200 }
+          }
+        },
+        {
+          "id": "100",
+          "mutatorName": "BooleanLiteral",
+          "replacement": "key in definitions",
+          "statusReason": "state for unknown flag \"accounts\"",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "6", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 30, "line": 202 },
+            "start": { "column": 9, "line": 202 }
+          }
+        },
+        {
+          "id": "99",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected function to throw an error, but it didn't",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 5,
+          "killedBy": ["6"],
+          "coveredBy": ["2", "3", "4", "5", "6", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 4, "line": 205 },
+            "start": { "column": 41, "line": 201 }
+          }
+        },
+        {
+          "id": "101",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "statusReason": "state for unknown flag \"accounts\"",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "6", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 30, "line": 202 },
+            "start": { "column": 9, "line": 202 }
+          }
+        },
+        {
+          "id": "102",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "false",
+          "statusReason": "expected function to throw an error, but it didn't",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 5,
+          "killedBy": ["6"],
+          "coveredBy": ["2", "3", "4", "5", "6", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 30, "line": 202 },
+            "start": { "column": 9, "line": 202 }
+          }
+        },
+        {
+          "id": "103",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected function to throw an error, but it didn't",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["6"],
+          "coveredBy": ["6"],
+          "location": {
+            "end": { "column": 6, "line": 204 },
+            "start": { "column": 32, "line": 202 }
+          }
+        },
+        {
+          "id": "104",
+          "mutatorName": "StringLiteral",
+          "replacement": "``",
+          "status": "Survived",
+          "static": false,
+          "testsCompleted": 1,
+          "coveredBy": ["6"],
+          "location": {
+            "end": { "column": 62, "line": 203 },
+            "start": { "column": 29, "line": 203 }
+          }
+        },
+        {
+          "id": "105",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected undefined to be true // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 4, "line": 223 },
+            "start": { "column": 49, "line": 208 }
+          }
+        },
+        {
+          "id": "109",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "status": "Survived",
+          "static": false,
+          "testsCompleted": 8,
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 6, "line": 212 },
+            "start": { "column": 29, "line": 210 }
+          }
+        },
+        {
+          "id": "107",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Survived",
+          "static": false,
+          "testsCompleted": 8,
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 27, "line": 210 },
+            "start": { "column": 9, "line": 210 }
+          }
+        },
+        {
+          "id": "106",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "statusReason": "expected undefined to be true // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 27, "line": 210 },
+            "start": { "column": 9, "line": 210 }
+          }
+        },
+        {
+          "id": "108",
+          "mutatorName": "EqualityOperator",
+          "replacement": "memo === undefined",
+          "statusReason": "expected undefined to be true // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 27, "line": 210 },
+            "start": { "column": 9, "line": 210 }
+          }
+        },
+        {
+          "id": "111",
+          "mutatorName": "OptionalChaining",
+          "replacement": "stored.enabled",
+          "statusReason": "Cannot read properties of undefined (reading 'enabled')",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 3,
+          "killedBy": ["4"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 36, "line": 214 },
+            "start": { "column": 21, "line": 214 }
+          }
+        },
+        {
+          "id": "112",
+          "mutatorName": "BooleanLiteral",
+          "replacement": "true",
+          "statusReason": "expected true to be false // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["4"],
+          "coveredBy": ["4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 45, "line": 214 },
+            "start": { "column": 40, "line": 214 }
+          }
+        },
+        {
+          "id": "110",
+          "mutatorName": "LogicalOperator",
+          "replacement": "stored?.enabled && false",
+          "statusReason": "expected false to be true // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 45, "line": 214 },
+            "start": { "column": 21, "line": 214 }
+          }
+        },
+        {
+          "id": "113",
+          "mutatorName": "LogicalOperator",
+          "replacement": "stored?.targetRole && 'all'",
+          "statusReason": "expected true to be false // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 6,
+          "killedBy": ["8"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 51, "line": 215 },
+            "start": { "column": 24, "line": 215 }
+          }
+        },
+        {
+          "id": "114",
+          "mutatorName": "OptionalChaining",
+          "replacement": "stored.targetRole",
+          "statusReason": "Cannot read properties of undefined (reading 'targetRole')",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 3,
+          "killedBy": ["4"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 42, "line": 215 },
+            "start": { "column": 24, "line": 215 }
+          }
+        },
+        {
+          "id": "115",
+          "mutatorName": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "Survived",
+          "static": false,
+          "testsCompleted": 6,
+          "coveredBy": ["4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 51, "line": 215 },
+            "start": { "column": 46, "line": 215 }
+          }
+        },
+        {
+          "id": "116",
+          "mutatorName": "LogicalOperator",
+          "replacement": "definitions[key]?.requires && []",
+          "statusReason": "Cannot read properties of undefined (reading 'every')",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 54, "line": 216 },
+            "start": { "column": 22, "line": 216 }
+          }
+        },
+        {
+          "id": "117",
+          "mutatorName": "OptionalChaining",
+          "replacement": "definitions[key].requires",
+          "status": "Survived",
+          "static": false,
+          "testsCompleted": 8,
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 48, "line": 216 },
+            "start": { "column": 22, "line": 216 }
+          }
+        },
+        {
+          "id": "121",
+          "mutatorName": "LogicalOperator",
+          "replacement": "enabled && ringSatisfied(targetRole, viewerRole) || requires.every(isEffective)",
+          "statusReason": "expected true to be false // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 34, "line": 220 },
+            "start": { "column": 7, "line": 218 }
+          }
+        },
+        {
+          "id": "118",
+          "mutatorName": "ArrayDeclaration",
+          "replacement": "[\"Stryker was here\"]",
+          "statusReason": "expected false to be true // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 54, "line": 216 },
+            "start": { "column": 52, "line": 216 }
+          }
+        },
+        {
+          "id": "120",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "false",
+          "statusReason": "expected false to be true // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 34, "line": 220 },
+            "start": { "column": 7, "line": 218 }
+          }
+        },
+        {
+          "id": "119",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "statusReason": "expected true to be false // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 34, "line": 220 },
+            "start": { "column": 7, "line": 218 }
+          }
+        },
+        {
+          "id": "122",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "statusReason": "expected true to be false // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 44, "line": 219 },
+            "start": { "column": 7, "line": 218 }
+          }
+        },
+        {
+          "id": "124",
+          "mutatorName": "MethodExpression",
+          "replacement": "requires.some(isEffective)",
+          "statusReason": "expected false to be true // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 34, "line": 220 },
+            "start": { "column": 7, "line": 220 }
+          }
+        },
+        {
+          "id": "127",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected [] to deeply equal [ 'audio' ]",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 6, "line": 234 },
+            "start": { "column": 45, "line": 227 }
+          }
+        },
+        {
+          "id": "123",
+          "mutatorName": "LogicalOperator",
+          "replacement": "enabled || ringSatisfied(targetRole, viewerRole)",
+          "statusReason": "expected true to be false // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 44, "line": 219 },
+            "start": { "column": 7, "line": 218 }
+          }
+        },
+        {
+          "id": "129",
+          "mutatorName": "OptionalChaining",
+          "replacement": "definitions[current].requires",
+          "status": "Survived",
+          "static": false,
+          "testsCompleted": 8,
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 63, "line": 228 },
+            "start": { "column": 33, "line": 228 }
+          }
+        },
+        {
+          "id": "126",
+          "mutatorName": "ArrayDeclaration",
+          "replacement": "[\"Stryker was here\"]",
+          "statusReason": "expected [ 'Stryker was here', 'audio' ] to deeply equal [ 'audio' ]",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 35, "line": 226 },
+            "start": { "column": 33, "line": 226 }
+          }
+        },
+        {
+          "id": "131",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected [] to deeply equal [ 'audio' ]",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 8, "line": 233 },
+            "start": { "column": 71, "line": 228 }
+          }
+        },
+        {
+          "id": "128",
+          "mutatorName": "LogicalOperator",
+          "replacement": "definitions[current]?.requires && []",
+          "statusReason": "undefined is not iterable (cannot read property Symbol(Symbol.iterator))",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 69, "line": 228 },
+            "start": { "column": 33, "line": 228 }
+          }
+        },
+        {
+          "id": "125",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "Cannot read properties of undefined (reading 'filter')",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 4, "line": 237 },
+            "start": { "column": 57, "line": 225 }
+          }
+        },
+        {
+          "id": "132",
+          "mutatorName": "BooleanLiteral",
+          "replacement": "collected.includes(requirement)",
+          "statusReason": "expected [] to deeply equal [ 'audio' ]",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 45, "line": 229 },
+            "start": { "column": 13, "line": 229 }
+          }
+        },
+        {
+          "id": "130",
+          "mutatorName": "ArrayDeclaration",
+          "replacement": "[\"Stryker was here\"]",
+          "statusReason": "Hit limit reached (7401/7400)",
+          "status": "Timeout",
+          "static": false,
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 69, "line": 228 },
+            "start": { "column": 67, "line": 228 }
+          }
+        },
+        {
+          "id": "133",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "statusReason": "expected [ 'base', 'left', 'base', 'right' ] to deeply equal [ 'base', 'left', 'right' ]",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 4,
+          "killedBy": ["5"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 45, "line": 229 },
+            "start": { "column": 13, "line": 229 }
+          }
+        },
+        {
+          "id": "138",
+          "mutatorName": "MethodExpression",
+          "replacement": "transitiveRequires(key)",
+          "statusReason": "expected [ 'accounts' ] to deeply equal []",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 3,
+          "killedBy": ["4"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 8, "line": 245 },
+            "start": { "column": 21, "line": 243 }
+          }
+        },
+        {
+          "id": "136",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "Cannot read properties of undefined (reading 'effective')",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 4, "line": 247 },
+            "start": { "column": 47, "line": 240 }
+          }
+        },
+        {
+          "id": "135",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected [] to deeply equal [ 'audio' ]",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 10, "line": 232 },
+            "start": { "column": 47, "line": 229 }
+          }
+        },
+        {
+          "id": "140",
+          "mutatorName": "BooleanLiteral",
+          "replacement": "isEffective(requirement)",
+          "statusReason": "expected [] to deeply equal [ 'audio' ]",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 51, "line": 244 },
+            "start": { "column": 26, "line": 244 }
+          }
+        },
+        {
+          "id": "139",
+          "mutatorName": "ArrowFunction",
+          "replacement": "() => undefined",
+          "statusReason": "expected [] to deeply equal [ 'audio' ]",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 51, "line": 244 },
+            "start": { "column": 9, "line": 244 }
+          }
+        },
+        {
+          "id": "137",
+          "mutatorName": "ObjectLiteral",
+          "replacement": "{}",
+          "statusReason": "expected undefined to be true // Object.is equality",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 6, "line": 246 },
+            "start": { "column": 21, "line": 241 }
+          }
+        },
+        {
+          "id": "68",
+          "mutatorName": "ObjectLiteral",
+          "replacement": "{}",
+          "statusReason": "expected false to be true // Object.is equality",
+          "status": "Killed",
+          "static": true,
+          "testsCompleted": 3,
+          "killedBy": ["2"],
+          "coveredBy": [],
+          "location": {
+            "end": { "column": 2, "line": 138 },
+            "start": { "column": 48, "line": 133 }
+          }
+        },
+        {
+          "id": "69",
+          "mutatorName": "ObjectLiteral",
+          "replacement": "{}",
+          "statusReason": "expected false to be true // Object.is equality",
+          "status": "Killed",
+          "static": true,
+          "testsCompleted": 3,
+          "killedBy": ["2"],
+          "coveredBy": [],
+          "location": {
+            "end": { "column": 2, "line": 145 },
+            "start": { "column": 48, "line": 141 }
+          }
+        },
+        {
+          "id": "134",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "false",
+          "statusReason": "expected [] to deeply equal [ 'audio' ]",
+          "status": "Killed",
+          "static": false,
+          "testsCompleted": 1,
+          "killedBy": ["2"],
+          "coveredBy": ["2", "3", "4", "5", "7", "8", "9", "10"],
+          "location": {
+            "end": { "column": 45, "line": 229 },
+            "start": { "column": 13, "line": 229 }
+          }
+        },
+        {
+          "id": "75",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected function to throw an error, but it didn't",
+          "status": "Killed",
+          "static": true,
+          "testsCompleted": 1,
+          "killedBy": ["0"],
+          "coveredBy": ["0", "1", "5"],
+          "location": {
+            "end": { "column": 2, "line": 187 },
+            "start": { "column": 75, "line": 157 }
+          }
+        },
+        {
+          "id": "76",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected function to throw an error, but it didn't",
+          "status": "Killed",
+          "static": true,
+          "testsCompleted": 1,
+          "killedBy": ["0"],
+          "coveredBy": ["0", "1", "5"],
+          "location": {
+            "end": { "column": 4, "line": 166 },
+            "start": { "column": 64, "line": 158 }
+          }
+        },
+        {
+          "id": "82",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "false",
+          "statusReason": "expected function to throw an error, but it didn't",
+          "status": "Killed",
+          "static": true,
+          "testsCompleted": 1,
+          "killedBy": ["0"],
+          "coveredBy": ["0", "1", "5"],
+          "location": {
+            "end": { "column": 40, "line": 160 },
+            "start": { "column": 11, "line": 160 }
+          }
+        },
+        {
+          "id": "86",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "statusReason": "expected [Function] to throw an error",
+          "status": "Killed",
+          "static": true,
+          "testsCompleted": 2,
+          "killedBy": ["1"],
+          "coveredBy": ["1", "5"],
+          "location": {
+            "end": { "column": 25, "line": 170 },
+            "start": { "column": 9, "line": 170 }
+          }
+        },
+        {
+          "id": "90",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "false",
+          "statusReason": "Hit limit reached (1201/1200)",
+          "status": "Timeout",
+          "static": true,
+          "coveredBy": ["1", "5"],
+          "location": {
+            "end": { "column": 26, "line": 173 },
+            "start": { "column": 9, "line": 173 }
+          }
+        },
+        {
+          "id": "78",
+          "mutatorName": "ArrayDeclaration",
+          "replacement": "[\"Stryker was here\"]",
+          "status": "Survived",
+          "static": true,
+          "testsCompleted": 9,
+          "coveredBy": ["5"],
+          "location": {
+            "end": { "column": 56, "line": 159 },
+            "start": { "column": 54, "line": 159 }
+          }
+        },
+        {
+          "id": "77",
+          "mutatorName": "LogicalOperator",
+          "replacement": "definition.requires && []",
+          "status": "Survived",
+          "static": true,
+          "testsCompleted": 9,
+          "coveredBy": ["0", "1", "5"],
+          "location": {
+            "end": { "column": 56, "line": 159 },
+            "start": { "column": 31, "line": 159 }
+          }
+        },
+        {
+          "id": "80",
+          "mutatorName": "BooleanLiteral",
+          "replacement": "requirement in definitions",
+          "status": "Survived",
+          "static": true,
+          "testsCompleted": 9,
+          "coveredBy": ["0", "1", "5"],
+          "location": {
+            "end": { "column": 40, "line": 160 },
+            "start": { "column": 11, "line": 160 }
+          }
+        },
+        {
+          "id": "89",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "status": "Survived",
+          "static": true,
+          "testsCompleted": 9,
+          "coveredBy": ["1", "5"],
+          "location": {
+            "end": { "column": 26, "line": 173 },
+            "start": { "column": 9, "line": 173 }
+          }
+        },
+        {
+          "id": "87",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Survived",
+          "static": true,
+          "testsCompleted": 20,
+          "coveredBy": ["1", "5"],
+          "location": {
+            "end": { "column": 25, "line": 170 },
+            "start": { "column": 9, "line": 170 }
+          }
+        },
+        {
+          "id": "93",
+          "mutatorName": "LogicalOperator",
+          "replacement": "definitions[key]?.requires && []",
+          "status": "Survived",
+          "static": true,
+          "testsCompleted": 9,
+          "coveredBy": ["1", "5"],
+          "location": {
+            "end": { "column": 63, "line": 177 },
+            "start": { "column": 31, "line": 177 }
+          }
+        },
+        {
+          "id": "81",
+          "mutatorName": "ConditionalExpression",
+          "replacement": "true",
+          "status": "Survived",
+          "static": true,
+          "testsCompleted": 9,
+          "coveredBy": ["0", "1", "5"],
+          "location": {
+            "end": { "column": 40, "line": 160 },
+            "start": { "column": 11, "line": 160 }
+          }
+        },
+        {
+          "id": "79",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected function to throw an error, but it didn't",
+          "status": "Killed",
+          "static": true,
+          "testsCompleted": 10,
+          "killedBy": ["0"],
+          "coveredBy": ["0", "1", "5"],
+          "location": {
+            "end": { "column": 6, "line": 165 },
+            "start": { "column": 58, "line": 159 }
+          }
+        },
+        {
+          "id": "88",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "status": "Survived",
+          "static": true,
+          "testsCompleted": 20,
+          "coveredBy": ["5"],
+          "location": {
+            "end": { "column": 6, "line": 172 },
+            "start": { "column": 27, "line": 170 }
+          }
+        },
+        {
+          "id": "94",
+          "mutatorName": "OptionalChaining",
+          "replacement": "definitions[key].requires",
+          "status": "Survived",
+          "static": true,
+          "testsCompleted": 20,
+          "coveredBy": ["1", "5"],
+          "location": {
+            "end": { "column": 57, "line": 177 },
+            "start": { "column": 31, "line": 177 }
+          }
+        },
+        {
+          "id": "85",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected [Function] to throw an error",
+          "status": "Killed",
+          "static": true,
+          "testsCompleted": 11,
+          "killedBy": ["1"],
+          "coveredBy": ["1", "5"],
+          "location": {
+            "end": { "column": 4, "line": 182 },
+            "start": { "column": 40, "line": 169 }
+          }
+        },
+        {
+          "id": "97",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected [Function] to throw an error",
+          "status": "Killed",
+          "static": true,
+          "testsCompleted": 2,
+          "killedBy": ["1"],
+          "coveredBy": ["1", "5"],
+          "location": {
+            "end": { "column": 4, "line": 185 },
+            "start": { "column": 47, "line": 183 }
+          }
+        },
+        {
+          "id": "96",
+          "mutatorName": "BlockStatement",
+          "replacement": "{}",
+          "statusReason": "expected [Function] to throw an error",
+          "status": "Killed",
+          "static": true,
+          "testsCompleted": 2,
+          "killedBy": ["1"],
+          "coveredBy": ["1", "5"],
+          "location": {
+            "end": { "column": 6, "line": 179 },
+            "start": { "column": 65, "line": 177 }
+          }
+        },
+        {
+          "id": "95",
+          "mutatorName": "ArrayDeclaration",
+          "replacement": "[\"Stryker was here\"]",
+          "status": "Survived",
+          "static": true,
+          "testsCompleted": 9,
+          "coveredBy": ["5"],
+          "location": {
+            "end": { "column": 63, "line": 177 },
+            "start": { "column": 61, "line": 177 }
+          }
+        }
+      ],
+      "source": "import type { z } from 'zod';\n\n/** Boot-time configuration failure: the process must not start. */\nexport class ConfigError extends Error {\n  override readonly name = 'ConfigError';\n}\n\ntype PlainObject = Record<string, unknown>;\n\nfunction isPlainObject(value: unknown): value is PlainObject {\n  return (\n    typeof value === 'object' &&\n    value !== null &&\n    !Array.isArray(value) &&\n    Object.getPrototypeOf(value) === Object.prototype\n  );\n}\n\nfunction deepMerge(base: PlainObject, override: PlainObject): PlainObject {\n  const merged: PlainObject = { ...base };\n  for (const [key, value] of Object.entries(override)) {\n    const existing = merged[key];\n    merged[key] =\n      isPlainObject(existing) && isPlainObject(value)\n        ? deepMerge(existing, value)\n        : value;\n  }\n  return merged;\n}\n\nfunction deepFreeze<T>(value: T): T {\n  if (typeof value === 'object' && value !== null) {\n    for (const child of Object.values(value)) {\n      deepFreeze(child);\n    }\n    Object.freeze(value);\n  }\n  return value;\n}\n\n/**\n * Builds the immutable deployment config from layered sources\n * (defaults → file → environment; later sources win, deep-merged).\n * Invalid configuration throws ConfigError at the composition root —\n * the process fails at boot, never at request time (ADR 0024).\n */\nexport function buildConfig<TSchema extends z.ZodType>(\n  schema: TSchema,\n  sources: readonly PlainObject[],\n): Readonly<z.infer<TSchema>> {\n  const merged = sources.reduce<PlainObject>(\n    (accumulated, source) => deepMerge(accumulated, source),\n    {},\n  );\n  const result = schema.safeParse(merged);\n  if (!result.success) {\n    const details = result.error.issues\n      .map((issue) => `${issue.path.join('.')}: ${issue.message}`)\n      .join('; ');\n    throw new ConfigError(`invalid configuration — ${details}`);\n  }\n  return deepFreeze(result.data);\n}\n\nfunction camelize(segment: string): string {\n  return segment\n    .toLowerCase()\n    .replace(/_+(.)/gu, (_match, letter: string) => letter.toUpperCase());\n}\n\n/**\n * Reads prefixed environment variables into a nested partial config source:\n * `GLOTTY_SERVER__PORT=8080` → `{ server: { port: '8080' } }`; single\n * underscores camelize (`BRAND__SHORT_NAME` → `brand.shortName`). Values\n * stay strings; the schema's coercion is the single place types are decided.\n */\nexport function envSource(\n  env: Readonly<Record<string, string | undefined>>,\n  prefix: string,\n): PlainObject {\n  const source: PlainObject = {};\n  for (const [name, value] of Object.entries(env)) {\n    if (!name.startsWith(prefix) || value === undefined) {\n      continue;\n    }\n    const path = name.slice(prefix.length).split('__').map(camelize);\n    let node = source;\n    path.forEach((segment, index) => {\n      if (index === path.length - 1) {\n        node[segment] = value;\n        return;\n      }\n      const existing = node[segment];\n      const child = isPlainObject(existing) ? existing : {};\n      node[segment] = child;\n      node = child;\n    });\n  }\n  return source;\n}\n\nexport interface FlagDefinition {\n  readonly requires?: readonly string[];\n  readonly description?: string;\n}\n\nexport type FlagDefinitions = Readonly<Record<string, FlagDefinition>>;\n\nexport interface ResolvedFlag {\n  /** Stored state AND every transitive requirement effectively enabled. */\n  readonly effective: boolean;\n  /** Transitive requirements that are not effectively enabled, in dependency order. */\n  readonly suppressedBy: readonly string[];\n}\n\n/**\n * The visibility ring a flag targets (ADR 0025): role-and-up may see it.\n * `admin` ⊂ `reviewer` ⊂ `all` — a `reviewer` flag is on for reviewers\n * and admins, an `admin` flag for admins alone.\n */\nexport type TargetRole = 'all' | 'reviewer' | 'admin';\n\n/** Who is asking; anonymous and signed-in learners see only `all` flags. */\nexport type ViewerRole = 'anonymous' | 'learner' | 'reviewer' | 'admin';\n\n/** One flag's stored runtime state: its switch and its visibility ring. */\nexport interface FlagState {\n  readonly enabled: boolean;\n  readonly targetRole: TargetRole;\n}\n\n/** How far a viewer reaches; anonymous and learner share the outer ring. */\nconst viewerRank: Record<ViewerRole, number> = {\n  anonymous: 0,\n  learner: 0,\n  reviewer: 1,\n  admin: 2,\n};\n\n/** How far in a flag's ring sits; deeper rings admit fewer viewers. */\nconst targetRank: Record<TargetRole, number> = {\n  all: 0,\n  reviewer: 1,\n  admin: 2,\n};\n\n/** True when the viewer's ring reaches the flag's target ring. */\nfunction ringSatisfied(target: TargetRole, viewer: ViewerRole): boolean {\n  return viewerRank[viewer] >= targetRank[target];\n}\n\n/**\n * Validates a feature-flag dependency graph at definition time: unknown\n * requirements and cycles are boot failures, never runtime surprises\n * (ADR 0025).\n */\nexport function defineFlags<T extends FlagDefinitions>(definitions: T): T {\n  for (const [key, definition] of Object.entries(definitions)) {\n    for (const requirement of definition.requires ?? []) {\n      if (!(requirement in definitions)) {\n        throw new ConfigError(\n          `flag \"${key}\" requires unknown flag \"${requirement}\"`,\n        );\n      }\n    }\n  }\n  const visiting = new Set<string>();\n  const visited = new Set<string>();\n  const visit = (key: string): void => {\n    if (visited.has(key)) {\n      return;\n    }\n    if (visiting.has(key)) {\n      throw new ConfigError(`flag dependency cycle involving \"${key}\"`);\n    }\n    visiting.add(key);\n    for (const requirement of definitions[key]?.requires ?? []) {\n      visit(requirement);\n    }\n    visiting.delete(key);\n    visited.add(key);\n  };\n  for (const key of Object.keys(definitions)) {\n    visit(key);\n  }\n  return definitions;\n}\n\n/**\n * Combines stored flag states with the dependency graph, from one viewer's\n * vantage: a flag is effective only when its own switch is on, its target\n * ring admits the viewer, and every transitive requirement is itself\n * effective for that viewer. Suppressed flags report which requirements\n * hold them back (admin UI).\n */\nexport function resolveFlags<T extends FlagDefinitions>(\n  definitions: T,\n  state: Readonly<Record<string, FlagState>>,\n  viewerRole: ViewerRole,\n): Readonly<Record<keyof T & string, ResolvedFlag>> {\n  for (const key of Object.keys(state)) {\n    if (!(key in definitions)) {\n      throw new ConfigError(`state for unknown flag \"${key}\"`);\n    }\n  }\n\n  const effectiveMemo = new Map<string, boolean>();\n  const isEffective = (key: string): boolean => {\n    const memo = effectiveMemo.get(key);\n    if (memo !== undefined) {\n      return memo;\n    }\n    const stored = state[key];\n    const enabled = stored?.enabled ?? false;\n    const targetRole = stored?.targetRole ?? 'all';\n    const requires = definitions[key]?.requires ?? [];\n    const effective =\n      enabled &&\n      ringSatisfied(targetRole, viewerRole) &&\n      requires.every(isEffective);\n    effectiveMemo.set(key, effective);\n    return effective;\n  };\n\n  const transitiveRequires = (key: string): string[] => {\n    const collected: string[] = [];\n    const walk = (current: string): void => {\n      for (const requirement of definitions[current]?.requires ?? []) {\n        if (!collected.includes(requirement)) {\n          walk(requirement);\n          collected.push(requirement);\n        }\n      }\n    };\n    walk(key);\n    return collected;\n  };\n\n  const resolved: Record<string, ResolvedFlag> = {};\n  for (const key of Object.keys(definitions)) {\n    resolved[key] = {\n      effective: isEffective(key),\n      suppressedBy: transitiveRequires(key).filter(\n        (requirement) => !isEffective(requirement),\n      ),\n    };\n  }\n  return deepFreeze(resolved as Record<keyof T & string, ResolvedFlag>);\n}\n"
+    }
+  },
+  "schemaVersion": "1.0",
+  "thresholds": { "high": 95, "low": 90, "break": 90 },
+  "testFiles": {
+    "src/flags.test.ts": {
+      "tests": [
+        {
+          "id": "0",
+          "name": "defineFlags rejects a requirement on an unknown flag at definition time"
+        },
+        {
+          "id": "1",
+          "name": "defineFlags rejects dependency cycles at definition time"
+        },
+        {
+          "id": "2",
+          "name": "resolveFlags enables a flag only when all transitive requirements are enabled"
+        },
+        {
+          "id": "3",
+          "name": "resolveFlags suppresses the whole downstream chain when a root is off"
+        },
+        {
+          "id": "4",
+          "name": "resolveFlags treats flags missing from the state as disabled"
+        },
+        {
+          "id": "5",
+          "name": "resolveFlags reports a shared ancestor once in a diamond dependency"
+        },
+        {
+          "id": "6",
+          "name": "resolveFlags rejects state keys that were never defined"
+        },
+        {
+          "id": "7",
+          "name": "resolveFlags shows an all-ring flag to every viewer, anonymous included"
+        },
+        {
+          "id": "8",
+          "name": "resolveFlags shows a reviewer-ring flag to reviewers and admins but no lower"
+        },
+        {
+          "id": "9",
+          "name": "resolveFlags confines an admin-ring flag to admins"
+        },
+        {
+          "id": "10",
+          "name": "resolveFlags propagates a requirement hidden by its ring to its dependents"
+        }
+      ],
+      "source": "import { describe, expect, it } from 'vitest';\nimport {\n  ConfigError,\n  defineFlags,\n  resolveFlags,\n  type TargetRole,\n} from './index.js';\n\n// The flag dependency graph from the product plan (ADR 0025):\n// leaderboards → social → accounts; recordAndCompare → audio.\nconst definitions = defineFlags({\n  accounts: {},\n  social: { requires: ['accounts'] },\n  leaderboards: { requires: ['social'] },\n  audio: {},\n  recordAndCompare: { requires: ['audio'] },\n});\n\ndescribe('defineFlags', () => {\n  it('rejects a requirement on an unknown flag at definition time', () => {\n    expect(() => defineFlags({ social: { requires: ['acounts'] } })).toThrow(\n      ConfigError,\n    );\n    expect(() => defineFlags({ social: { requires: ['acounts'] } })).toThrow(\n      /acounts/,\n    );\n  });\n\n  it('rejects dependency cycles at definition time', () => {\n    expect(() =>\n      defineFlags({\n        a: { requires: ['b'] },\n        b: { requires: ['a'] },\n      }),\n    ).toThrow(/cycle/i);\n  });\n});\n\ndescribe('resolveFlags', () => {\n  const on = (targetRole: TargetRole = 'all') => ({\n    enabled: true,\n    targetRole,\n  });\n  const off = (targetRole: TargetRole = 'all') => ({\n    enabled: false,\n    targetRole,\n  });\n\n  it('enables a flag only when all transitive requirements are enabled', () => {\n    const resolved = resolveFlags(\n      definitions,\n      {\n        accounts: on(),\n        social: on(),\n        leaderboards: on(),\n        audio: off(),\n        recordAndCompare: on(),\n      },\n      'admin',\n    );\n    expect(resolved.leaderboards.effective).toBe(true);\n    expect(resolved.recordAndCompare.effective).toBe(false);\n    expect(resolved.recordAndCompare.suppressedBy).toEqual(['audio']);\n  });\n\n  it('suppresses the whole downstream chain when a root is off', () => {\n    const resolved = resolveFlags(\n      definitions,\n      {\n        accounts: off(),\n        social: on(),\n        leaderboards: on(),\n        audio: on(),\n        recordAndCompare: off(),\n      },\n      'admin',\n    );\n    expect(resolved.social.effective).toBe(false);\n    expect(resolved.social.suppressedBy).toEqual(['accounts']);\n    expect(resolved.leaderboards.effective).toBe(false);\n    expect(resolved.leaderboards.suppressedBy).toEqual(['accounts', 'social']);\n    expect(resolved.audio.effective).toBe(true);\n  });\n\n  it('treats flags missing from the state as disabled', () => {\n    const resolved = resolveFlags(definitions, { accounts: on() }, 'admin');\n    expect(resolved.accounts.effective).toBe(true);\n    expect(resolved.social.effective).toBe(false);\n    expect(resolved.social.suppressedBy).toEqual([]);\n  });\n\n  it('reports a shared ancestor once in a diamond dependency', () => {\n    const diamond = defineFlags({\n      base: {},\n      left: { requires: ['base'] },\n      right: { requires: ['base'] },\n      top: { requires: ['left', 'right'] },\n    });\n    const resolved = resolveFlags(\n      diamond,\n      { left: on(), right: on(), top: on() },\n      'admin',\n    );\n    expect(resolved.top.effective).toBe(false);\n    expect(resolved.top.suppressedBy).toEqual(['base', 'left', 'right']);\n  });\n\n  it('rejects state keys that were never defined', () => {\n    expect(() => resolveFlags(definitions, { ghost: on() }, 'admin')).toThrow(\n      ConfigError,\n    );\n  });\n\n  it('shows an all-ring flag to every viewer, anonymous included', () => {\n    const state = { accounts: on('all') };\n    for (const viewer of [\n      'anonymous',\n      'learner',\n      'reviewer',\n      'admin',\n    ] as const) {\n      expect(resolveFlags(definitions, state, viewer).accounts.effective).toBe(\n        true,\n      );\n    }\n  });\n\n  it('shows a reviewer-ring flag to reviewers and admins but no lower', () => {\n    const state = { audio: on('reviewer') };\n    expect(resolveFlags(definitions, state, 'anonymous').audio.effective).toBe(\n      false,\n    );\n    expect(resolveFlags(definitions, state, 'learner').audio.effective).toBe(\n      false,\n    );\n    expect(resolveFlags(definitions, state, 'reviewer').audio.effective).toBe(\n      true,\n    );\n    expect(resolveFlags(definitions, state, 'admin').audio.effective).toBe(\n      true,\n    );\n  });\n\n  it('confines an admin-ring flag to admins', () => {\n    const state = { audio: on('admin') };\n    expect(resolveFlags(definitions, state, 'reviewer').audio.effective).toBe(\n      false,\n    );\n    expect(resolveFlags(definitions, state, 'admin').audio.effective).toBe(\n      true,\n    );\n  });\n\n  it('propagates a requirement hidden by its ring to its dependents', () => {\n    const resolved = resolveFlags(\n      definitions,\n      { audio: on('admin'), recordAndCompare: on('all') },\n      'reviewer',\n    );\n    expect(resolved.audio.effective).toBe(false);\n    expect(resolved.recordAndCompare.effective).toBe(false);\n    expect(resolved.recordAndCompare.suppressedBy).toEqual(['audio']);\n  });\n});\n"
+    },
+    "src/build.test.ts": {
+      "tests": [
+        {
+          "id": "11",
+          "name": "buildConfig parses defaults into a typed config"
+        },
+        {
+          "id": "12",
+          "name": "buildConfig lets later sources override earlier ones, deep-merged per key"
+        },
+        {
+          "id": "13",
+          "name": "buildConfig fails fast with the offending path when validation fails"
+        },
+        {
+          "id": "14",
+          "name": "buildConfig fails fast when a required key is missing entirely"
+        },
+        { "id": "15", "name": "buildConfig returns a deeply frozen object" }
+      ],
+      "source": "import { describe, expect, it } from 'vitest';\nimport { z } from 'zod';\nimport { buildConfig, ConfigError } from './index.js';\n\nconst schema = z.object({\n  server: z.object({\n    port: z.coerce.number().int().min(1).max(65535),\n    baseUrl: z.url(),\n  }),\n  brand: z.object({\n    shortName: z.string().min(1),\n    fullName: z.string().min(1),\n  }),\n});\n\nconst defaults = {\n  server: { port: 3000, baseUrl: 'http://localhost:3000' },\n  brand: { shortName: 'Govori', fullName: 'Govori — Interslavic Learning App' },\n};\n\ndescribe('buildConfig', () => {\n  it('parses defaults into a typed config', () => {\n    const config = buildConfig(schema, [defaults]);\n    expect(config.server.port).toBe(3000);\n    expect(config.brand.shortName).toBe('Govori');\n  });\n\n  it('lets later sources override earlier ones, deep-merged per key', () => {\n    const config = buildConfig(schema, [\n      defaults,\n      { server: { port: '8080' } },\n    ]);\n    expect(config.server.port).toBe(8080);\n    expect(config.server.baseUrl).toBe('http://localhost:3000');\n    expect(config.brand.fullName).toBe('Govori — Interslavic Learning App');\n  });\n\n  it('fails fast with the offending path when validation fails', () => {\n    expect(() =>\n      buildConfig(schema, [defaults, { server: { port: 'not-a-port' } }]),\n    ).toThrow(ConfigError);\n    expect(() =>\n      buildConfig(schema, [defaults, { server: { port: 'not-a-port' } }]),\n    ).toThrow(/server\\.port/);\n  });\n\n  it('fails fast when a required key is missing entirely', () => {\n    expect(() => buildConfig(schema, [{ server: { port: 1 } }])).toThrow(\n      ConfigError,\n    );\n  });\n\n  it('returns a deeply frozen object', () => {\n    const config = buildConfig(schema, [defaults]);\n    expect(Object.isFrozen(config)).toBe(true);\n    expect(Object.isFrozen(config.server)).toBe(true);\n    expect(() => {\n      (config.server as { port: number }).port = 9999;\n    }).toThrow(TypeError);\n  });\n});\n"
+    },
+    "src/env.test.ts": {
+      "tests": [
+        {
+          "id": "16",
+          "name": "envSource converts prefixed variables into a nested partial, camelizing keys"
+        },
+        {
+          "id": "17",
+          "name": "envSource merges sibling variables under one section"
+        },
+        {
+          "id": "18",
+          "name": "envSource returns an empty object when nothing matches the prefix"
+        },
+        {
+          "id": "19",
+          "name": "envSource ignores variables with undefined values"
+        }
+      ],
+      "source": "import { describe, expect, it } from 'vitest';\nimport { envSource } from './index.js';\n\ndescribe('envSource', () => {\n  it('converts prefixed variables into a nested partial, camelizing keys', () => {\n    expect(\n      envSource(\n        {\n          GLOTTY_SERVER__PORT: '8080',\n          GLOTTY_BRAND__SHORT_NAME: 'Govori',\n          UNRELATED: 'ignored',\n        },\n        'GLOTTY_',\n      ),\n    ).toEqual({\n      server: { port: '8080' },\n      brand: { shortName: 'Govori' },\n    });\n  });\n\n  it('merges sibling variables under one section', () => {\n    expect(\n      envSource(\n        { GLOTTY_DB__HOST: 'localhost', GLOTTY_DB__PORT: '5432' },\n        'GLOTTY_',\n      ),\n    ).toEqual({ db: { host: 'localhost', port: '5432' } });\n  });\n\n  it('returns an empty object when nothing matches the prefix', () => {\n    expect(envSource({ PATH: '/usr/bin' }, 'GLOTTY_')).toEqual({});\n  });\n\n  it('ignores variables with undefined values', () => {\n    expect(envSource({ GLOTTY_SERVER__PORT: undefined }, 'GLOTTY_')).toEqual(\n      {},\n    );\n  });\n});\n"
+    }
+  },
+  "projectRoot": "C:\\Users\\Birkenstock\\Projects\\interslavic\\packages\\config",
+  "config": {
+    "$schema": "https://raw.githubusercontent.com/stryker-mutator/stryker-js/master/packages/core/schema/stryker-schema.json",
+    "testRunner": "vitest",
+    "plugins": ["@stryker-mutator/vitest-runner"],
+    "coverageAnalysis": "all",
+    "mutate": ["src/**/*.ts", "!src/**/*.test.ts"],
+    "thresholds": { "high": 95, "low": 90, "break": 90 },
+    "reporters": ["json"],
+    "tempDirName": ".stryker-tmp",
+    "allowConsoleColors": true,
+    "checkers": [],
+    "checkerNodeArgs": [],
+    "commandRunner": { "command": "npm test" },
+    "clearTextReporter": {
+      "allowColor": true,
+      "allowEmojis": false,
+      "logTests": true,
+      "maxTestsToLog": 3,
+      "reportTests": true,
+      "reportMutants": true,
+      "reportScoreTable": true,
+      "skipFull": false
+    },
+    "dashboard": {
+      "baseUrl": "https://dashboard.stryker-mutator.io/api/reports",
+      "reportType": "full"
+    },
+    "dryRunOnly": false,
+    "eventReporter": { "baseDir": "reports/mutation/events" },
+    "ignorePatterns": [],
+    "ignoreStatic": false,
+    "incremental": false,
+    "incrementalFile": "reports/stryker-incremental.json",
+    "force": false,
+    "fileLogLevel": "off",
+    "inPlace": false,
+    "logLevel": "info",
+    "maxConcurrentTestRunners": 9007199254740991,
+    "maxTestRunnerReuse": 0,
+    "mutator": { "plugins": null, "excludedMutations": [] },
+    "appendPlugins": [],
+    "htmlReporter": { "fileName": "reports/mutation/mutation.html" },
+    "jsonReporter": { "fileName": "reports/mutation/mutation.json" },
+    "disableTypeChecks": true,
+    "symlinkNodeModules": true,
+    "cleanTempDir": true,
+    "testRunnerNodeArgs": [],
+    "timeoutFactor": 1.5,
+    "timeoutMS": 5000,
+    "dryRunTimeoutMinutes": 5,
+    "tsconfigFile": "tsconfig.json",
+    "warnings": true,
+    "disableBail": false,
+    "allowEmpty": false,
+    "ignorers": [],
+    "testFiles": [],
+    "vitest": { "related": true }
+  },
+  "framework": {
+    "name": "StrykerJS",
+    "version": "9.6.1",
+    "branding": {
+      "homepageUrl": "https://stryker-mutator.io",
+      "imageUrl": "data:image/svg+xml;utf8,%3Csvg viewBox='0 0 1458 1458' xmlns='http://www.w3.org/2000/svg' fill-rule='evenodd' clip-rule='evenodd' stroke-linejoin='round' stroke-miterlimit='2'%3E%3Cpath fill='none' d='M0 0h1458v1458H0z'/%3E%3CclipPath id='a'%3E%3Cpath d='M0 0h1458v1458H0z'/%3E%3C/clipPath%3E%3Cg clip-path='url(%23a)'%3E%3Cpath d='M1458 729c0 402.655-326.345 729-729 729S0 1131.655 0 729C0 326.445 326.345 0 729 0s729 326.345 729 729' fill='%23e74c3c' fill-rule='nonzero'/%3E%3Cpath d='M778.349 1456.15L576.6 1254.401l233-105 85-78.668v-64.332l-257-257-44-187-50-208 251.806-82.793L1076.6 389.401l380.14 379.15c-19.681 367.728-311.914 663.049-678.391 687.599z' fill-opacity='.3'/%3E%3Cpath d='M753.4 329.503c41.79 0 74.579 7.83 97.925 25.444 23.571 18.015 41.69 43.956 55.167 77.097l11.662 28.679 165.733-58.183-14.137-32.13c-26.688-60.655-64.896-108.61-114.191-144.011-49.329-35.423-117.458-54.302-204.859-54.302-50.78 0-95.646 7.376-134.767 21.542-40.093 14.671-74.09 34.79-102.239 60.259-28.84 26.207-50.646 57.06-65.496 92.701-14.718 35.052-22.101 72.538-22.101 112.401 0 72.536 20.667 133.294 61.165 182.704 38.624 47.255 98.346 88.037 179.861 121.291 42.257 17.475 78.715 33.125 109.227 46.994 27.193 12.361 49.294 26.124 66.157 41.751 15.309 14.186 26.497 30.584 33.63 49.258 7.721 20.214 11.16 45.69 11.16 76.402 0 28.021-4.251 51.787-13.591 71.219-8.832 18.374-20.171 33.178-34.523 44.219-14.787 11.374-31.193 19.591-49.393 24.466-19.68 5.359-39.14 7.993-58.69 7.993-29.359 0-54.387-3.407-75.182-10.747-20.112-7.013-37.144-16.144-51.259-27.486-13.618-11.009-24.971-23.766-33.744-38.279-9.64-15.8-17.272-31.924-23.032-48.408l-10.965-31.376-161.669 60.585 10.734 30.124c10.191 28.601 24.197 56.228 42.059 82.748 18.208 27.144 41.322 51.369 69.525 72.745 27.695 21.075 60.904 38.218 99.481 51.041 37.777 12.664 82.004 19.159 132.552 19.159 49.998 0 95.818-8.321 137.611-24.622 42.228-16.471 78.436-38.992 108.835-67.291 30.719-28.597 54.631-62.103 71.834-100.642 17.263-38.56 25.923-79.392 25.923-122.248 0-54.339-8.368-100.37-24.208-138.32-16.29-38.759-38.252-71.661-65.948-98.797-26.965-26.418-58.269-48.835-93.858-67.175-33.655-17.241-69.196-33.11-106.593-47.533-35.934-13.429-65.822-26.601-89.948-39.525-22.153-11.868-40.009-24.21-53.547-37.309-11.429-11.13-19.83-23.678-24.718-37.664-5.413-15.49-7.98-33.423-7.98-53.577 0-40.883 11.293-71.522 37.086-90.539 28.443-20.825 64.985-30.658 109.311-30.658z' fill='%23f1c40f' fill-rule='nonzero'/%3E%3Cpath d='M720 0h18v113h-18zM1458 738v-18h-113v18h113zM720 1345h18v113h-18zM113 738v-18H0v18h113z'/%3E%3C/g%3E%3C/svg%3E"
+    },
+    "dependencies": { "typescript": "6.0.3" }
+  }
+}

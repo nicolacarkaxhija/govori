@@ -106,9 +106,15 @@ export class DrizzleItemRepository implements ItemRepository, ItemQueries {
       ...(row.frequency === null ? {} : { frequency: row.frequency }),
       ...(row.pos === null ? {} : { pos: row.pos }),
       ...(row.posDetail === null ? {} : { posDetail: row.posDetail }),
+      ...(row.attestation === null ? {} : { attestation: row.attestation }),
+      ...(row.difficulty === null ? {} : { difficulty: row.difficulty }),
       translations: allTranslations
         .filter((translation) => translation.itemId === row.id)
-        .map(({ lang, text }) => ({ lang, text })),
+        .map(({ lang, text, senseGroup }) => ({
+          lang,
+          text,
+          ...(senseGroup === null ? {} : { senseGroup }),
+        })),
       notes: allNotes
         .filter((note) => note.itemId === row.id)
         .map(({ sourceLang, text }) => ({ sourceLang, text })),
@@ -141,6 +147,8 @@ export class DrizzleItemRepository implements ItemRepository, ItemQueries {
               frequency: item.frequency ?? null,
               pos: item.pos ?? null,
               posDetail: item.posDetail ?? null,
+              attestation: item.attestation ?? null,
+              difficulty: item.difficulty ?? null,
             })),
           )
           .onConflictDoUpdate({
@@ -154,6 +162,8 @@ export class DrizzleItemRepository implements ItemRepository, ItemQueries {
               frequency: sql`excluded."frequency"`,
               pos: sql`excluded."pos"`,
               posDetail: sql`excluded."pos_detail"`,
+              attestation: sql`excluded."attestation"`,
+              difficulty: sql`excluded."difficulty"`,
               updatedAt: new Date(),
             },
           });
@@ -164,6 +174,7 @@ export class DrizzleItemRepository implements ItemRepository, ItemQueries {
               itemId: item.id,
               lang: translation.lang,
               text: translation.text,
+              senseGroup: translation.senseGroup ?? null,
             })),
           ),
         );
