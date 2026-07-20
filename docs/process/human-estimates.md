@@ -295,4 +295,6 @@ developer working alone. Appended in the same commit it describes.
 
 **Running total: 198.7-252.2 h**
 
-**Running total: 257.7–330.3 h**
+| 2026-07-19 | fix: drive the e2e flows through the settings screen | 0.3 | The redesign moved script choice into Settings and anglicized feedback copy; the specs now follow the real journeys |
+
+**Running total: 258.0–330.6 h**

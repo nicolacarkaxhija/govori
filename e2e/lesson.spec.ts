@@ -26,21 +26,24 @@ test('a learner answers a card and the local log advances', async ({
   const word = (await prompt.innerText()).trim();
   const answer = word === 'hlěb' ? 'bread' : 'water';
   await page.click(`.choice:has-text("${answer}")`);
-  await expect(page.locator('.card-feedback')).toContainText('Pravilno');
+  await expect(page.locator('.card-feedback')).toContainText('Correct');
   await page.click('text=Continue');
   await expect(page.locator('.lesson-count')).toHaveText('1 answered');
 });
 
-test('the script toggle rewrites the prompt in Cyrillic', async ({ page }) => {
+test('the display script setting rewrites prompts in Cyrillic', async ({
+  page,
+}) => {
+  await page.click("button[aria-label='Settings']");
+  await page
+    .locator("select[aria-label='Display script']")
+    .selectOption('cyrillic');
+  await page.click('text=Back');
   await page.click('text=Start learning');
   await page.click('text=Lekcija 1');
   const prompt = page.locator('.card-prompt');
   await expect(prompt).toBeVisible();
-  const latin = (await prompt.innerText()).trim();
-  await page.click("button[aria-label='Switch script']");
-  const cyrillic = (await prompt.innerText()).trim();
-  expect(cyrillic).not.toBe(latin);
-  expect(cyrillic).toMatch(/^[Ѐ-ӿѐ-џ]+$/u);
+  expect((await prompt.innerText()).trim()).toMatch(/^[Ѐ-ӿѐ-џ]+$/u);
 });
 
 test('typed answers are checked tolerantly', async ({ page }) => {
@@ -53,7 +56,7 @@ test('typed answers are checked tolerantly', async ({ page }) => {
   const prompt = (await page.locator('.card-prompt').innerText()).trim();
   await input.fill(prompt === 'hlěb' ? 'hleb' : 'voda');
   await page.click('text=Check');
-  await expect(page.locator('.card-feedback')).toContainText('Pravilno');
+  await expect(page.locator('.card-feedback')).toContainText('Correct');
 });
 
 test('a first visit walks through onboarding once', async ({ page }) => {
