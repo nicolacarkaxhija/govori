@@ -87,6 +87,13 @@ export const PartOfSpeechSchema = z.enum([
   'affix',
 ]);
 
+/**
+ * Cross-source attestation tier, triangulated in the forge from how many
+ * independent corpora corroborate the headword: gold = 3+ sources,
+ * silver = 2, bronze = 1.
+ */
+export const AttestationSchema = z.enum(['gold', 'silver', 'bronze']);
+
 const ProducerSchema = z.object({
   name: z.string().min(1),
   version: z.string().min(1),
@@ -134,12 +141,8 @@ export function makeContentSchemas(
     notes: z.array(ContrastiveNoteSchema).default([]),
     provenance: ProvenanceSchema,
     audit: OriginalityAuditSchema.optional(),
-    /**
-     * Cross-source attestation tier, triangulated in the forge from how
-     * many independent corpora corroborate the headword: gold = 3+
-     * sources, silver = 2, bronze = 1. Word/phrase items only.
-     */
-    attestation: z.enum(['gold', 'silver', 'bronze']).optional(),
+    /** Word/phrase items only; see {@link AttestationSchema}. */
+    attestation: AttestationSchema.optional(),
     /**
      * Computed 0-1 sentence-difficulty score, blended from mean word-rank
      * percentile, sentence length, and morphological complexity.
@@ -246,6 +249,7 @@ export function makeContentSchemas(
 export type ContentSchemas = ReturnType<typeof makeContentSchemas>;
 
 export type PartOfSpeech = z.infer<typeof PartOfSpeechSchema>;
+export type Attestation = z.infer<typeof AttestationSchema>;
 export type Translation = z.infer<typeof TranslationSchema>;
 export type ContrastiveNote = z.infer<typeof ContrastiveNoteSchema>;
 export type Provenance = z.infer<typeof ProvenanceSchema>;
