@@ -475,13 +475,22 @@ describe('account clients fail closed', () => {
     stubFetch({
       ok: true,
       json: () =>
-        Promise.resolve({ items: 1, translations: 2, reviews: 3, learners: 4 }),
+        Promise.resolve({
+          items: 1,
+          translations: 2,
+          reviews: 3,
+          learners: 4,
+          qualityScore: 78,
+          qualityAuditedItems: 34,
+        }),
     });
     expect(await fetchStats('isv')).toEqual({
       items: 1,
       translations: 2,
       reviews: 3,
       learners: 4,
+      qualityScore: 78,
+      qualityAuditedItems: 34,
     });
     stubFetch({ ok: false, json: () => Promise.resolve({}) });
     expect(await fetchStats('isv')).toBeNull();
@@ -883,5 +892,90 @@ describe('fetchQualityFlags', () => {
     expect(await fetchQualityFlags()).toBeNull();
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
     expect(await fetchQualityFlags()).toBeNull();
+  });
+});
+
+describe('golden-set clients', () => {
+  const id = '7d9a2f04-6d19-4c1a-9e3a-1f2b3c4d5e6f';
+
+  it('fetches the golden queue with the item and any prior audit', async () => {
+    const { fetchGoldenQueue } = await import('./client');
+    const entry = {
+      item: {
+        id,
+        kind: 'word',
+        text: 'voda',
+        translations: [{ lang: 'en', text: 'water' }],
+      },
+      priorAudit: {
+        accuracy: 4,
+        naturalness: 3,
+        fit: 5,
+        comment: 'peer note',
+        auditedAt: '2026-07-20T00:00:00.000Z',
+      },
+    };
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ queue: [entry] }),
+        }),
+      ),
+    );
+    expect(await fetchGoldenQueue('isv')).toEqual([entry]);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve({ ok: false, json: () => Promise.resolve({}) }),
+      ),
+    );
+    expect(await fetchGoldenQueue('isv')).toBeNull();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.reject(new Error('offline'))),
+    );
+    expect(await fetchGoldenQueue('isv')).toBeNull();
+  });
+
+  it('submits an audit, sending the comment only when non-empty', async () => {
+    const { submitGoldenAudit } = await import('./client');
+    const fetchMock = vi.fn(() => Promise.resolve({ ok: true }));
+    vi.stubGlobal('fetch', fetchMock);
+    expect(
+      await submitGoldenAudit(id, {
+        accuracy: 5,
+        naturalness: 4,
+        fit: 3,
+        comment: '  ',
+      }),
+    ).toBe(true);
+    const first = fetchMock.mock.calls[0] as unknown as [URL, { body: string }];
+    const body = JSON.parse(first[1].body) as Record<string, unknown>;
+    expect(body).toEqual({ accuracy: 5, naturalness: 4, fit: 3 });
+    expect(String(first[0])).toContain(`/admin/golden/${id}/audit`);
+
+    await submitGoldenAudit(id, {
+      accuracy: 2,
+      naturalness: 2,
+      fit: 2,
+      comment: 'thin',
+    });
+    const second = fetchMock.mock.calls[1] as unknown as [
+      URL,
+      { body: string },
+    ];
+    expect((JSON.parse(second[1].body) as { comment?: string }).comment).toBe(
+      'thin',
+    );
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.reject(new Error('offline'))),
+    );
+    expect(
+      await submitGoldenAudit(id, { accuracy: 1, naturalness: 1, fit: 1 }),
+    ).toBe(false);
   });
 });

@@ -42,6 +42,11 @@ export const de = {
   audioWhatHappens: 'Was passiert mit meiner Stimme?',
   audioWhatHappensNote:
     'Deine Aufnahme wird unter einem Pseudonym gespeichert, nie unter deinem Namen. Die drei Optionen oben sind getrennt — App-Nutzung bedeutet nie Datensatz oder Training. Du kannst deine Einwilligung jederzeit widerrufen; das entfernt deine Stimme aus künftigen Datensatz-Versionen, doch bereits geteilte Versionen lassen sich nicht zurückrufen. Deine Stimme wird nie genutzt, um einen einzelnen Sprecher zu klonen.',
+  auditComment: 'Kommentar (optional)',
+  auditGoldenSet: 'Goldset prüfen',
+  axisAccuracy: 'Genauigkeit',
+  axisFit: 'Passung',
+  axisNaturalness: 'Natürlichkeit',
   back: '← Zurück',
   boardsCleared: 'Gelöste Tafeln: {count}',
   check: 'Prüfen',
@@ -88,6 +93,11 @@ export const de = {
   goalProgress: '{done} / {total}',
   goalReviews: 'Wiederholungen',
   goalsTitle: 'Diese Woche',
+  goldenAudited: '{count} geprüft',
+  goldenEmpty: 'Keine Goldset-Einträge warten auf deine Prüfung.',
+  goldenIntro:
+    'Bewerte eine Stichprobe des Kurses nach Genauigkeit, Natürlichkeit und Passung. Der Durchschnitt wird zum öffentlichen Qualitätswert.',
+  goldenUnavailable: 'Das Goldset ist derzeit nicht verfügbar.',
   growingCourseBanner:
     'Jeden Monat neue Einheiten — hilf mit, es wachsen zu lassen.',
   haveAccount: 'Schon ein Konto? Anmelden',
@@ -135,6 +145,8 @@ export const de = {
   planPickUnit: 'Schwerpunkt-Einheit',
   planRestNote: 'Ruh dich aus — du hast es verdient.',
   practiceTitle: 'Üben',
+  priorAuditLabel:
+    'Frühere Prüfung — Genauigkeit {accuracy}, Natürlichkeit {naturalness}, Passung {fit}.',
   productionKind: 'Schreib selbst',
   productionMiss: 'Verwende jedes vorgegebene Wort, kanonisch geschrieben.',
   productionPrompt: 'Schreib einen Satz mit diesen Wörtern',
@@ -145,6 +157,7 @@ export const de = {
     'Die Qualitätsliste ist nicht erreichbar — bist du als Prüfer angemeldet?',
   qualityLapseRate: '{rate}% Fehlversuche ({again} von {total})',
   qualityReportCount: '{count} offene Meldungen',
+  qualityScore: 'Qualitätswert: {score}/100 ({count} Einträge geprüft)',
   record: 'Aufnehmen',
   recordingFailed: 'Die Aufnahme konnte nicht gespeichert werden.',
   recordingSaved: 'Aufnahme geteilt — danke.',
@@ -194,6 +207,7 @@ export const de = {
     'Alles aggregiert, nichts Persönliches — das Projekt in der Öffentlichkeit.',
   stopRecording: 'Stopp',
   streak: 'Serie: {count} Tage',
+  submitAudit: 'Prüfung speichern',
   submitReview: 'Zur Community-Prüfung senden',
   switchDirection: 'Lernrichtung wechseln',
   switchScript: 'Schrift wechseln',

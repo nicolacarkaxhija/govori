@@ -167,6 +167,51 @@ export const lessonItems = pgTable(
   (table) => [primaryKey({ columns: [table.lessonId, table.itemId] })],
 );
 
+/**
+ * The golden-set sample (ADR 0051): a fixed, append-only list of item ids per
+ * direction, stratified-sampled from the pool. Items enter once and stay —
+ * growing the course adds new picks without displacing audited ones, so this
+ * is only ever inserted into, never deleted from.
+ */
+export const goldenSample = pgTable(
+  'golden_sample',
+  {
+    direction: text('direction').notNull(),
+    itemId: uuid('item_id')
+      .notNull()
+      .references(() => items.id, { onDelete: 'cascade' }),
+    addedAt: timestamp('added_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [primaryKey({ columns: [table.direction, table.itemId] })],
+);
+
+/**
+ * Reviewer audits over the golden set (ADR 0051): one row per (item,
+ * reviewer), re-auditing upserts in place. Three 1-5 axes plus an optional
+ * comment; the public quality score is a query over these rows, never stored.
+ */
+export const goldenAudits = pgTable(
+  'golden_audits',
+  {
+    itemId: uuid('item_id')
+      .notNull()
+      .references(() => items.id, { onDelete: 'cascade' }),
+    /** The audited item's direction (ADR 0046); scopes the quality query. */
+    direction: text('direction').notNull(),
+    reviewerId: text('reviewer_id').notNull(),
+    accuracy: integer('accuracy').notNull(),
+    naturalness: integer('naturalness').notNull(),
+    fit: integer('fit').notNull(),
+    comment: text('comment'),
+    auditedAt: timestamp('audited_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [primaryKey({ columns: [table.itemId, table.reviewerId] })],
+);
+
 /** Auth tables owned by better-auth (ADR 0021); shapes follow its core schema. */
 export const user = pgTable('user', {
   id: text('id').primaryKey(),

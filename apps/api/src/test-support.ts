@@ -108,6 +108,14 @@ export function makeTestDeps(
     quality: {
       flags: () => Promise.resolve([]),
     },
+    golden: {
+      sampleCandidates: () => Promise.resolve([]),
+      sampleItemIds: () => Promise.resolve([]),
+      addToSample: () => Promise.resolve(0),
+      queueFor: () => Promise.resolve([]),
+      saveAudit: () => Promise.resolve(),
+      quality: () => Promise.resolve(null),
+    },
     ...overrides,
   };
 }

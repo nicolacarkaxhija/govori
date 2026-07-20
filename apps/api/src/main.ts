@@ -19,6 +19,7 @@ import { DrizzleExport } from './export/drizzle-export.js';
 import { DrizzleEntitlements } from './entitlements/drizzle-entitlements.js';
 import { DrizzleReportStore } from './quality/drizzle-report-store.js';
 import { DrizzleQualityQueries } from './quality/drizzle-quality-queries.js';
+import { DrizzleGoldenSet } from './golden/drizzle-golden.js';
 
 // Composition root: the only place that touches process state (ADR 0024).
 // The instance is a required input — there is no default product (ADR 0029).
@@ -61,6 +62,7 @@ const app = buildApp({
   entitlements: new DrizzleEntitlements(db),
   reports: new DrizzleReportStore(db),
   quality: new DrizzleQualityQueries(db, itemRepository),
+  golden: new DrizzleGoldenSet(db),
 });
 
 try {

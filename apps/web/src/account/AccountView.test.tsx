@@ -36,6 +36,7 @@ describe('AccountView', () => {
         onExit={vi.fn()}
         onReview={vi.fn()}
         onQualityFlags={vi.fn()}
+        onGoldenAudit={vi.fn()}
         onUsers={vi.fn()}
       />,
     );
@@ -57,6 +58,7 @@ describe('AccountView', () => {
         onExit={vi.fn()}
         onReview={vi.fn()}
         onQualityFlags={vi.fn()}
+        onGoldenAudit={vi.fn()}
         onUsers={vi.fn()}
       />,
     );
@@ -75,6 +77,7 @@ describe('AccountView', () => {
         onExit={vi.fn()}
         onReview={vi.fn()}
         onQualityFlags={vi.fn()}
+        onGoldenAudit={vi.fn()}
         onUsers={vi.fn()}
       />,
     );
@@ -96,6 +99,7 @@ describe('AccountView', () => {
         onExit={vi.fn()}
         onReview={vi.fn()}
         onQualityFlags={vi.fn()}
+        onGoldenAudit={vi.fn()}
         onUsers={vi.fn()}
       />,
     );
@@ -125,6 +129,7 @@ describe('data rights', () => {
         onExit={vi.fn()}
         onReview={vi.fn()}
         onQualityFlags={vi.fn()}
+        onGoldenAudit={vi.fn()}
         onUsers={vi.fn()}
       />,
     );
@@ -146,6 +151,7 @@ describe('data rights', () => {
         onExit={vi.fn()}
         onReview={vi.fn()}
         onQualityFlags={vi.fn()}
+        onGoldenAudit={vi.fn()}
         onUsers={vi.fn()}
       />,
     );
@@ -166,6 +172,7 @@ describe('data rights', () => {
 describe('AccountView admin entry', () => {
   it('shows the admin buttons and forwards the clicks', async () => {
     const onReview = vi.fn();
+    const onGoldenAudit = vi.fn();
     const onUsers = vi.fn();
     client.fetchMe.mockResolvedValue({
       user: { id: 'u1', email: 'ovca@example.com', role: 'admin' },
@@ -177,6 +184,7 @@ describe('AccountView admin entry', () => {
         onExit={vi.fn()}
         onReview={onReview}
         onQualityFlags={vi.fn()}
+        onGoldenAudit={onGoldenAudit}
         onUsers={onUsers}
       />,
     );
@@ -184,6 +192,8 @@ describe('AccountView admin entry', () => {
       await screen.findByRole('button', { name: 'Review drafts' }),
     );
     expect(onReview).toHaveBeenCalledTimes(1);
+    await user.click(screen.getByRole('button', { name: 'Audit golden set' }));
+    expect(onGoldenAudit).toHaveBeenCalledTimes(1);
     await user.click(screen.getByRole('button', { name: 'Manage users' }));
     expect(onUsers).toHaveBeenCalledTimes(1);
   });
@@ -207,6 +217,7 @@ describe('AccountView pull-merge', () => {
         onExit={vi.fn()}
         onReview={vi.fn()}
         onQualityFlags={vi.fn()}
+        onGoldenAudit={vi.fn()}
         onUsers={vi.fn()}
       />,
     );
@@ -237,6 +248,7 @@ describe('AccountView reviewer entry', () => {
         onExit={vi.fn()}
         onReview={vi.fn()}
         onQualityFlags={vi.fn()}
+        onGoldenAudit={vi.fn()}
         onUsers={vi.fn()}
       />,
     );

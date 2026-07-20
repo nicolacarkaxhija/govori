@@ -18,6 +18,7 @@ export interface AccountViewProps {
   onExit: () => void;
   onReview: () => void;
   onQualityFlags: () => void;
+  onGoldenAudit: () => void;
   onUsers: () => void;
 }
 
@@ -34,6 +35,7 @@ export function AccountView({
   onExit,
   onReview,
   onQualityFlags,
+  onGoldenAudit,
   onUsers,
 }: AccountViewProps) {
   const t = useT();
@@ -183,6 +185,13 @@ export function AccountView({
                 onClick={onQualityFlags}
               >
                 {t('qualityFlags')}
+              </button>
+              <button
+                type="button"
+                className="continue"
+                onClick={onGoldenAudit}
+              >
+                {t('auditGoldenSet')}
               </button>
               {session.me.user.role === 'admin' && (
                 <button type="button" className="continue" onClick={onUsers}>

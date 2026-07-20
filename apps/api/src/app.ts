@@ -43,6 +43,8 @@ import {
   type ReportStore,
 } from './quality/ports.js';
 import { qualityThresholds } from './quality/thresholds.js';
+import type { GoldenSetStore } from './golden/ports.js';
+import { selectGoldenSample } from './golden/sample.js';
 
 export interface AppDependencies {
   config: ApiConfig;
@@ -83,6 +85,9 @@ export interface AppDependencies {
   reports: ReportStore;
   /** Reviewer-facing escalation over review events and reports (ADR 0051). */
   quality: QualityQueries;
+  /** Golden-set sample, reviewer audits, and the public quality score
+   * (ADR 0051). */
+  golden: GoldenSetStore;
 }
 
 /** Bridges Fastify's raw request to the Web Request better-auth consumes. */
@@ -151,6 +156,7 @@ export function buildApp({
   entitlements,
   reports,
   quality,
+  golden,
 }: AppDependencies) {
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
   // The content gate over the entitlement ledger (ADR 0047/0050). Permissive
@@ -486,6 +492,10 @@ export function buildApp({
               translations: z.number(),
               reviews: z.number(),
               learners: z.number(),
+              /** Golden-set quality, 0-100, null until the first audit lands
+               * (ADR 0051); the audited-item count keeps it honest. */
+              qualityScore: z.number().nullable(),
+              qualityAuditedItems: z.number(),
             }),
             400: z.object({ message: z.string() }),
           },
@@ -496,7 +506,196 @@ export function buildApp({
         if (!asked.ok) {
           return reply.status(400).send({ message: asked.message });
         }
-        return stats.counts(asked.resolved.direction.id);
+        const [counts, quality] = await Promise.all([
+          stats.counts(asked.resolved.direction.id),
+          golden.quality(asked.resolved.direction.id),
+        ]);
+        return {
+          ...counts,
+          qualityScore: quality?.score ?? null,
+          qualityAuditedItems: quality?.auditedItems ?? 0,
+        };
+      },
+    );
+
+    // The golden-set audit surface (ADR 0051). One reviewer's scores per item
+    // and the append-only sample they draw from; both reviewer-gated.
+    const GoldenAuditSchema = z.object({
+      accuracy: z.number(),
+      naturalness: z.number(),
+      fit: z.number(),
+      comment: z.string().nullable(),
+      auditedAt: z.iso.datetime(),
+    });
+
+    routes.get(
+      '/admin/golden',
+      {
+        schema: {
+          querystring: z.object({
+            direction: z.string().min(1).optional(),
+            limit: z.coerce.number().int().min(1).max(100).default(50),
+          }),
+          response: {
+            200: z.object({
+              queue: z.array(
+                z.object({
+                  item: ItemSchema,
+                  priorAudit: GoldenAuditSchema.nullable(),
+                }),
+              ),
+            }),
+            400: z.object({ message: z.string() }),
+            401: z.object({ message: z.string() }),
+            403: z.object({ message: z.string() }),
+          },
+        },
+      },
+      async (request, reply) => {
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        const role = await userRoles.getRole(sessionResult.user.id);
+        if (role !== 'reviewer' && role !== 'admin') {
+          return reply.status(403).send({ message: 'reviewer role required' });
+        }
+        const asked = directionFor(request.query.direction);
+        if (!asked.ok) {
+          return reply.status(400).send({ message: asked.message });
+        }
+        const pending = await golden.queueFor(
+          asked.resolved.direction.id,
+          sessionResult.user.id,
+          request.query.limit,
+        );
+        // The sample stores only ids; hydrate the items for the reviewer to
+        // read. findByIds preserves order and drops any that vanished.
+        const hydrated = await items.findByIds(
+          pending.map((entry) => entry.itemId),
+        );
+        const priorById = new Map(
+          pending.map((entry) => [entry.itemId, entry.priorAudit]),
+        );
+        return {
+          queue: hydrated.map((item) => ({
+            item,
+            priorAudit: priorById.get(item.id) ?? null,
+          })),
+        };
+      },
+    );
+
+    routes.post(
+      '/admin/golden/:itemId/audit',
+      {
+        schema: {
+          params: z.object({ itemId: z.uuid() }),
+          body: z.object({
+            accuracy: z.number().int().min(1).max(5),
+            naturalness: z.number().int().min(1).max(5),
+            fit: z.number().int().min(1).max(5),
+            comment: z.string().trim().max(2000).optional(),
+          }),
+          response: {
+            200: z.object({ audited: z.boolean() }),
+            401: z.object({ message: z.string() }),
+            403: z.object({ message: z.string() }),
+            404: NotFoundSchema,
+          },
+        },
+      },
+      async (request, reply) => {
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        const role = await userRoles.getRole(sessionResult.user.id);
+        if (role !== 'reviewer' && role !== 'admin') {
+          return reply.status(403).send({ message: 'reviewer role required' });
+        }
+        const found = await items.findById(request.params.itemId);
+        if (found === undefined) {
+          return reply.status(404).send({ message: 'item not found' });
+        }
+        // Only sampled items are auditable — the score is a golden-set signal.
+        const sampled = await golden.sampleItemIds(found.direction);
+        if (!sampled.includes(found.item.id)) {
+          return reply
+            .status(404)
+            .send({ message: 'item not in the golden set' });
+        }
+        await golden.saveAudit({
+          itemId: found.item.id,
+          direction: found.direction,
+          reviewerId: sessionResult.user.id,
+          accuracy: request.body.accuracy,
+          naturalness: request.body.naturalness,
+          fit: request.body.fit,
+          comment: request.body.comment ?? null,
+        });
+        return { audited: true };
+      },
+    );
+
+    // The one-shot seeder (ADR 0051): the coordinator stratified-samples the
+    // pool into the golden set once per direction. Admin-only and idempotent —
+    // ids already sampled are skipped, so re-running is safe.
+    routes.post(
+      '/admin/golden/sample',
+      {
+        schema: {
+          body: z.object({ direction: z.string().min(1).optional() }),
+          response: {
+            200: z.object({ added: z.number(), sampleSize: z.number() }),
+            400: z.object({ message: z.string() }),
+            401: z.object({ message: z.string() }),
+            403: z.object({ message: z.string() }),
+          },
+        },
+      },
+      async (request, reply) => {
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        const role = await userRoles.getRole(sessionResult.user.id);
+        if (role !== 'admin') {
+          return reply.status(403).send({ message: 'admin role required' });
+        }
+        const asked = directionFor(request.body.direction);
+        if (!asked.ok) {
+          return reply.status(400).send({ message: asked.message });
+        }
+        const direction = asked.resolved.direction.id;
+        const existing = new Set(await golden.sampleItemIds(direction));
+        const candidates = await golden.sampleCandidates(direction);
+        // ~200 items or the whole pool if smaller (ADR 0051).
+        const target = Math.min(200, candidates.length);
+        const selected = selectGoldenSample(candidates, target);
+        const added = await golden.addToSample(
+          direction,
+          selected.filter((id) => !existing.has(id)),
+        );
+        return { added, sampleSize: existing.size + added };
       },
     );
 
