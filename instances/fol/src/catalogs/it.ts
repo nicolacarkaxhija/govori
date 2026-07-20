@@ -16,6 +16,32 @@ export const it = {
   assemblyBankAria: 'Parole disponibili',
   assemblyBuiltAria: 'La tua frase',
   assemblyKind: 'Componi la frase',
+  audioConsentAgree: 'Accetta e registra',
+  audioConsentApp: 'Uso nell’app',
+  audioConsentAppNote:
+    'Consenti all’app di condividere la tua registrazione con altri studenti. Necessario per registrare.',
+  audioConsentDataset: 'Dataset vocale aperto',
+  audioConsentDatasetNote:
+    'Aggiungi la tua registrazione a un dataset vocale condiviso che può essere concesso in licenza commerciale. Disattivato finché non lo attivi.',
+  audioConsentIntro:
+    'Scegli come può essere usata la tua voce. Ogni scelta è separata e puoi cambiarla in seguito.',
+  audioConsentRequired: 'Necessario',
+  audioConsentTitle: 'Prima di registrare',
+  audioConsentTraining: 'Addestramento di modelli vocali',
+  audioConsentTrainingNote:
+    'Permetti alla tua registrazione di aiutare ad addestrare modelli vocali, insieme a molte altre — mai per clonare la tua voce. Disattivato finché non lo attivi.',
+  audioCreditLine:
+    '{seconds} secondi convalidati → {days} giorni premium ottenuti',
+  audioCreditNone:
+    'Ancora nessun tempo premium — le registrazioni lo ottengono quando la comunità le convalida.',
+  audioCreditTitle: 'Tempo premium ottenuto',
+  audioReview: 'Registrazioni vocali',
+  audioStatusPending: 'In attesa di voti',
+  audioStatusRejected: 'Non accettata',
+  audioStatusVerified: 'Convalidata',
+  audioWhatHappens: 'Cosa succede alla mia voce?',
+  audioWhatHappensNote:
+    'La tua registrazione è conservata con uno pseudonimo, mai con il tuo nome. Le tre scelte qui sopra sono separate — l’uso nell’app non implica mai il dataset o l’addestramento. Puoi ritirare il consenso in qualsiasi momento: la tua voce viene rimossa dalle versioni future del dataset, anche se le versioni già distribuite non possono essere richiamate. La tua voce non viene mai usata per clonare un singolo parlante.',
   back: '← Indietro',
   boardsCleared: 'Tabelloni risolti: {count}',
   check: 'Verifica',
@@ -90,6 +116,8 @@ export const it = {
   matchPairs: 'abbina le coppie',
   missingWordAria: 'parola mancante',
   morphologyKind: 'Forme della parola',
+  myRecordings: 'Le mie registrazioni',
+  myRecordingsEmpty: 'Non hai ancora condiviso alcuna registrazione.',
   newHere: 'Sei nuovo qui? Crea un account',
   noCourse: 'Ancora nessun corso — il seme è in arrivo.',
   noDrafts: 'Nessuna bozza in attesa di revisione.',

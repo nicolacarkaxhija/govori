@@ -11,6 +11,31 @@ export const en = {
   assemblyBankAria: 'Word bank',
   assemblyBuiltAria: 'Your sentence',
   assemblyKind: 'Assemble',
+  audioConsentAgree: 'Agree and record',
+  audioConsentApp: 'App use',
+  audioConsentAppNote:
+    'Let the app share your recording with other learners. Required to record.',
+  audioConsentDataset: 'Open voice dataset',
+  audioConsentDatasetNote:
+    'Add your recording to a shared voice dataset that may be licensed commercially. Off unless you turn it on.',
+  audioConsentIntro:
+    'Choose how your voice may be used. Each choice is separate, and you can change them later.',
+  audioConsentRequired: 'Required',
+  audioConsentTitle: 'Before you record',
+  audioConsentTraining: 'Speech-model training',
+  audioConsentTrainingNote:
+    'Let your recording help train speech models, grouped with many others — never to clone your voice. Off unless you turn it on.',
+  audioCreditLine: '{seconds} seconds validated → {days} premium days earned',
+  audioCreditNone:
+    'No premium time yet — recordings earn it once the community verifies them.',
+  audioCreditTitle: 'Premium time earned',
+  audioReview: 'Voice recordings',
+  audioStatusPending: 'Awaiting votes',
+  audioStatusRejected: 'Not accepted',
+  audioStatusVerified: 'Verified',
+  audioWhatHappens: 'What happens to my voice?',
+  audioWhatHappensNote:
+    'Your recording is stored under a pseudonym, never your name. The three choices above are separate — app use never implies the dataset or training. You can withdraw consent at any time, which drops your voice from future dataset versions, though versions already shared cannot be recalled. Your voice is never used to clone a single speaker.',
   back: '← Back',
   boardsCleared: 'Boards cleared: {count}',
   check: 'Check',
@@ -85,6 +110,8 @@ export const en = {
   matchPairs: 'match the pairs',
   missingWordAria: 'missing word',
   morphologyKind: 'Word forms',
+  myRecordings: 'My recordings',
+  myRecordingsEmpty: 'You have not shared any recordings yet.',
   newHere: 'New here? Create an account',
   noCourse: 'No course yet — the seed is on its way.',
   noDrafts: 'No drafts are waiting for review.',

@@ -11,6 +11,31 @@ export const isv = {
   assemblyBankAria: 'Slova',
   assemblyBuiltAria: 'Tvoje izrečenje',
   assemblyKind: 'Sklad slov',
+  audioConsentAgree: 'Soglasi se i zapiši',
+  audioConsentApp: 'Upotrěba v aplikaciji',
+  audioConsentAppNote:
+    'Dozvoli aplikaciji poděliti tvoj zapis s drugimi učenikami. Obvezno za zapisyvanje.',
+  audioConsentDataset: 'Otvorjeny glasovy nabor',
+  audioConsentDatasetNote:
+    'Dodaj tvoj zapis v obči glasovy nabor, ktory može byti komercijalno licencovany. Izključeno, ako sam ne vključiš.',
+  audioConsentIntro:
+    'Izberi, kako tvoj glas može byti upotrěbjeny. Vsaky izbor jest oddělny, i možeš je pozdněje izměniti.',
+  audioConsentRequired: 'Obvezno',
+  audioConsentTitle: 'Prěd zapisyvanjem',
+  audioConsentTraining: 'Trening glasovyh modelov',
+  audioConsentTrainingNote:
+    'Dozvoli, da by tvoj zapis pomogl trenovati glasove modely, spojeny s mnogimi drugimi — nikogda za klonovanje tvojego glasa. Izključeno, ako sam ne vključiš.',
+  audioCreditLine: '{seconds} sekund potvrdjeno → {days} premium dni zasluženo',
+  audioCreditNone:
+    'Ješče něma premium vrěmene — zapisy je zaslužajut, kogda komunita jih potvrdi.',
+  audioCreditTitle: 'Zaslužene premium vrěme',
+  audioReview: 'Glasove zapisy',
+  audioStatusPending: 'Čeka glasov',
+  audioStatusRejected: 'Ne prijeto',
+  audioStatusVerified: 'Potvrdjeno',
+  audioWhatHappens: 'Čto sę stane s mojim glasom?',
+  audioWhatHappensNote:
+    'Tvoj zapis jest hranjeny pod psevdonimom, nikogda pod tvojim imenem. Tri izbory vyše sut oddělne — upotrěba v aplikaciji nikogda ne znači nabor ili trening. Možeš odozvati soglasje v ljuboj čas, čto odstrani tvoj glas iz budučih versij nabora, hoť versije uže poděljene ne mogut byti odvolane. Tvoj glas nikogda ne jest upotrěbjeny za klonovanje jednogo govoritelja.',
   back: '← Nazad',
   boardsCleared: 'Rěšene tablice: {count}',
   check: 'Prověri',
@@ -85,6 +110,8 @@ export const isv = {
   matchPairs: 'sjedini pary',
   missingWordAria: 'nedostajuče slovo',
   morphologyKind: 'Formy slova',
+  myRecordings: 'Moje zapisy',
+  myRecordingsEmpty: 'Ješče ne si poděljil nijednogo zapisa.',
   newHere: 'Novy tut? Sozdaj konto',
   noCourse: 'Kursa ješče ne jest — sěme jest na putu.',
   noDrafts: 'Nijedin nacrt ne čeka pregleda.',

@@ -16,6 +16,31 @@ export const tr = {
   assemblyBankAria: 'Kelime havuzu',
   assemblyBuiltAria: 'Cümlen',
   assemblyKind: 'Cümle kur',
+  audioConsentAgree: 'Kabul et ve kaydet',
+  audioConsentApp: 'Uygulama kullanımı',
+  audioConsentAppNote:
+    'Uygulamanın kaydını diğer öğrencilerle paylaşmasına izin ver. Kayıt için gerekli.',
+  audioConsentDataset: 'Açık ses veri kümesi',
+  audioConsentDatasetNote:
+    'Kaydını, ticari olarak lisanslanabilecek ortak bir ses veri kümesine ekle. Sen açana kadar kapalı.',
+  audioConsentIntro:
+    'Sesinin nasıl kullanılabileceğini seç. Her seçim ayrıdır ve sonradan değiştirebilirsin.',
+  audioConsentRequired: 'Gerekli',
+  audioConsentTitle: 'Kaydetmeden önce',
+  audioConsentTraining: 'Konuşma modeli eğitimi',
+  audioConsentTrainingNote:
+    'Kaydının, birçok başkasıyla birlikte konuşma modellerini eğitmeye yardım etmesine izin ver — sesini klonlamak için asla. Sen açana kadar kapalı.',
+  audioCreditLine: '{seconds} saniye doğrulandı → {days} premium gün kazanıldı',
+  audioCreditNone:
+    'Henüz premium süre yok — kayıtlar, topluluk doğruladığında bunu kazanır.',
+  audioCreditTitle: 'Kazanılan premium süre',
+  audioReview: 'Ses kayıtları',
+  audioStatusPending: 'Oy bekliyor',
+  audioStatusRejected: 'Kabul edilmedi',
+  audioStatusVerified: 'Doğrulandı',
+  audioWhatHappens: 'Sesime ne oluyor?',
+  audioWhatHappensNote:
+    'Kaydın adının yerine bir takma adla saklanır. Yukarıdaki üç seçim ayrıdır — uygulama kullanımı asla veri kümesi ya da eğitim anlamına gelmez. Onayını istediğin zaman geri çekebilirsin; bu, sesini gelecekteki veri kümesi sürümlerinden çıkarır, ancak zaten paylaşılmış sürümler geri çağrılamaz. Sesin tek bir konuşmacıyı klonlamak için asla kullanılmaz.',
   back: '← Geri',
   boardsCleared: 'Çözülen tahtalar: {count}',
   check: 'Kontrol et',
@@ -90,6 +115,8 @@ export const tr = {
   matchPairs: 'çiftleri eşleştir',
   missingWordAria: 'eksik kelime',
   morphologyKind: 'Kelime biçimleri',
+  myRecordings: 'Kayıtlarım',
+  myRecordingsEmpty: 'Henüz hiçbir kayıt paylaşmadın.',
   newHere: 'Yeni misin? Hesap oluştur',
   noCourse: 'Henüz kurs yok — tohum yolda.',
   noDrafts: 'İnceleme bekleyen taslak yok.',

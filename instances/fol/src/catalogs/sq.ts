@@ -11,6 +11,32 @@ export const sq = {
   assemblyBankAria: 'Fjalët',
   assemblyBuiltAria: 'Fjalia jote',
   assemblyKind: 'Ndërto fjalinë',
+  audioConsentAgree: 'Prano dhe regjistro',
+  audioConsentApp: 'Përdorimi në aplikacion',
+  audioConsentAppNote:
+    'Lejo aplikacionin ta ndajë regjistrimin tënd me nxënës të tjerë. E detyrueshme për të regjistruar.',
+  audioConsentDataset: 'Grup i hapur zërash',
+  audioConsentDatasetNote:
+    'Shto regjistrimin tënd në një grup të përbashkët zërash që mund të licencohet tregtarisht. I çaktivizuar derisa ta ndezësh.',
+  audioConsentIntro:
+    'Zgjidh si mund të përdoret zëri yt. Çdo zgjedhje është e veçantë dhe mund t’i ndryshosh më vonë.',
+  audioConsentRequired: 'E detyrueshme',
+  audioConsentTitle: 'Para se të regjistrosh',
+  audioConsentTraining: 'Stërvitja e modeleve të të folurit',
+  audioConsentTrainingNote:
+    'Lejo që regjistrimi yt të ndihmojë në stërvitjen e modeleve të të folurit, i bashkuar me shumë të tjerë — kurrë për të klonuar zërin tënd. I çaktivizuar derisa ta ndezësh.',
+  audioCreditLine:
+    '{seconds} sekonda të vërtetuara → {days} ditë premium të fituara',
+  audioCreditNone:
+    'Ende asnjë kohë premium — regjistrimet e fitojnë kur komuniteti i vërteton.',
+  audioCreditTitle: 'Koha premium e fituar',
+  audioReview: 'Regjistrime zëri',
+  audioStatusPending: 'Në pritje të votave',
+  audioStatusRejected: 'E papranuar',
+  audioStatusVerified: 'E vërtetuar',
+  audioWhatHappens: 'Çfarë i ndodh zërit tim?',
+  audioWhatHappensNote:
+    'Regjistrimi yt ruhet nën një pseudonim, kurrë me emrin tënd. Tri zgjedhjet e mësipërme janë të veçanta — përdorimi në aplikacion nuk nënkupton kurrë grupin e të dhënave apo stërvitjen. Mund ta tërheqësh pëlqimin në çdo çast, gjë që e heq zërin tënd nga versionet e ardhshme të grupit, ndonëse versionet tashmë të shpërndara nuk mund të tërhiqen. Zëri yt nuk përdoret kurrë për të klonuar një folës të vetëm.',
   back: '← Prapa',
   boardsCleared: 'Tabela të zgjidhura: {count}',
   check: 'Kontrollo',
@@ -85,6 +111,8 @@ export const sq = {
   matchPairs: 'gjej çiftet',
   missingWordAria: 'fjala që mungon',
   morphologyKind: 'Format e fjalës',
+  myRecordings: 'Regjistrimet e mia',
+  myRecordingsEmpty: 'Ende nuk ke ndarë asnjë regjistrim.',
   newHere: 'I ri këtu? Krijo një llogari',
   noCourse: 'Ende nuk ka kurs — fara është rrugës.',
   noDrafts: 'Asnjë skicë nuk pret shqyrtim.',

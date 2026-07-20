@@ -16,6 +16,32 @@ export const de = {
   assemblyBankAria: 'Wortvorrat',
   assemblyBuiltAria: 'Dein Satz',
   assemblyKind: 'Satz bauen',
+  audioConsentAgree: 'Zustimmen und aufnehmen',
+  audioConsentApp: 'App-Nutzung',
+  audioConsentAppNote:
+    'Erlaube der App, deine Aufnahme mit anderen Lernenden zu teilen. Für das Aufnehmen erforderlich.',
+  audioConsentDataset: 'Offener Sprachdatensatz',
+  audioConsentDatasetNote:
+    'Nimm deine Aufnahme in einen gemeinsamen Sprachdatensatz auf, der kommerziell lizenziert werden kann. Aus, bis du es einschaltest.',
+  audioConsentIntro:
+    'Wähle, wie deine Stimme genutzt werden darf. Jede Wahl ist getrennt, und du kannst sie später ändern.',
+  audioConsentRequired: 'Erforderlich',
+  audioConsentTitle: 'Bevor du aufnimmst',
+  audioConsentTraining: 'Training von Sprachmodellen',
+  audioConsentTrainingNote:
+    'Lass deine Aufnahme helfen, Sprachmodelle zu trainieren, zusammen mit vielen anderen — niemals um deine Stimme zu klonen. Aus, bis du es einschaltest.',
+  audioCreditLine:
+    '{seconds} Sekunden bestätigt → {days} Premium-Tage verdient',
+  audioCreditNone:
+    'Noch keine Premium-Zeit — Aufnahmen verdienen sie, sobald die Community sie bestätigt.',
+  audioCreditTitle: 'Verdiente Premium-Zeit',
+  audioReview: 'Sprachaufnahmen',
+  audioStatusPending: 'Wartet auf Stimmen',
+  audioStatusRejected: 'Nicht angenommen',
+  audioStatusVerified: 'Bestätigt',
+  audioWhatHappens: 'Was passiert mit meiner Stimme?',
+  audioWhatHappensNote:
+    'Deine Aufnahme wird unter einem Pseudonym gespeichert, nie unter deinem Namen. Die drei Optionen oben sind getrennt — App-Nutzung bedeutet nie Datensatz oder Training. Du kannst deine Einwilligung jederzeit widerrufen; das entfernt deine Stimme aus künftigen Datensatz-Versionen, doch bereits geteilte Versionen lassen sich nicht zurückrufen. Deine Stimme wird nie genutzt, um einen einzelnen Sprecher zu klonen.',
   back: '← Zurück',
   boardsCleared: 'Gelöste Tafeln: {count}',
   check: 'Prüfen',
@@ -91,6 +117,8 @@ export const de = {
   matchPairs: 'Paare finden',
   missingWordAria: 'fehlendes Wort',
   morphologyKind: 'Wortformen',
+  myRecordings: 'Meine Aufnahmen',
+  myRecordingsEmpty: 'Du hast noch keine Aufnahmen geteilt.',
   newHere: 'Neu hier? Konto erstellen',
   noCourse: 'Noch kein Kurs — der Grundstock ist unterwegs.',
   noDrafts: 'Keine Entwürfe warten auf Prüfung.',
