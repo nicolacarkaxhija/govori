@@ -1,20 +1,25 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
   ConfigError,
   defineFlags,
+  type FlagDefinitions,
+  type FlagState,
   resolveFlags,
   type TargetRole,
 } from './index.js';
 
 // The flag dependency graph from the product plan (ADR 0025):
 // leaderboards → social → accounts; recordAndCompare → audio.
-const definitions = defineFlags({
-  accounts: {},
-  social: { requires: ['accounts'] },
-  leaderboards: { requires: ['social'] },
-  audio: {},
-  recordAndCompare: { requires: ['audio'] },
-});
+// Built fresh per test (not at import) so defineFlags is exercised as
+// runtime — not static — code, which keeps its mutants killable.
+const buildDefinitions = () =>
+  defineFlags({
+    accounts: {},
+    social: { requires: ['accounts'] },
+    leaderboards: { requires: ['social'] },
+    audio: {},
+    recordAndCompare: { requires: ['audio'] },
+  });
 
 describe('defineFlags', () => {
   it('rejects a requirement on an unknown flag at definition time', () => {
@@ -34,9 +39,23 @@ describe('defineFlags', () => {
       }),
     ).toThrow(/cycle/i);
   });
+
+  it('accepts a flag that declares no requirements', () => {
+    expect(defineFlags({ solo: {} })).toEqual({ solo: {} });
+  });
+
+  it('accepts a requirement that names a defined flag without throwing', () => {
+    const defs = { base: {}, feature: { requires: ['base'] } };
+    expect(defineFlags(defs)).toEqual(defs);
+  });
 });
 
 describe('resolveFlags', () => {
+  let definitions: ReturnType<typeof buildDefinitions>;
+  beforeEach(() => {
+    definitions = buildDefinitions();
+  });
+
   const on = (targetRole: TargetRole = 'all') => ({
     enabled: true,
     targetRole,
@@ -160,5 +179,28 @@ describe('resolveFlags', () => {
     expect(resolved.audio.effective).toBe(false);
     expect(resolved.recordAndCompare.effective).toBe(false);
     expect(resolved.recordAndCompare.suppressedBy).toEqual(['audio']);
+  });
+
+  it('names the offending flag when state references an unknown flag', () => {
+    expect(() => resolveFlags(definitions, { ghost: on() }, 'admin')).toThrow(
+      /unknown flag "ghost"/,
+    );
+  });
+
+  it('defaults a stored flag with no target ring to the public ring', () => {
+    const state = { accounts: { enabled: true } } as unknown as Record<
+      string,
+      FlagState
+    >;
+    expect(
+      resolveFlags(definitions, state, 'anonymous').accounts.effective,
+    ).toBe(true);
+  });
+
+  it('treats a requirement whose definition is absent as unmet, not a crash', () => {
+    const defs = { alpha: { requires: ['ghost'] } } satisfies FlagDefinitions;
+    const resolved = resolveFlags(defs, { alpha: on() }, 'admin');
+    expect(resolved.alpha.effective).toBe(false);
+    expect(resolved.alpha.suppressedBy).toEqual(['ghost']);
   });
 });
