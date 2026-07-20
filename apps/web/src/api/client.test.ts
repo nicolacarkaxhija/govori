@@ -804,3 +804,84 @@ describe('fetchForms', () => {
     );
   });
 });
+
+describe('reportItem', () => {
+  const itemId = '7d9a2f04-6d19-4c1a-9e3a-1f2b3c4d5e6f';
+
+  it('posts a report and reports acceptance on 202', async () => {
+    const { reportItem } = await import('./client');
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(new Response(null, { status: 202 }));
+    vi.stubGlobal('fetch', fetchMock);
+    expect(await reportItem(itemId, 'wrong_translation', 'off')).toBe(true);
+    const body = JSON.parse(
+      (fetchMock.mock.calls[0]?.[1] as { body: string }).body,
+    ) as unknown;
+    expect(body).toEqual({ reason: 'wrong_translation', comment: 'off' });
+  });
+
+  it('omits a blank comment from the body', async () => {
+    const { reportItem } = await import('./client');
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(new Response(null, { status: 202 }));
+    vi.stubGlobal('fetch', fetchMock);
+    await reportItem(itemId, 'other', '   ');
+    const body = JSON.parse(
+      (fetchMock.mock.calls[0]?.[1] as { body: string }).body,
+    ) as unknown;
+    expect(body).toEqual({ reason: 'other' });
+  });
+
+  it('is false on a non-202 response and on network failure', async () => {
+    const { reportItem } = await import('./client');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response('no', { status: 404 })),
+    );
+    expect(await reportItem(itemId, 'not_natural')).toBe(false);
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+    expect(await reportItem(itemId, 'not_natural')).toBe(false);
+  });
+});
+
+describe('fetchQualityFlags', () => {
+  const flag = {
+    item: {
+      id: '7d9a2f04-6d19-4c1a-9e3a-1f2b3c4d5e6f',
+      kind: 'word',
+      text: 'voda',
+      translations: [{ lang: 'en', text: 'water' }],
+    },
+    againCount: 8,
+    totalGraded: 12,
+    failureRate: 0.66,
+    openReports: 3,
+    reasons: [{ reason: 'wrong_translation', count: 2 }],
+  };
+
+  it('returns the parsed escalation list on success', async () => {
+    const { fetchQualityFlags } = await import('./client');
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ flags: [flag] }), { status: 200 }),
+        ),
+    );
+    expect(await fetchQualityFlags()).toEqual([flag]);
+  });
+
+  it('is null when forbidden or unreachable', async () => {
+    const { fetchQualityFlags } = await import('./client');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response('no', { status: 403 })),
+    );
+    expect(await fetchQualityFlags()).toBeNull();
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+    expect(await fetchQualityFlags()).toBeNull();
+  });
+});

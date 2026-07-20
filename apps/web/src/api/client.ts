@@ -516,6 +516,84 @@ export async function castVote(
   }
 }
 
+/** The four reasons a learner may attach to a quality report (ADR 0051). */
+export const REPORT_REASONS = [
+  'wrong_translation',
+  'not_natural',
+  'wrong_audio',
+  'other',
+] as const;
+
+export type ReportReason = (typeof REPORT_REASONS)[number];
+
+/**
+ * Reports a quality problem with a published item (ADR 0051). Works for
+ * anonymous and signed-in learners alike — reporting is a quality signal, not
+ * an identity action. True when the report was accepted (202).
+ */
+export async function reportItem(
+  itemId: string,
+  reason: ReportReason,
+  comment?: string,
+): Promise<boolean> {
+  try {
+    const response = await fetch(
+      new URL(`/items/${itemId}/report`, apiBaseUrl),
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          reason,
+          ...(comment === undefined || comment.trim() === ''
+            ? {}
+            : { comment }),
+        }),
+      },
+    );
+    return response.status === 202;
+  } catch {
+    return false;
+  }
+}
+
+const qualityFlagsSchema = z.object({
+  flags: z.array(
+    z.object({
+      item: learnItemSchema,
+      againCount: z.number(),
+      totalGraded: z.number(),
+      failureRate: z.number(),
+      openReports: z.number(),
+      reasons: z.array(
+        z.object({ reason: z.enum(REPORT_REASONS), count: z.number() }),
+      ),
+    }),
+  ),
+});
+
+export type QualityFlag = z.infer<typeof qualityFlagsSchema>['flags'][number];
+
+/**
+ * Reviewer-only: items the quality-feedback loop has auto-escalated (ADR 0051)
+ * — lapse-heavy in the review log or hand-reported past the bar, most severe
+ * first. Null when not allowed or unreachable.
+ */
+export async function fetchQualityFlags(): Promise<QualityFlag[] | null> {
+  try {
+    const response = await fetch(new URL('/admin/quality-flags', apiBaseUrl), {
+      credentials: 'include',
+    });
+    if (!response.ok) {
+      return null;
+    }
+    const payload: unknown = await response.json();
+    return qualityFlagsSchema.parse(payload).flags;
+  } catch {
+    return null;
+  }
+}
+
 const flagsSchema = z.object({
   flags: z.record(z.string(), z.boolean()),
 });

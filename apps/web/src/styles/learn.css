@@ -837,3 +837,69 @@ button:active {
   border-bottom: 1px solid var(--color-border);
   padding-bottom: var(--space-sm);
 }
+
+/* Learner quality-feedback loop (ADR 0051): the compact report affordance in
+   a card's feedback area, and the reviewer escalation list's per-item metrics.
+   Palette stays on the seam — every colour is an instance-defined token. */
+.report-open {
+  width: 100%;
+  text-align: left;
+  font-size: 0.8rem;
+}
+
+.report-menu {
+  width: 100%;
+  display: grid;
+  gap: var(--space-sm);
+  border-top: 1px dashed var(--color-border);
+  padding-top: var(--space-sm);
+}
+
+.report-prompt {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.report-reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.report-comment-label {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.report-comment {
+  width: 100%;
+  min-height: 3rem;
+  resize: vertical;
+  border: 1px solid var(--color-border);
+  border-radius: 0.4rem;
+  padding: 0.4rem 0.6rem;
+  font: inherit;
+}
+
+.report-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.report-thanks {
+  width: 100%;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.quality-metrics {
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.quality-reasons {
+  color: var(--color-text-muted);
+}

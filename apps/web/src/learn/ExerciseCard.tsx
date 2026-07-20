@@ -2,6 +2,7 @@ import { useMemo, useState, type SubmitEvent } from 'react';
 import type { Grade } from '@glotty/srs';
 import type { LearnItem } from '../api/client';
 import { AudioTools } from './AudioTools';
+import { ReportControl } from './ReportControl';
 import {
   buildChoices,
   buildReverseChoices,
@@ -178,6 +179,7 @@ export function ExerciseCard({
           <button type="button" className="continue" onClick={finish} autoFocus>
             {t('continueButton')}
           </button>
+          <ReportControl itemId={item.id} />
         </div>
       )}
     </section>

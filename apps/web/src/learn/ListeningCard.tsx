@@ -6,6 +6,7 @@ import {
   type LearnItem,
   type Recording,
 } from '../api/client';
+import { ReportControl } from './ReportControl';
 import { checkTyped, translationFor } from './exercises';
 import { useT } from '../i18n';
 import { fallbackLang, activePack } from '../instance';
@@ -132,6 +133,7 @@ export function ListeningCard({
           >
             {t('continueButton')}
           </button>
+          <ReportControl itemId={item.id} />
         </div>
       )}
     </section>

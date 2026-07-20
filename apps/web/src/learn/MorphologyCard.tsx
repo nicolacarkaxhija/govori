@@ -1,6 +1,7 @@
 import { useEffect, useState, type SubmitEvent } from 'react';
 import type { Grade } from '@glotty/srs';
 import { fetchForms, type ItemForm, type LearnItem } from '../api/client';
+import { ReportControl } from './ReportControl';
 import { checkTyped, translationFor } from './exercises';
 import type { Script } from './useScript';
 import { useT, type MessageKey } from '../i18n';
@@ -129,6 +130,7 @@ export function MorphologyCard({
           >
             {t('continueButton')}
           </button>
+          <ReportControl itemId={item.id} />
         </div>
       )}
     </section>

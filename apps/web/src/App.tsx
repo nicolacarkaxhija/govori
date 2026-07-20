@@ -19,6 +19,7 @@ import { SettingsView } from './settings/SettingsView';
 import { MyRecordingsView } from './settings/MyRecordingsView';
 import { StatsView } from './stats/StatsView';
 import { ReviewView } from './review/ReviewView';
+import { QualityFlagsView } from './review/QualityFlagsView';
 import { UsersView } from './review/UsersView';
 import { ContributeView } from './review/ContributeView';
 import { VoteView } from './review/VoteView';
@@ -85,6 +86,7 @@ function AppShell({
     | { name: 'myRecordings' }
     | { name: 'audioReview' }
     | { name: 'review' }
+    | { name: 'quality' }
     | { name: 'users' }
     | { name: 'contribute' }
     | { name: 'weak' }
@@ -275,6 +277,9 @@ function AppShell({
           onReview={() => {
             setView({ name: 'review' });
           }}
+          onQualityFlags={() => {
+            setView({ name: 'quality' });
+          }}
           onUsers={() => {
             setView({ name: 'users' });
           }}
@@ -327,6 +332,13 @@ function AppShell({
         />
       ) : view.name === 'review' ? (
         <ReviewView
+          script={script}
+          onExit={() => {
+            setView({ name: 'account' });
+          }}
+        />
+      ) : view.name === 'quality' ? (
+        <QualityFlagsView
           script={script}
           onExit={() => {
             setView({ name: 'account' });
