@@ -260,6 +260,36 @@ export const reviewEvents = pgTable('review_events', {
     .defaultNow(),
 });
 
+/**
+ * Learner quality reports on published items (ADR 0051 quality-feedback-loop).
+ * Anonymous reporting is allowed — a report is a quality signal, not an
+ * identity action — so reporter_id is nullable. Three open reports on one item
+ * auto-flag it: flagged_at is stamped once, when the third open report lands.
+ */
+export const itemReports = pgTable('item_reports', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  itemId: uuid('item_id')
+    .notNull()
+    .references(() => items.id, { onDelete: 'cascade' }),
+  /** The reported item's direction (ADR 0046); copied from the item at report
+   * time so the reviewer flags view can scope by direction without a join. */
+  direction: text('direction').notNull(),
+  /** The signed-in reporter, or null for an anonymous report. */
+  reporterId: text('reporter_id'),
+  reason: text('reason', {
+    enum: ['wrong_translation', 'not_natural', 'wrong_audio', 'other'],
+  }).notNull(),
+  comment: text('comment'),
+  status: text('status', { enum: ['open', 'resolved', 'dismissed'] })
+    .notNull()
+    .default('open'),
+  /** Stamped once, on the third open report for the item; idempotent. */
+  flaggedAt: timestamp('flagged_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 /** Runtime feature-flag states; the dependency graph lives in code (ADR 0025). */
 export const flagStates = pgTable('flag_states', {
   key: text('key').primaryKey(),

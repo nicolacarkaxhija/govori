@@ -37,6 +37,12 @@ import type { MorphologyQueries } from './morphology/ports.js';
 import type { ExportQueries } from './export/ports.js';
 import type { EntitlementStore } from './entitlements/ports.js';
 import { ContentGate } from './entitlements/content-gate.js';
+import {
+  REPORT_REASONS,
+  type QualityQueries,
+  type ReportStore,
+} from './quality/ports.js';
+import { qualityThresholds } from './quality/thresholds.js';
 
 export interface AppDependencies {
   config: ApiConfig;
@@ -73,6 +79,10 @@ export interface AppDependencies {
   /** Lifetime per-SKU entitlements (ADR 0047/0050); the founder/admin grant
    * path and the read behind the content gate. */
   entitlements: EntitlementStore;
+  /** Learner quality reports over published items (ADR 0051). */
+  reports: ReportStore;
+  /** Reviewer-facing escalation over review events and reports (ADR 0051). */
+  quality: QualityQueries;
 }
 
 /** Bridges Fastify's raw request to the Web Request better-auth consumes. */
@@ -139,6 +149,8 @@ export function buildApp({
   morphology,
   openData,
   entitlements,
+  reports,
+  quality,
 }: AppDependencies) {
   const app = Fastify({ logger: false }).withTypeProvider<ZodTypeProvider>();
   // The content gate over the entitlement ledger (ADR 0047/0050). Permissive
@@ -1517,6 +1529,114 @@ export function buildApp({
       async (request) => ({
         forms: await morphology.formsFor(request.params.id),
       }),
+    );
+
+    // A learner flags a problem with a published item (ADR 0051). No session
+    // is required — anonymous reporting is fine, since a report is a quality
+    // signal, not an identity action — but a session, when present, tags it.
+    // The third open report on an item auto-flags it for reviewers.
+    routes.post(
+      '/items/:id/report',
+      {
+        schema: {
+          params: z.object({ id: z.uuid() }),
+          body: z.object({
+            reason: z.enum(REPORT_REASONS),
+            comment: z.string().trim().min(1).max(1000).optional(),
+          }),
+          response: {
+            202: z.object({
+              status: z.literal('accepted'),
+              flagged: z.boolean(),
+            }),
+            404: NotFoundSchema,
+          },
+        },
+      },
+      async (request, reply) => {
+        const found = await items.findById(request.params.id);
+        if (found === undefined) {
+          return reply.status(404).send({ message: 'unknown item' });
+        }
+        const session = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        const { flagged } = await reports.add({
+          itemId: found.item.id,
+          // The report inherits the direction of the item it flags (ADR 0046).
+          direction: found.direction,
+          reporterId: session?.user.id ?? null,
+          reason: request.body.reason,
+          comment: request.body.comment ?? null,
+        });
+        return reply.status(202).send({ status: 'accepted', flagged });
+      },
+    );
+
+    // The reviewer escalation view (ADR 0051): items either lapse-heavy in the
+    // synced review log or hand-reported past the bar, each with its counts and
+    // reasons, most severe first. Reviewer+ only — never a public signal.
+    routes.get(
+      '/admin/quality-flags',
+      {
+        schema: {
+          querystring: z.object({ direction: z.string().min(1).optional() }),
+          response: {
+            200: z.object({
+              flags: z.array(
+                z.object({
+                  item: ItemSchema,
+                  againCount: z.number(),
+                  totalGraded: z.number(),
+                  failureRate: z.number(),
+                  openReports: z.number(),
+                  reasons: z.array(
+                    z.object({
+                      reason: z.enum(REPORT_REASONS),
+                      count: z.number(),
+                    }),
+                  ),
+                }),
+              ),
+            }),
+            400: z.object({ message: z.string() }),
+            401: z.object({ message: z.string() }),
+            403: z.object({ message: z.string() }),
+          },
+        },
+      },
+      async (request, reply) => {
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        // A single reviewer decision publishes (ADR 0008), so reviewers see
+        // the escalation queue admins do.
+        const role = await userRoles.getRole(sessionResult.user.id);
+        if (role !== 'reviewer' && role !== 'admin') {
+          return reply.status(403).send({ message: 'reviewer role required' });
+        }
+        const asked = directionFor(request.query.direction);
+        if (!asked.ok) {
+          return reply.status(400).send({ message: asked.message });
+        }
+        return {
+          flags: await quality.flags(
+            asked.resolved.direction.id,
+            qualityThresholds,
+          ),
+        };
+      },
     );
 
     // Open data export (ADR 0007/0010): the learning content is public

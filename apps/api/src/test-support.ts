@@ -102,6 +102,12 @@ export function makeTestDeps(
         Promise.resolve({ ...input, grantedAt: '2026-07-19T00:00:00.000Z' }),
       listForUser: () => Promise.resolve([]),
     },
+    reports: {
+      add: () => Promise.resolve({ flagged: false }),
+    },
+    quality: {
+      flags: () => Promise.resolve([]),
+    },
     ...overrides,
   };
 }
