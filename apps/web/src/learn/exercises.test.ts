@@ -10,6 +10,7 @@ import {
   buildReverseChoices,
   checkProduction,
   checkTyped,
+  excludeBronzeDistractors,
   planNextMode,
   scrambleOrder,
   translationFor,
@@ -202,6 +203,150 @@ describe('buildReverseChoices', () => {
     expect(buildReverseChoices(target, [target], 4, () => 0.5)).toEqual([
       'voda',
     ]);
+  });
+});
+
+describe('data-quality gating (ADR 0051)', () => {
+  const gold: LearnItem = {
+    id: 'aaaaaaaa-0000-4000-8000-0000000000a1',
+    kind: 'word',
+    text: 'voda',
+    translations: [{ lang: 'en', text: 'water' }],
+    attestation: 'gold',
+  };
+  const silver: LearnItem = {
+    id: 'aaaaaaaa-0000-4000-8000-0000000000a2',
+    kind: 'word',
+    text: 'hlěb',
+    translations: [{ lang: 'en', text: 'bread' }],
+    attestation: 'silver',
+  };
+  const bronze: LearnItem = {
+    id: 'aaaaaaaa-0000-4000-8000-0000000000a3',
+    kind: 'word',
+    text: 'mlěko',
+    translations: [{ lang: 'en', text: 'milk' }],
+    attestation: 'bronze',
+  };
+  const untiered: LearnItem = {
+    id: 'aaaaaaaa-0000-4000-8000-0000000000a4',
+    kind: 'word',
+    text: 'sųd',
+    translations: [{ lang: 'en', text: 'court' }],
+  };
+
+  describe('excludeBronzeDistractors', () => {
+    it('drops bronze items but keeps gold, silver, and untiered ones', () => {
+      expect(
+        excludeBronzeDistractors([gold, silver, bronze, untiered]),
+      ).toEqual([gold, silver, untiered]);
+    });
+
+    it('keeps a bronze target while still dropping other bronze items', () => {
+      const otherBronze: LearnItem = {
+        id: 'aaaaaaaa-0000-4000-8000-0000000000a5',
+        kind: 'word',
+        text: 's150',
+        translations: [{ lang: 'en', text: 'window' }],
+        attestation: 'bronze',
+      };
+      expect(excludeBronzeDistractors([bronze, otherBronze], bronze)).toEqual([
+        bronze,
+      ]);
+    });
+  });
+
+  describe('buildChoices', () => {
+    it('never offers a bronze translation as a distractor', () => {
+      // Bronze is the only other pool item, so the round falls back to a
+      // single choice rather than surfacing the low-confidence gloss.
+      const choices = buildChoices(
+        gold,
+        [gold, bronze],
+        4,
+        'en',
+        'en',
+        () => 0.5,
+      );
+      expect(choices).toEqual(['water']);
+      expect(choices).not.toContain('milk');
+    });
+
+    it('still draws gold and silver distractors', () => {
+      const choices = buildChoices(
+        untiered,
+        [untiered, gold, silver],
+        4,
+        'en',
+        'en',
+        () => 0.5,
+      );
+      expect(choices).toContain('water');
+      expect(choices).toContain('bread');
+    });
+
+    it('still draws untiered distractors (undefined is neutral)', () => {
+      const choices = buildChoices(
+        gold,
+        [gold, untiered],
+        4,
+        'en',
+        'en',
+        () => 0.5,
+      );
+      expect(choices).toContain('court');
+    });
+
+    it('offers a bronze target its own correct answer', () => {
+      const choices = buildChoices(
+        bronze,
+        [bronze, gold],
+        4,
+        'en',
+        'en',
+        () => 0.5,
+      );
+      expect(choices).toContain('milk');
+    });
+  });
+
+  describe('buildReverseChoices', () => {
+    it('never offers a bronze word as a distractor', () => {
+      const choices = buildReverseChoices(gold, [gold, bronze], 4, () => 0.5);
+      expect(choices).toEqual(['voda']);
+      expect(choices).not.toContain('mlěko');
+    });
+
+    it('still draws gold and silver distractors', () => {
+      const choices = buildReverseChoices(
+        untiered,
+        [untiered, gold, silver],
+        4,
+        () => 0.5,
+      );
+      expect(choices).toContain('voda');
+      expect(choices).toContain('hlěb');
+    });
+  });
+
+  describe('buildMatching', () => {
+    it('never seats a bronze item on the board', () => {
+      const pairs = buildMatching(
+        [gold, silver, bronze],
+        3,
+        'en',
+        'en',
+        () => 0.1,
+      );
+      expect(pairs.map((pair) => pair.itemId)).not.toContain(bronze.id);
+      expect(pairs.map((pair) => pair.target)).not.toContain('mlěko');
+    });
+
+    it('caps at the non-bronze items when bronze is the only filler', () => {
+      const pairs = buildMatching([gold, bronze], 4, 'en', 'en', () => 0.5);
+      expect(pairs).toHaveLength(1);
+      expect(pairs[0]?.itemId).toBe(gold.id);
+    });
   });
 });
 

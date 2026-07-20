@@ -28,6 +28,24 @@ export function translationFor(
   return fallback?.text ?? item.translations[0]?.text ?? '';
 }
 
+/**
+ * The items an exercise may pull distractors from (ADR 0051). A bronze-tier
+ * item is corroborated by a single corpus, so its own translation is never
+ * trustworthy enough to be confusing filler in someone else's question —
+ * bronze items drop out. The exception is `target`, the item actually being
+ * studied: its tier never disqualifies it, since a learner may study bronze
+ * vocabulary directly. Unattested (undefined) items always stay; most of the
+ * pool has no tier yet, so only an explicit bronze grade gates.
+ */
+export function excludeBronzeDistractors(
+  pool: readonly LearnItem[],
+  target?: LearnItem,
+): LearnItem[] {
+  return pool.filter(
+    (item) => item.id === target?.id || item.attestation !== 'bronze',
+  );
+}
+
 /** Unique distractors around the correct answer, shuffled deterministically. */
 function pickOptions(
   correct: string,
@@ -65,7 +83,7 @@ export function buildChoices(
 ): string[] {
   return pickOptions(
     translationFor(target, lang, fallbackLang),
-    pool
+    excludeBronzeDistractors(pool, target)
       .filter((item) => item.id !== target.id)
       .map((item) => translationFor(item, lang, fallbackLang)),
     count,
@@ -85,7 +103,9 @@ export function buildReverseChoices(
 ): string[] {
   return pickOptions(
     target.text,
-    pool.filter((item) => item.id !== target.id).map((item) => item.text),
+    excludeBronzeDistractors(pool, target)
+      .filter((item) => item.id !== target.id)
+      .map((item) => item.text),
     count,
     random,
   );
@@ -116,7 +136,9 @@ export function buildMatching(
   fallbackLang: string,
   random: () => number = Math.random,
 ): MatchingPair[] {
-  const usable = pool.filter(
+  // Every seat on a matching board is a distractor for the others, so bronze
+  // items are kept off the board entirely (ADR 0051).
+  const usable = excludeBronzeDistractors(pool).filter(
     (item) => translationFor(item, lang, fallbackLang) !== '',
   );
   const picked: LearnItem[] = [];
