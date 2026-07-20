@@ -20,6 +20,11 @@ export interface SettingsViewProps {
   script: string;
   scripts: readonly ScriptOption[];
   onScript: (id: string) => void;
+  /** Community audio is live (ADR 0048); gates the recordings entry. */
+  audioOn: boolean;
+  /** A session exists — own recordings need one to read. */
+  signedIn: boolean;
+  onMyRecordings: () => void;
 }
 
 /**
@@ -41,6 +46,9 @@ export function SettingsView({
   script,
   scripts,
   onScript,
+  audioOn,
+  signedIn,
+  onMyRecordings,
 }: SettingsViewProps) {
   const t = useT();
   return (
@@ -113,6 +121,12 @@ export function SettingsView({
             ))}
           </select>
         </label>
+      )}
+
+      {audioOn && signedIn && (
+        <button type="button" className="footer-link" onClick={onMyRecordings}>
+          {t('myRecordings')}
+        </button>
       )}
 
       <button type="button" className="quiet" onClick={onExit}>

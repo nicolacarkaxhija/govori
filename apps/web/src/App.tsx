@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { instance } from './instance';
-import { fetchMe, fetchMeta } from './api/client';
+import { fetchFlags, fetchMe, fetchMeta } from './api/client';
 import { useTheme } from './hooks/useTheme';
 import { useDirection } from './learn/useDirection';
 import { useScript } from './learn/useScript';
@@ -16,6 +16,7 @@ import { Onboarding } from './onboarding/Onboarding';
 import { GrowingCourseBanner } from './home/GrowingCourseBanner';
 import { AccountView } from './account/AccountView';
 import { SettingsView } from './settings/SettingsView';
+import { MyRecordingsView } from './settings/MyRecordingsView';
 import { StatsView } from './stats/StatsView';
 import { ReviewView } from './review/ReviewView';
 import { UsersView } from './review/UsersView';
@@ -69,6 +70,7 @@ function AppShell({
   const [shortName, setShortName] = useState<string>(instance.brand.shortName);
   const [fullName, setFullName] = useState<string>(instance.brand.fullName);
   const [signedIn, setSignedIn] = useState(false);
+  const [audioOn, setAudioOn] = useState(false);
   const [onboarded, setOnboarded] = useState(
     () => localStorage.getItem(`${instance.id}.onboarded`) !== null,
   );
@@ -79,6 +81,7 @@ function AppShell({
     | { name: 'stats' }
     | { name: 'account' }
     | { name: 'settings' }
+    | { name: 'myRecordings' }
     | { name: 'review' }
     | { name: 'users' }
     | { name: 'contribute' }
@@ -114,6 +117,18 @@ function AppShell({
     void fetchMe().then((me) => {
       if (active) {
         setSignedIn(me !== null);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    void fetchFlags().then((flags) => {
+      if (active) {
+        setAudioOn(flags.audio === true);
       }
     });
     return () => {
@@ -278,6 +293,20 @@ function AppShell({
           script={script}
           scripts={scripts}
           onScript={selectScript}
+          audioOn={audioOn}
+          signedIn={signedIn}
+          onMyRecordings={() => {
+            setView({ name: 'myRecordings' });
+          }}
+        />
+      ) : view.name === 'myRecordings' ? (
+        <MyRecordingsView
+          onExit={() => {
+            setView({ name: 'settings' });
+          }}
+          onSignIn={() => {
+            setView({ name: 'account' });
+          }}
         />
       ) : view.name === 'contribute' ? (
         <ContributeView

@@ -21,6 +21,9 @@ function renderSettings(overrides: Partial<SettingsViewProps> = {}) {
       { id: 'cyrillic', label: 'Cyrillic' },
     ],
     onScript: vi.fn(),
+    audioOn: false,
+    signedIn: false,
+    onMyRecordings: vi.fn(),
     ...overrides,
   };
   render(
@@ -66,6 +69,17 @@ describe('SettingsView', () => {
     expect(
       screen.queryByRole('combobox', { name: 'Display script' }),
     ).toBeNull();
+  });
+
+  it('offers My recordings only when audio is live and signed in', async () => {
+    renderSettings({ audioOn: false, signedIn: true });
+    expect(screen.queryByRole('button', { name: 'My recordings' })).toBeNull();
+    renderSettings({ audioOn: true, signedIn: false });
+    expect(screen.queryByRole('button', { name: 'My recordings' })).toBeNull();
+    const props = renderSettings({ audioOn: true, signedIn: true });
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: 'My recordings' }));
+    expect(props.onMyRecordings).toHaveBeenCalledTimes(1);
   });
 
   it('leaves settings when back is pressed', async () => {
