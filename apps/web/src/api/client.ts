@@ -38,6 +38,12 @@ const learnItemSchema = z.object({
   notes: z
     .array(z.object({ sourceLang: z.string(), text: z.string() }))
     .optional(),
+  /**
+   * Cross-source attestation tier from the forge (@glotty/content): gold = 3+
+   * corroborating corpora, silver = 2, bronze = 1. Absent on most items today,
+   * so it is optional; when present it gates data quality (ADR 0051).
+   */
+  attestation: z.enum(['gold', 'silver', 'bronze']).optional(),
 });
 
 const itemsSchema = z.object({ items: z.array(learnItemSchema) });

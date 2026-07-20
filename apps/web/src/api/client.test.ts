@@ -285,6 +285,69 @@ describe('contrastive notes on learn items', () => {
   });
 });
 
+describe('attestation tier on learn items', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.unstubAllGlobals();
+  });
+
+  it('keeps the tier when the API serves it', async () => {
+    const graded = {
+      id: 'aaaaaaaa-0000-4000-8000-000000000001',
+      kind: 'word',
+      text: 'voda',
+      translations: [{ lang: 'en', text: 'water' }],
+      attestation: 'bronze',
+    };
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ items: [graded] }), { status: 200 }),
+        ),
+    );
+    expect(await fetchItems('isv', 1)).toEqual([graded]);
+  });
+
+  it('rejects a payload whose tier is not one of the three grades', async () => {
+    const bad = {
+      id: 'aaaaaaaa-0000-4000-8000-000000000001',
+      kind: 'word',
+      text: 'voda',
+      translations: [{ lang: 'en', text: 'water' }],
+      attestation: 'platinum',
+    };
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ items: [bad] }), { status: 200 }),
+        ),
+    );
+    expect(await fetchItems('isv', 1)).toBeNull();
+  });
+
+  it('still accepts items with no tier at all', async () => {
+    const untiered = {
+      id: 'aaaaaaaa-0000-4000-8000-000000000001',
+      kind: 'word',
+      text: 'voda',
+      translations: [{ lang: 'en', text: 'water' }],
+    };
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response(JSON.stringify({ items: [untiered] }), { status: 200 }),
+        ),
+    );
+    expect(await fetchItems('isv', 1)).toEqual([untiered]);
+  });
+});
+
 describe('review clients', () => {
   it('fetchPendingReviews parses the queue and fails closed', async () => {
     const { fetchPendingReviews } = await import('./client');
