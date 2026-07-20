@@ -102,6 +102,14 @@ export function makeTestDeps(
         Promise.resolve({ ...input, grantedAt: '2026-07-19T00:00:00.000Z' }),
       listForUser: () => Promise.resolve([]),
     },
+    golden: {
+      sampleCandidates: () => Promise.resolve([]),
+      sampleItemIds: () => Promise.resolve([]),
+      addToSample: () => Promise.resolve(0),
+      queueFor: () => Promise.resolve([]),
+      saveAudit: () => Promise.resolve(),
+      quality: () => Promise.resolve(null),
+    },
     ...overrides,
   };
 }

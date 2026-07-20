@@ -17,6 +17,7 @@ import { DrizzleRecordingStore } from './audio/drizzle-recording-store.js';
 import { DrizzleMorphologyRepository } from './morphology/drizzle-morphology-repository.js';
 import { DrizzleExport } from './export/drizzle-export.js';
 import { DrizzleEntitlements } from './entitlements/drizzle-entitlements.js';
+import { DrizzleGoldenSet } from './golden/drizzle-golden.js';
 
 // Composition root: the only place that touches process state (ADR 0024).
 // The instance is a required input — there is no default product (ADR 0029).
@@ -57,6 +58,7 @@ const app = buildApp({
   morphology: new DrizzleMorphologyRepository(db),
   openData: new DrizzleExport(db),
   entitlements: new DrizzleEntitlements(db),
+  golden: new DrizzleGoldenSet(db),
 });
 
 try {
