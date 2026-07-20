@@ -77,6 +77,10 @@ const statsSchema = z.object({
   translations: z.number(),
   reviews: z.number(),
   learners: z.number(),
+  /** Golden-set quality, 0-100, null until the first audit lands (ADR 0051);
+   * the audited-item count keeps the figure honest about its sample. */
+  qualityScore: z.number().nullable(),
+  qualityAuditedItems: z.number(),
 });
 
 export type Stats = z.infer<typeof statsSchema>;
@@ -759,6 +763,89 @@ export async function fetchPendingAudio(
     return pendingAudioSchema.parse(payload).pending;
   } catch {
     return null;
+  }
+}
+
+const goldenAuditSchema = z.object({
+  accuracy: z.number(),
+  naturalness: z.number(),
+  fit: z.number(),
+  comment: z.string().nullable(),
+  auditedAt: z.string(),
+});
+
+const goldenQueueSchema = z.object({
+  queue: z.array(
+    z.object({
+      item: learnItemSchema,
+      priorAudit: goldenAuditSchema.nullable(),
+    }),
+  ),
+});
+
+export type GoldenEntry = z.infer<typeof goldenQueueSchema>['queue'][number];
+
+/**
+ * Reviewer-only: golden-set items in this direction awaiting the caller's
+ * audit, each with any prior audit as context (ADR 0051). Null when not
+ * allowed or unreachable.
+ */
+export async function fetchGoldenQueue(
+  direction: string,
+  limit = 50,
+): Promise<GoldenEntry[] | null> {
+  try {
+    const response = await fetch(
+      new URL(
+        `/admin/golden?direction=${encodeURIComponent(direction)}&limit=${String(limit)}`,
+        apiBaseUrl,
+      ),
+      { credentials: 'include' },
+    );
+    if (!response.ok) {
+      return null;
+    }
+    const payload: unknown = await response.json();
+    return goldenQueueSchema.parse(payload).queue;
+  } catch {
+    return null;
+  }
+}
+
+/** One reviewer's 1-5 scores over a golden-set item (ADR 0051). */
+export interface GoldenScores {
+  accuracy: number;
+  naturalness: number;
+  fit: number;
+  comment?: string;
+}
+
+/** Reviewer-only: records (or replaces) the caller's audit; true when it
+ * landed. */
+export async function submitGoldenAudit(
+  itemId: string,
+  scores: GoldenScores,
+): Promise<boolean> {
+  try {
+    const response = await fetch(
+      new URL(`/admin/golden/${itemId}/audit`, apiBaseUrl),
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          accuracy: scores.accuracy,
+          naturalness: scores.naturalness,
+          fit: scores.fit,
+          ...(scores.comment === undefined || scores.comment.trim() === ''
+            ? {}
+            : { comment: scores.comment }),
+        }),
+      },
+    );
+    return response.ok;
+  } catch {
+    return false;
   }
 }
 

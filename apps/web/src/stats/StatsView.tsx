@@ -59,6 +59,18 @@ export function StatsView({ onExit }: StatsViewProps) {
             </div>
           </dl>
         )}
+        {/* The reviewer-audited golden-set score (ADR 0051), shown only once
+            it exists and always honest about how many items back it. */}
+        {stats !== null &&
+          stats !== 'loading' &&
+          stats.qualityScore !== null && (
+            <p className="stats-quality">
+              {t('qualityScore', {
+                score: stats.qualityScore,
+                count: stats.qualityAuditedItems,
+              })}
+            </p>
+          )}
       </div>
     </div>
   );

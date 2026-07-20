@@ -32,7 +32,12 @@ describe('AccountView', () => {
     client.pushReviews.mockResolvedValue({ received: 3, stored: 3 });
     const user = userEvent.setup();
     render(
-      <AccountView onExit={vi.fn()} onReview={vi.fn()} onUsers={vi.fn()} />,
+      <AccountView
+        onExit={vi.fn()}
+        onReview={vi.fn()}
+        onGoldenAudit={vi.fn()}
+        onUsers={vi.fn()}
+      />,
     );
     await user.type(await screen.findByLabelText('Display name'), 'Ovca');
     await user.type(screen.getByLabelText('Email'), 'ovca@example.com');
@@ -48,7 +53,12 @@ describe('AccountView', () => {
     client.signUp.mockResolvedValue(true);
     const user = userEvent.setup();
     render(
-      <AccountView onExit={vi.fn()} onReview={vi.fn()} onUsers={vi.fn()} />,
+      <AccountView
+        onExit={vi.fn()}
+        onReview={vi.fn()}
+        onGoldenAudit={vi.fn()}
+        onUsers={vi.fn()}
+      />,
     );
     await user.type(await screen.findByLabelText('Email'), 'o@example.com');
     await user.type(screen.getByLabelText('Password'), 'vlna-i-konji');
@@ -61,7 +71,12 @@ describe('AccountView', () => {
     client.signIn.mockResolvedValue(false);
     const user = userEvent.setup();
     render(
-      <AccountView onExit={vi.fn()} onReview={vi.fn()} onUsers={vi.fn()} />,
+      <AccountView
+        onExit={vi.fn()}
+        onReview={vi.fn()}
+        onGoldenAudit={vi.fn()}
+        onUsers={vi.fn()}
+      />,
     );
     await user.click(await screen.findByRole('button', { name: /Sign in$/ }));
     await user.type(screen.getByLabelText('Email'), 'ovca@example.com');
@@ -77,7 +92,12 @@ describe('AccountView', () => {
     client.signOut.mockResolvedValue(true);
     const user = userEvent.setup();
     render(
-      <AccountView onExit={vi.fn()} onReview={vi.fn()} onUsers={vi.fn()} />,
+      <AccountView
+        onExit={vi.fn()}
+        onReview={vi.fn()}
+        onGoldenAudit={vi.fn()}
+        onUsers={vi.fn()}
+      />,
     );
     expect(await screen.findByText('ovca@example.com')).toBeDefined();
     await user.click(screen.getByRole('button', { name: 'Sign out' }));
@@ -101,7 +121,12 @@ describe('data rights', () => {
     );
     const user = userEvent.setup();
     render(
-      <AccountView onExit={vi.fn()} onReview={vi.fn()} onUsers={vi.fn()} />,
+      <AccountView
+        onExit={vi.fn()}
+        onReview={vi.fn()}
+        onGoldenAudit={vi.fn()}
+        onUsers={vi.fn()}
+      />,
     );
     await user.click(
       await screen.findByRole('button', { name: 'Download my data' }),
@@ -117,7 +142,12 @@ describe('data rights', () => {
     client.deleteAccount.mockResolvedValue(true);
     const user = userEvent.setup();
     render(
-      <AccountView onExit={vi.fn()} onReview={vi.fn()} onUsers={vi.fn()} />,
+      <AccountView
+        onExit={vi.fn()}
+        onReview={vi.fn()}
+        onGoldenAudit={vi.fn()}
+        onUsers={vi.fn()}
+      />,
     );
     await user.click(
       await screen.findByRole('button', { name: 'Delete my account' }),
@@ -136,6 +166,7 @@ describe('data rights', () => {
 describe('AccountView admin entry', () => {
   it('shows the admin buttons and forwards the clicks', async () => {
     const onReview = vi.fn();
+    const onGoldenAudit = vi.fn();
     const onUsers = vi.fn();
     client.fetchMe.mockResolvedValue({
       user: { id: 'u1', email: 'ovca@example.com', role: 'admin' },
@@ -143,12 +174,19 @@ describe('AccountView admin entry', () => {
     client.pushReviews.mockResolvedValue(null);
     const user = userEvent.setup();
     render(
-      <AccountView onExit={vi.fn()} onReview={onReview} onUsers={onUsers} />,
+      <AccountView
+        onExit={vi.fn()}
+        onReview={onReview}
+        onGoldenAudit={onGoldenAudit}
+        onUsers={onUsers}
+      />,
     );
     await user.click(
       await screen.findByRole('button', { name: 'Review drafts' }),
     );
     expect(onReview).toHaveBeenCalledTimes(1);
+    await user.click(screen.getByRole('button', { name: 'Audit golden set' }));
+    expect(onGoldenAudit).toHaveBeenCalledTimes(1);
     await user.click(screen.getByRole('button', { name: 'Manage users' }));
     expect(onUsers).toHaveBeenCalledTimes(1);
   });
@@ -168,7 +206,12 @@ describe('AccountView pull-merge', () => {
       },
     ]);
     render(
-      <AccountView onExit={vi.fn()} onReview={vi.fn()} onUsers={vi.fn()} />,
+      <AccountView
+        onExit={vi.fn()}
+        onReview={vi.fn()}
+        onGoldenAudit={vi.fn()}
+        onUsers={vi.fn()}
+      />,
     );
     expect(
       await screen.findByText('1 reviews arrived from your other devices.'),
@@ -193,7 +236,12 @@ describe('AccountView reviewer entry', () => {
       user: { id: 'u1', email: 'ovca@example.com', role: 'reviewer' },
     });
     render(
-      <AccountView onExit={vi.fn()} onReview={vi.fn()} onUsers={vi.fn()} />,
+      <AccountView
+        onExit={vi.fn()}
+        onReview={vi.fn()}
+        onGoldenAudit={vi.fn()}
+        onUsers={vi.fn()}
+      />,
     );
     expect(
       await screen.findByRole('button', { name: 'Review drafts' }),
