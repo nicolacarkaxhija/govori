@@ -1,4 +1,4 @@
-import { and, asc, eq, isNull } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull } from 'drizzle-orm';
 import type { Db } from '../db/client.js';
 import {
   audioCredits,
@@ -11,6 +11,7 @@ import type {
   AudioCredit,
   MyAudio,
   NewRecording,
+  PendingRecording,
   RecordingRecord,
   RecordingStore,
   RecordingSummary,
@@ -175,6 +176,52 @@ export class DrizzleRecordingStore implements RecordingStore {
           ? null
           : { ...credit, grantedAt: credit.grantedAt.toISOString() },
     };
+  }
+
+  async listPending(
+    viewerId: string,
+    limit: number,
+  ): Promise<PendingRecording[]> {
+    const pending = await this.db
+      .select({
+        id: recordings.id,
+        itemId: recordings.itemId,
+        mime: recordings.mime,
+      })
+      .from(recordings)
+      .where(
+        and(eq(recordings.status, 'pending'), isNull(recordings.deletedAt)),
+      )
+      .orderBy(asc(recordings.createdAt), asc(recordings.id))
+      .limit(limit);
+    if (pending.length === 0) {
+      return [];
+    }
+    const ballots = await this.db
+      .select({
+        recordingId: recordingVotes.recordingId,
+        voterId: recordingVotes.voterId,
+        up: recordingVotes.up,
+      })
+      .from(recordingVotes)
+      .where(
+        inArray(
+          recordingVotes.recordingId,
+          pending.map((row) => row.id),
+        ),
+      );
+    return pending.map((row) => {
+      const own = ballots.filter((ballot) => ballot.recordingId === row.id);
+      const mine = own.find((ballot) => ballot.voterId === viewerId);
+      return {
+        id: row.id,
+        itemId: row.itemId,
+        mime: row.mime,
+        upvotes: own.filter((ballot) => ballot.up).length,
+        downvotes: own.filter((ballot) => !ballot.up).length,
+        myVote: mine === undefined ? null : mine.up,
+      };
+    });
   }
 
   /**

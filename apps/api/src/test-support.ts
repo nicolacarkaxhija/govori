@@ -87,6 +87,7 @@ export function makeTestDeps(
       castVote: () => Promise.resolve({ upvotes: 0, downvotes: 0 }),
       verify: () => Promise.resolve(undefined),
       mine: () => Promise.resolve({ recordings: [], credit: null }),
+      listPending: () => Promise.resolve([]),
     },
     morphology: {
       formsFor: () => Promise.resolve([]),

@@ -149,6 +149,24 @@ function memoryStore() {
           })),
         credit: credits.get(userId) ?? null,
       }),
+    listPending: (viewerId, limit) =>
+      Promise.resolve(
+        stored
+          .filter((r) => r.status === 'pending' && r.deletedAt === null)
+          .slice(0, limit)
+          .map((r) => {
+            const t = tally(r.id);
+            const mine = votes.get(r.id)?.get(viewerId);
+            return {
+              id: r.id,
+              itemId: r.itemId,
+              mime: r.mime,
+              upvotes: t.upvotes,
+              downvotes: t.downvotes,
+              myVote: mine ?? null,
+            };
+          }),
+      ),
   };
   return { store, stored, credits };
 }
@@ -169,7 +187,7 @@ function testApp(options: { session?: string | null; audioOn?: boolean } = {}) {
     items: {
       findById: (id) =>
         Promise.resolve(id === itemId ? { item, direction: 'isv' } : undefined),
-      findByIds: () => Promise.resolve([]),
+      findByIds: (ids) => Promise.resolve(ids.includes(itemId) ? [item] : []),
       list: () => Promise.resolve([]),
       findSentencesContaining: () => Promise.resolve([]),
     },
@@ -437,6 +455,104 @@ describe('audio routes', () => {
       payload: { up: true },
     });
     expect(response.statusCode).toBe(404);
+    await app.close();
+  });
+});
+
+describe('GET /audio/pending', () => {
+  it('requires a session', async () => {
+    const { app } = testApp({ session: null, audioOn: true });
+    const response = await app.inject({ method: 'GET', url: '/audio/pending' });
+    expect(response.statusCode).toBe(401);
+    await app.close();
+  });
+
+  it('stays dark while the audio flag is off', async () => {
+    const { app } = testApp();
+    const response = await app.inject({ method: 'GET', url: '/audio/pending' });
+    expect(response.statusCode).toBe(404);
+    await app.close();
+  });
+
+  it('lists pending clips with the item, tallies, and the caller vote', async () => {
+    const { app, stored } = testApp({ audioOn: true });
+    const upload = await app.inject({
+      method: 'POST',
+      url: `/items/${itemId}/audio`,
+      payload: {
+        mime: 'audio/webm',
+        data: Buffer.from('clip').toString('base64'),
+        device: { mime: 'audio/webm', durationMs: 4000 },
+        consent: { version: '1', app: true, dataset: false, training: false },
+      },
+    });
+    expect(upload.statusCode).toBe(201);
+    const recordingId = upload.json<{ id: string }>().id;
+
+    const first = await app.inject({ method: 'GET', url: '/audio/pending' });
+    expect(first.statusCode).toBe(200);
+    const body = first.json<{
+      pending: {
+        id: string;
+        mime: string;
+        item: { id: string };
+        upvotes: number;
+        downvotes: number;
+        myVote: boolean | null;
+      }[];
+    }>();
+    expect(body.pending).toHaveLength(1);
+    expect(body.pending[0]?.id).toBe(recordingId);
+    expect(body.pending[0]?.item.id).toBe(itemId);
+    expect(body.pending[0]?.upvotes).toBe(0);
+    expect(body.pending[0]?.myVote).toBeNull();
+
+    await app.inject({
+      method: 'POST',
+      url: `/audio/${recordingId}/vote`,
+      payload: { up: true },
+    });
+    const second = await app.inject({ method: 'GET', url: '/audio/pending' });
+    const afterVote = second.json<{
+      pending: { upvotes: number; myVote: boolean | null }[];
+    }>().pending;
+    expect(afterVote[0]?.upvotes).toBe(1);
+    expect(afterVote[0]?.myVote).toBe(true);
+    expect(stored).toHaveLength(1);
+    await app.close();
+  });
+
+  it('excludes already-decided clips from the pending list', async () => {
+    const { app } = testApp({ audioOn: true });
+    await app.inject({
+      method: 'POST',
+      url: `/items/${itemId}/audio`,
+      payload: {
+        mime: 'audio/webm',
+        data: Buffer.from('clip').toString('base64'),
+        device: { mime: 'audio/webm', durationMs: 4000 },
+        consent: { version: '1', app: true, dataset: false, training: false },
+      },
+    });
+    const before = await app.inject({ method: 'GET', url: '/audio/pending' });
+    const recordingId = before.json<{ pending: { id: string }[] }>().pending[0]
+      ?.id;
+    if (recordingId === undefined) {
+      throw new Error('expected a pending recording');
+    }
+    await app.inject({
+      method: 'POST',
+      url: `/audio/${recordingId}/vote`,
+      payload: { up: true },
+    });
+    await app.inject({
+      method: 'POST',
+      url: `/audio/${recordingId}/vote`,
+      payload: { up: true },
+    });
+    // Single-vote net (below the govori threshold of 3) stays pending.
+    const still = await app.inject({ method: 'GET', url: '/audio/pending' });
+    expect(still.json<{ pending: { id: string }[] }>().pending).toHaveLength(1);
     await app.close();
   });
 });

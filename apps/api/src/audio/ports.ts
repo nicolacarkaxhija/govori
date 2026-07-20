@@ -59,6 +59,16 @@ export interface VoteTally {
   downvotes: number;
 }
 
+export interface PendingRecording {
+  id: string;
+  itemId: string;
+  mime: string;
+  upvotes: number;
+  downvotes: number;
+  /** The requesting viewer's own ballot; null when they have not voted. */
+  myVote: boolean | null;
+}
+
 /** The casual-tier premium-time ledger for one contributor (ADR 0048). */
 export interface AudioCredit {
   secondsValidated: number;
@@ -105,4 +115,9 @@ export interface RecordingStore {
   verify(recordingId: string): Promise<AudioCredit | undefined>;
   /** A contributor's own clips, consents, and credit ledger (ADR 0048). */
   mine(userId: string): Promise<MyAudio>;
+  /**
+   * Clips awaiting community validation, with tallies and the viewer's own
+   * ballot (ADR 0040/0048) — mirrors the review queue's /pending shape.
+   */
+  listPending(viewerId: string, limit: number): Promise<PendingRecording[]>;
 }

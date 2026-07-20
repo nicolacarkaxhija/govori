@@ -884,6 +884,74 @@ export function buildApp({
     );
 
     routes.get(
+      '/audio/pending',
+      {
+        schema: {
+          querystring: z.object({
+            limit: z.coerce.number().int().min(1).max(100).default(50),
+          }),
+          response: {
+            200: z.object({
+              pending: z.array(
+                z.object({
+                  id: z.uuid(),
+                  mime: z.string(),
+                  item: ItemSchema,
+                  upvotes: z.number(),
+                  downvotes: z.number(),
+                  myVote: z.boolean().nullable(),
+                }),
+              ),
+            }),
+            401: z.object({ message: z.string() }),
+            404: NotFoundSchema,
+          },
+        },
+      },
+      async (request, reply) => {
+        const flags = await effectiveFlags('anonymous');
+        if (flags.audio !== true) {
+          return reply.status(404).send({ message: 'not found' });
+        }
+        const sessionResult = await auth.api.getSession({
+          headers: toWebRequest(config, {
+            method: 'GET',
+            url: request.url,
+            headers: request.headers,
+          }).headers,
+        });
+        if (sessionResult === null) {
+          return reply.status(401).send({ message: 'not signed in' });
+        }
+        const pendingClips = await recordings.listPending(
+          sessionResult.user.id,
+          request.query.limit,
+        );
+        const found = await items.findByIds(
+          pendingClips.map((clip) => clip.itemId),
+        );
+        const byId = new Map(found.map((entry) => [entry.id, entry]));
+        return {
+          pending: pendingClips.flatMap((clip) => {
+            const item = byId.get(clip.itemId);
+            return item === undefined
+              ? []
+              : [
+                  {
+                    id: clip.id,
+                    mime: clip.mime,
+                    item,
+                    upvotes: clip.upvotes,
+                    downvotes: clip.downvotes,
+                    myVote: clip.myVote,
+                  },
+                ];
+          }),
+        };
+      },
+    );
+
+    routes.get(
       '/admin/review',
       {
         schema: {
