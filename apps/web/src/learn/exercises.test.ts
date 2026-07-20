@@ -12,6 +12,7 @@ import {
   checkTyped,
   excludeBronzeDistractors,
   planNextMode,
+  prioritizeAttested,
   scrambleOrder,
   translationFor,
 } from './exercises';
@@ -347,6 +348,55 @@ describe('data-quality gating (ADR 0051)', () => {
       expect(pairs).toHaveLength(1);
       expect(pairs[0]?.itemId).toBe(gold.id);
     });
+  });
+});
+
+describe('prioritizeAttested', () => {
+  const gold: LearnItem = {
+    id: 'aaaaaaaa-0000-4000-8000-0000000000b1',
+    kind: 'word',
+    text: 'voda',
+    translations: [{ lang: 'en', text: 'water' }],
+    attestation: 'gold',
+  };
+  const silver: LearnItem = {
+    id: 'aaaaaaaa-0000-4000-8000-0000000000b2',
+    kind: 'word',
+    text: 'hlěb',
+    translations: [{ lang: 'en', text: 'bread' }],
+    attestation: 'silver',
+  };
+  const bronze: LearnItem = {
+    id: 'aaaaaaaa-0000-4000-8000-0000000000b3',
+    kind: 'word',
+    text: 'mlěko',
+    translations: [{ lang: 'en', text: 'milk' }],
+    attestation: 'bronze',
+  };
+  const untiered: LearnItem = {
+    id: 'aaaaaaaa-0000-4000-8000-0000000000b4',
+    kind: 'word',
+    text: 'sųd',
+    translations: [{ lang: 'en', text: 'court' }],
+  };
+
+  it('sinks bronze items to the back, others keep their order', () => {
+    expect(
+      prioritizeAttested([bronze, gold, untiered, silver]).map(
+        (item) => item.id,
+      ),
+    ).toEqual([gold.id, untiered.id, silver.id, bronze.id]);
+  });
+
+  it('does not exclude bronze — a bronze-only lesson still works', () => {
+    const sorted = prioritizeAttested([bronze]);
+    expect(sorted).toHaveLength(1);
+    expect(sorted[0]?.id).toBe(bronze.id);
+  });
+
+  it('leaves an all-untiered pool untouched (undefined is neutral)', () => {
+    const pool = [untiered, gold];
+    expect(prioritizeAttested(pool)).toEqual(pool);
   });
 });
 

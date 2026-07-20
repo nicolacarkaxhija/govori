@@ -10,6 +10,7 @@ import { fallbackLang, activeDirection } from '../instance';
 import { useT } from '../i18n';
 import { DialogueCard } from './DialogueCard';
 import { DialogueReorderCard } from './DialogueReorderCard';
+import { prioritizeAttested } from './exercises';
 import { Session } from './Session';
 import { hasSeenDialogue, markDialogueSeen } from './dialogueSeen';
 import { recordReview } from './progress';
@@ -59,7 +60,10 @@ export function LessonView({
       } else {
         setState({
           name: 'ready',
-          pool: lesson.items,
+          // Bronze-tier words sink to the back so an early learner meets
+          // high-confidence vocabulary first (ADR 0051); due-ness is still
+          // decided by the SRS, this only orders the unseen tail.
+          pool: prioritizeAttested(lesson.items),
           sentences: lessonSentences,
           audioOn: flags.audio === true,
         });

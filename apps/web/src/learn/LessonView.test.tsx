@@ -92,6 +92,47 @@ describe('LessonView', () => {
   });
 });
 
+describe('LessonView attestation ordering', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    fetchLessonMock.mockReset();
+    fetchSentencesMock.mockReset().mockResolvedValue([]);
+    fetchFlagsMock.mockReset().mockResolvedValue({});
+    fetchRecordingsMock.mockReset().mockResolvedValue([]);
+  });
+
+  it('meets the high-confidence word before the bronze one (ADR 0051)', async () => {
+    fetchLessonMock.mockResolvedValue({
+      title: 'Lekcija 1',
+      items: [
+        {
+          id: 'bbbbbbbb-0000-4000-8000-000000000051',
+          kind: 'word',
+          text: 'mlěko',
+          translations: [{ lang: 'en', text: 'milk' }],
+          attestation: 'bronze',
+        },
+        {
+          id: 'bbbbbbbb-0000-4000-8000-000000000052',
+          kind: 'word',
+          text: 'voda',
+          translations: [{ lang: 'en', text: 'water' }],
+          attestation: 'gold',
+        },
+      ],
+    });
+    render(
+      <LessonView
+        lessonId="9c8d7e6f-5a4b-4c3d-8e2f-1a0b9c8d7e6f"
+        script="latin"
+        onExit={vi.fn()}
+      />,
+    );
+    // The unseen tail is offered gold-first though bronze led the payload.
+    expect(await screen.findByRole('heading', { name: 'voda' })).toBeDefined();
+  });
+});
+
 describe('LessonView cloze rotation', () => {
   it('offers a cloze after typed when a sentence matches the pool', async () => {
     const user = userEvent.setup();

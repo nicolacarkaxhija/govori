@@ -46,6 +46,22 @@ export function excludeBronzeDistractors(
   );
 }
 
+/**
+ * Orders a lesson's pool so bronze-tier items fall to the back (ADR 0051):
+ * an early learner meets high-confidence vocabulary first. A stable partition
+ * — gold, silver, and as-yet-unattested (undefined) items keep their order up
+ * front; bronze items keep their order at the back. This is a preference, not
+ * an exclusion: a lesson of only bronze words still runs. It tie-breaks the
+ * offer order of items alone; SRS due-ness is decided elsewhere.
+ */
+export function prioritizeAttested(items: readonly LearnItem[]): LearnItem[] {
+  return [...items].sort(
+    (a, b) =>
+      (a.attestation === 'bronze' ? 1 : 0) -
+      (b.attestation === 'bronze' ? 1 : 0),
+  );
+}
+
 /** Unique distractors around the correct answer, shuffled deterministically. */
 function pickOptions(
   correct: string,
